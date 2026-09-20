@@ -1,0 +1,198 @@
+{
+  "version": 1,
+  "synthetic": true,
+  "cases": [
+    {
+      "case_id": "q01",
+      "scenario": "historical_decision",
+      "query": "之前为什么不用 Docker？",
+      "expected_memory_ids": [
+        "mem_9812db1c5cc14a158d305811397b6dcb"
+      ]
+    },
+    {
+      "case_id": "q02",
+      "scenario": "historical_decision",
+      "query": "当初拒绝向量数据库的原因是什么？",
+      "expected_memory_ids": [
+        "mem_30c3e25040ff42b6b4da5b2cc9453c12"
+      ]
+    },
+    {
+      "case_id": "q03",
+      "scenario": "historical_decision",
+      "query": "操作日志为什么使用 JSONL？",
+      "expected_memory_ids": [
+        "mem_897cf876f8c14c349cbfcb2321519f7e"
+      ]
+    },
+    {
+      "case_id": "q04",
+      "scenario": "historical_decision",
+      "query": "相册为什么放弃云端整理？",
+      "expected_memory_ids": [
+        "mem_139e4f03af6a4fb2aff4f113bed3afcd"
+      ]
+    },
+    {
+      "case_id": "q05",
+      "scenario": "superseded",
+      "query": "现在后端使用什么框架？",
+      "expected_memory_ids": [
+        "mem_32dbf7d40fd54e1498157c2bee02fd72"
+      ]
+    },
+    {
+      "case_id": "q06",
+      "scenario": "superseded",
+      "query": "现在部署用的 Python 版本是什么？",
+      "expected_memory_ids": [
+        "mem_32839cf120a34f7fbfc4a13b8fb213ea"
+      ]
+    },
+    {
+      "case_id": "q07",
+      "scenario": "superseded",
+      "query": "当前备份任务多久跑一次？",
+      "expected_memory_ids": [
+        "mem_25020416490f4615ab767142dfff4a74"
+      ]
+    },
+    {
+      "case_id": "q08",
+      "scenario": "superseded",
+      "query": "现在 API 令牌存在哪里？",
+      "expected_memory_ids": [
+        "mem_f7d4115917c747c5a85c144aa5506aa2"
+      ]
+    },
+    {
+      "case_id": "q09",
+      "scenario": "conflicting",
+      "query": "缓存 TTL 最终定了多少？",
+      "expected_memory_ids": [
+        "mem_9b80582ac5b14ce2ace09e93ae85ee7b"
+      ]
+    },
+    {
+      "case_id": "q10",
+      "scenario": "conflicting",
+      "query": "文件名大小写已经统一了吗？",
+      "expected_memory_ids": [
+        "mem_01e7c1b45da64acf9f19bf721342ee65"
+      ]
+    },
+    {
+      "case_id": "q11",
+      "scenario": "conflicting",
+      "query": "归档保留多久有定论吗？",
+      "expected_memory_ids": [
+        "mem_da8b1cd55d6048eba73a4a1e3415b287"
+      ]
+    },
+    {
+      "case_id": "q12",
+      "scenario": "conflicting",
+      "query": "删除操作需要二次确认吗？",
+      "expected_memory_ids": [
+        "mem_45908849f07f47deb99aeb7d632f9b5e"
+      ]
+    },
+    {
+      "case_id": "q13",
+      "scenario": "cross_session",
+      "query": "早期讨论里改标题后文件应该改名吗？",
+      "expected_memory_ids": [
+        "mem_8b5e7516194c48ee855e46f9e6f5a5f7"
+      ]
+    },
+    {
+      "case_id": "q14",
+      "scenario": "cross_session",
+      "query": "很早以前规定持久化时间用什么时区？",
+      "expected_memory_ids": [
+        "mem_1f230fea62594644837ca161142c0071"
+      ]
+    },
+    {
+      "case_id": "q15",
+      "scenario": "cross_session",
+      "query": "之前导出消息为什么要带 session_id？",
+      "expected_memory_ids": [
+        "mem_e2ed86c458fe451a85aefd95e6288e47"
+      ]
+    },
+    {
+      "case_id": "q16",
+      "scenario": "cross_session",
+      "query": "最初项目选择了哪种许可证？",
+      "expected_memory_ids": [
+        "mem_74ad95e406ba4907903bcb74cfa30c70"
+      ]
+    },
+    {
+      "case_id": "q17",
+      "scenario": "compaction",
+      "query": "上下文压缩后从哪里恢复任务？",
+      "expected_memory_ids": [
+        "mem_a76fdf8a5ca04263b9af9606af154fb4"
+      ]
+    },
+    {
+      "case_id": "q18",
+      "scenario": "compaction",
+      "query": "接着做迁移，我下一步应该先检查什么？",
+      "expected_memory_ids": [
+        "mem_bfbed4e07c8047639dda2178e57fe32c"
+      ]
+    },
+    {
+      "case_id": "q19",
+      "scenario": "compaction",
+      "query": "继续检索验收，还有哪项没有测？",
+      "expected_memory_ids": [
+        "mem_b253f3a2c9df4716b23c96c00a2a96ec"
+      ]
+    },
+    {
+      "case_id": "q20",
+      "scenario": "compaction",
+      "query": "这轮完成后能直接提交代码吗？",
+      "expected_memory_ids": [
+        "mem_c81388b51ece41959fc6ffa9f8c9de48"
+      ]
+    },
+    {
+      "case_id": "q21",
+      "scenario": "noise",
+      "query": "那次权限错误真正原因是什么？",
+      "expected_memory_ids": [
+        "mem_c94c198bce364149b31e58a4fb93afc0"
+      ]
+    },
+    {
+      "case_id": "q22",
+      "scenario": "noise",
+      "query": "下载反复失败最后怎么解决的？",
+      "expected_memory_ids": [
+        "mem_9ed960c672fb49f283fa190ee7ef3945"
+      ]
+    },
+    {
+      "case_id": "q23",
+      "scenario": "noise",
+      "query": "工具输出的临时路径可以拿来长期引用吗？",
+      "expected_memory_ids": [
+        "mem_0da886fc25944f299470a96593371bca"
+      ]
+    },
+    {
+      "case_id": "q24",
+      "scenario": "noise",
+      "query": "之前恢复误删时学到了什么？",
+      "expected_memory_ids": [
+        "mem_8c0e608efe65495f986be37197e68b96"
+      ]
+    }
+  ]
+}

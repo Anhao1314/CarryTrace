@@ -1,156 +1,181 @@
 # chat-distiller
 
-![tests](https://github.com/Anhao1314/chat-distiller/actions/workflows/tests.yml/badge.svg)
+**Structured Agent Memory & Context Recovery for long-running AI agents.**
 
-把豆包 Work 本地的历史会话缓存，**蒸馏**成结构化、可生长的 Obsidian 知识库：会话笔记 +
-原子知识卡片 + 检索索引 + 操作日志，并可随时体检。
+当上下文被 compaction、会话切换或长期任务打断，历史决策的理由、当前状态和来源
+可能不再可见。本项目把对话蒸馏为可检查的外部记忆，再通过轻量检索帮助恢复工作上下文。
+它提供恢复入口，不保证找回所有信息，也不自动判断记忆是否真实或仍然有效。
 
-> 确定性的事交给脚本，需要判断的事（取舍 / 浓缩 / 归类 / 双链）交给 agent。
-
-## 为什么是「对话」而不是「文档」
-
-Karpathy 的 [LLM Wiki](https://gist.github.com/karpathy/442a6bf555914893e9891c11519de94f)
-描述的是一种比 RAG 更划算的知识组织方式：知识在**摄入时**编译一次、之后持续维护，
-而不是每次提问都从原始文档里重新推导一遍。
-
-但它默认你要**自己去策展素材**——文章、论文、PDF、网页剪辑。
-
-对话是个例外：**它每天都在自动产生，不需要你收集。**
-
-chat-distiller 就是把这套方法论用在你和 agent 的对话上：对话产生知识，蒸馏抓住它，
-再交给检索消费。你不需要额外做任何素材整理。
-
-它和 RAG 的区别也正在这里——**知识是编译出来的，不是每次查询临时拼的**。这对
-「agent 工作时回想历史决策」这种场景尤其重要：长对话被反复压缩后必然失真，
-而一份外置、可检索、带状态的知识库能让压缩变得无害。
-
-## 流水线
-
-| 阶段 | 执行者 | 输入 → 输出 |
-| --- | --- | --- |
-| A 提取清洗（确定性） | `scripts/extract_sessions.py` | `.sessions/` → 干净转录 + 会话清单 |
-| B 语义浓缩（判断） | agent（规则见 `references/`） | 转录 → `distill.json` |
-| C 渲染落库（确定性） | `scripts/render_notes.py` | `distill.json` → 笔记 + 索引 + 日志 + 校验报告 |
-| D 体检（确定性 + 判断） | `scripts/lint_notes.py` + agent | 结构一致性、证据核验、矛盾与过期 |
-
-## 产物结构
-
+```text
+Conversation → deterministic extraction → agent semantic distillation
+→ stable structured memory → deterministic validation
+→ status-aware lexical retrieval → context recovery
 ```
+
+**Judgment belongs to the Agent; structure and integrity belong to deterministic code.**
+
+- **Stable identity**：持久化 UUID 身份与 S/C 展示编号分离；重排、编辑、增量摄入不改变已有身份。
+- **Lifecycle**：现行 / 已过期 / 有争议；稳定 ID 解析来源、关联与替代关系。
+- **Recovery hook**：PreCompact 留 pending 标记；压缩后提示按问题检索，不灌入整库内容。
+- **Portable**：Doubao Work 与 Generic JSONL 两种输入；确定性工具仅用 Python 标准库；语义蒸馏由宿主 Agent 完成，无需单独接入模型服务。
+- **101 个测试**：既有 28 个回归用例保留，新增身份、迁移、检索、adapter、benchmark 与 hook 验证。
+
+## Development evidence — synthetic, offline
+
+固定 **40 个合成会话 / 40 张卡片 / 24 个 query**，不是生产准确率或真实用户效果。
+人工编写蒸馏卡片；未评估自动蒸馏质量或 Agent 最终回答。
+
+| Method | Recall@1 | Recall@3 | Recall@5 | MRR@5 | stale-hit@5 |
+| --- | --- | --- | --- | --- | --- |
+| Raw transcript lexical baseline | 0.4167 | 0.8750 | 0.9583 | 0.6528 | 0.5417 |
+| Structured memory | 0.5417 | 0.9583 | 1.0000 | 0.7604 | 0.5000 |
+| Structured + status-aware | 0.7083 | 0.8750 | 0.9167 | 0.7931 | 0.0000 |
+
+**失败也保留**：现行优先会压低相关争议卡片，status-aware 的 Recall@5 低于纯结构化检索。
+完整的 stale/controversial-hit@1/3/5、逐题结果与字符数见
+[实际运行结果](benchmarks/benchmark-results.md) / [JSON](benchmarks/benchmark-results.json)。
+MRR 截断到前 5；hit 指包含至少一个该状态结果的 query 占比。争议命中不一定是错误。
+这些是 synthetic development evidence，不是 production accuracy。
+
+报告新增 current-state、historical/superseded、conflict/controversial、cross-session、
+compaction-recovery 五类 query intent 汇总，原 aggregate 保留。当前状态题与历史回溯分开解释：
+历史检索可启用 non-current，旧卡片出现不自动算污染；争议题区分目标争议召回与任意争议暴露。
+固定 fixture 没有以已过期卡片为 expected answer 的题，**expired-target recall 尚未测量**。
+
+## Architecture
+
+```mermaid
+flowchart TD
+    A[Sessions: Doubao Work / Generic JSONL] --> B[Source adapter + deterministic extraction]
+    B --> C[Agent judgment: semantic distillation]
+    C --> D[Explicit identity registration: stable memory]
+    D --> E[Deterministic render + T1 validation]
+    E --> F[Memory index + status-aware lexical lookup]
+    F --> G[Agent judgment: inspect evidence and resume]
+    H[Compaction hook: reminder / route] --> F
+    E --> I[T2 literal evidence suspicion]
+    I --> J[T3 agent judgment: truth / conflict / expiry]
+```
+
+## Quick start
+
+Python 3.9+。Deterministic tooling: Python standard library only。
+Semantic distillation: performed by the host Agent；no separate model-service dependency。
+Obsidian 是可选阅读器；宿主 Agent 仍负责语义判断。
+
+```bash
+# 1. 两种来源任选其一
+python3 scripts/extract_sessions.py --sessions-root /path/to/.sessions --out _kb_staging
+python3 scripts/extract_sessions.py --source generic_jsonl --input messages.jsonl --out _kb_staging
+
+# 2. Agent 读转录，按 references/distillation-schema.md 写 distill.json
+# 3. 新 source：initialize identity（首次分配，无需先有旧库）
+python3 scripts/migrate_memory.py --mode init --distill distill.json --dry-run
+python3 scripts/migrate_memory.py --mode init --distill distill.json --out memory-v2.json --report identity-report.json
+
+# 4. 渲染与校验（vault 目录须已存在）
+python3 scripts/render_notes.py --distill memory-v2.json --vault /path/to/vault --dry-run
+python3 scripts/render_notes.py --distill memory-v2.json --vault /path/to/vault
+python3 scripts/lint_notes.py --vault /path/to/vault --transcripts _kb_staging/transcripts
+
+# 5. 恢复当前任务需要的历史知识
+python3 scripts/query_memory.py --vault /path/to/vault --query '之前为什么不用 Docker？' --top-k 5
+```
+
+**已有 vault 请先走[显式迁移流程](references/stable-memory.md)**，不要直接拿新身份覆盖旧库。
+
+## Memory identity and compatibility
+
+`memory_id: mem_<32 位 UUID4 hex>` 是机器身份；`display_id: C14` 是展示编号。
+唯一身份权威是完整 v2 源文档中的 `identity_registry`；对象身份字段是须核对的引用。
+vault 源快照是已发布版本，独立登记表与笔记是派生副本；副本漂移时拒绝渲染和检索，不自动覆盖。
+登记表保留退役身份、展示编号与固定文件名，不复用。标题可以编辑，文件路径保持原样。
+
+同一个脚本用 `--mode init` 初始化新源身份，`--mode upgrade --vault ...` 升级旧库，
+`--mode register` 登记 v2 增量。省略 mode 保持原 CLI 兼容。`--dry-run` 不写文件，
+输出完整映射报告；预览分配的 UUID 只是临时值，持久化后的源才是身份依据。
+已有 vault 迁移用 `--vault` 验证最后一份旧源与实际文件一致，冲突停止，不按标题猜测。
+
+旧格式仍可在旧库渲染；旧版的顺序编号风险仍存在，报告明确标为 legacy。
+升级后的库拒绝旧源覆盖。首次迁移保留文件名、词表、状态与旧日志，添加身份元数据，
+只记一次 `identity-migration`；以后原样重跑不追加日志。**No silent breaking migration.**
+
+内部 `related` 用稳定 memory ID；外部 `external_related` 用普通 Markdown 名称或 vault 相对路径。
+外部笔记无需 memory ID，不会被工具改写；缺失或重名时明确报告。
+
+## Lookup behavior
+
+检索是 **deterministic lexical / structured retrieval**：英文词项 + 中文字符二元组，
+对 title/body/tags/categories/kind 加权匹配。没有 embedding 或 semantic retrieval。
+默认排除已过期卡片；现行匹配排在争议匹配之前，争议结果显式带状态与 `disputed: true`。
+`--include-noncurrent` 用于历史分析，会按词面分数返回所有状态，可能把旧结论排在前面。
+
+结果含稳定 ID、展示编号、标题、类型、状态、分类、来源会话、路径、分数与短摘录。
+会话摘要不会绕过卡片状态过滤。空/未知 query 返回空列表；索引不一致时失败并提示重渲染。
+分数不是可信度；候选仍需 Agent 阅读来源后判断。详见[检索契约](references/retrieval.md)。
+
+## Files in a vault
+
+```text
 <vault>/对话沉淀/
-├── 00 · 对话沉淀 MOC.md      # 给人的总导航
-├── 知识索引.md / .jsonl      # 给 agent 与程序化检索的紧凑索引
-├── 操作日志.md               # append-only，记录每次摄入与变化
-├── 沉淀索引.base             # Obsidian Bases 视图
-├── .chat-distiller/          # 本库自带：taxonomy.md 词表、distill.json 渲染源、pending/ 待蒸馏
-├── 会话笔记/Snn - 标题.md     # Snn 稳定短 ID（日期在 frontmatter）
-└── 知识卡片/Cnn - 标题.md     # 五类卡片，带状态字段
+├── 会话笔记/Snn - 初始标题.md
+├── 知识卡片/Cnn - 初始标题.md
+├── 00 · 对话沉淀 MOC.md
+├── 知识索引.md / 知识索引.jsonl
+├── 操作日志.md / 沉淀索引.base
+└── .chat-distiller/
+    ├── distill.json                 # v2 canonical source snapshot
+    ├── identity-registry.json       # active + retired identity reservations
+    ├── taxonomy.md                  # vault-owned controlled vocabulary
+    └── pending/                     # sessions awaiting agent distillation
 ```
 
-## 特性
+渲染不删除旧笔记；源中移除的记忆被登记为退役，文件留作 orphan 待人工处理。
+旧知识通常只改 status，不移除。迁移、登记与状态管理详见[稳定记忆契约](references/stable-memory.md)。
 
-- **零第三方依赖**：四个脚本只用 Python 标准库；同一输入幂等产出同一结果。
-- **自带回归测试**：`python3 -m unittest discover -s tests`，28 个用例覆盖提取回退、
-  YAML 转义、死链校验、索引与日志、状态标记、证据核验、压缩触发边界。
-- **压缩时自动接回**：agent 的上下文被压缩后，`SessionStart` hook 会把「先查索引」的提醒
-  注入模型上下文；压缩前记下一条待蒸馏标记。Codex 与 Claude Code 同一套配置。
-- **知识库自描述**：分类词表、源数据、索引、日志都住在 vault 里，跟数据走而不是跟工具走；
-  换机器、换工具版本都不会分裂。
-- **两套正交分类**：`kind`（方法 / 事实 / 决策 / 教训 / 资源）× `categories`
-  （受控两级领域，可多属），后者由渲染脚本校验。
-- **杂糅会话分段**：一个会话跨多个领域时，在一篇笔记内按 `threads` 分主题段，而不是拆成多篇。
-- **知识会过期，但不删**：卡片带 `status`（现行 / 已过期 / 有争议）与 `superseded_by`，
-  旧结论保留「当时为什么这么想」，同时不污染现行视图。
-- **只增不删**：渲染只覆盖/新增它自己生成的文件；旧笔记列为孤儿待人工确认，绝不自动删除。
-- **只读原始缓存**：阶段 A 绝不修改 `.sessions`。
+## Context recovery
 
-## 安装
+`PreCompact` 写入 pending 标记，只记录会话 ID、次数、时间和来源指针，不自动浓缩。
+`SessionStart(source=compact)` 在索引存在时提醒 Agent 使用 `query_memory.py` 按当前问题查找。
+工具或机器索引缺失时回退到 Markdown 索引；索引不存在则静默。异常不影响用户会话。
+Hook 只 remind / route，不读整库、不自动查询、不自动注入历史正文。
 
-它是一个 **Agent Skill**：一份 `SKILL.md` + 三份零依赖脚本。装进你的 agent 能读到的 skills 目录即可：
+[Hook 配置示例](assets/hooks.example.json) 保留原来的事件接口。需要运行环境实际支持并启用
+这些事件；离线测试验证脚本事件输入，不等于验证所有 Codex / Claude Code 版本集成。
+若作为 Skill 使用，将仓库装进 Agent 的 skills 目录并阅读 [SKILL.md](SKILL.md)。
+长期任务也可在项目指令中写明：涉及历史决策先按问题运行 memory lookup，再核实少量来源。
+
+## Validation tiers
+
+| Tier | Execution | Meaning |
+| --- | --- | --- |
+| T1 | deterministic | 身份、登记表、来源/关系、展示编号冲突、索引一致性；错误须定位后修复 |
+| T2 | deterministic | 封闭候选集中的日期/数字/版本/路径找不到字面证据：suspect，不等于 false |
+| T3 | agent judgment | 真伪、矛盾、是否过期、近重复、粒度、重要性；不自动改写记忆 |
+
+taxonomy 属于 vault；模板只播种一次。render/lint 不会重置已有词表。
+
+## Reproduce
 
 ```bash
-# Codex
-git clone https://github.com/Anhao1314/chat-distiller.git ~/.codex/skills/chat-distiller
-
-# Claude Code
-git clone https://github.com/Anhao1314/chat-distiller.git ~/.claude/skills/chat-distiller
+python3 -m unittest discover -s tests
+python3 benchmarks/evaluate.py
+# 结果：benchmarks/benchmark-results.json 和 benchmark-results.md
 ```
 
-装好后对 agent 说「把这些历史对话浓缩进我的知识库」即可触发。它不会擅自开跑——
-`.sessions` 位置、vault 路径、收哪些会话，都会先跟你确认。
+CI 运行标准库测试与离线 benchmark，不需要 API key、Obsidian 或网络模型。
+Fixture 与 evaluator 分离，包含 SHA-256 指纹，输出无运行时间戳、重复运行一致。
+Raw baseline 按会话检索，显式 provenance 映射到卡片；structured 对照同时改变表示和字段权重，
+因此不能把两者差距全归因于蒸馏。status-aware 对照使用相同结构化分数，仅改变状态策略。
 
-不想装成 skill 也行：三个脚本可以直接单独跑，见下。
+## Boundaries
 
-## 用法
-
-完整工作流见 `SKILL.md`。脚本也可独立运行：
-
-```bash
-# A. 提取干净转录
-python3 scripts/extract_sessions.py --out ./_kb_staging
-
-# B.（由 agent 依据 references/distillation-schema.md 与词表把转录浓缩为 distill.json）
-
-# C. 先预览再正式写入 vault
-python3 scripts/render_notes.py --distill ./distill.json --dry-run
-python3 scripts/render_notes.py --distill ./distill.json \
-  --vault "/path/to/your/vault" --subdir 对话沉淀
-
-# D. 体检：结构一致性 + 证据核验（配合 A 产出的转录）
-python3 scripts/lint_notes.py --vault "/path/to/your/vault" \
-  --transcripts ./_kb_staging/transcripts
-```
-
-`render_notes.py` 的 `--dry-run` 同样会给出完整的死链、孤儿与新分类报告——预览是真的预览。
-报告里 `created`/`updated` 只算知识内容，索引与日志这类派生文件单列在 `meta_changed`。
-
-### 让 agent 在看不清的时候想起它
-
-知识库有个尴尬之处：它最该被用到的时刻，恰恰是 agent 在做别的工作、压根没加载这个 skill 的时候。
-两层接法（细节见 `SKILL.md`）：
-
-- **常态**：往项目 `AGENTS.md` 加一句「涉及历史决策先读 `知识索引.md`」。
-- **压缩时**：AGENTS.md 表达不了「当……的时候」。上下文压缩是最该想起知识库的一刻——agent 刚
-  丢掉细节、最容易凭印象编。把 `assets/hooks.example.json` 填好路径放进 `~/.codex/hooks.json`
-  或 `~/.claude/settings.json`，`scripts/compact_hook.py` 就会在两个工具的同名事件上工作：
-  压缩后注入提醒（`SessionStart` / `compact`），压缩前记下待蒸馏标记（`PreCompact`）。
-
-## 分类词表
-
-词表住在**你的知识库**里（`<vault>/对话沉淀/.chat-distiller/taxonomy.md`），不在本仓库。
-首次渲染时会从 `references/taxonomy.template.md` 播种一份起始词表，之后按你的领域随意增删。
-渲染与体检会校验取值是否在词表内，并把未登记的分类列进报告。
-
-## 体检：三档不同的权威等级
-
-| 档位 | 谁执行 | 典型项 | 能否自动修 |
-| --- | --- | --- | --- |
-| T1 结构一致性 | `lint_notes.py` | 编号空洞、字段缺失、反链断裂、索引不一致 | 重跑渲染即可 |
-| T2 证据核验 | `lint_notes.py` | 卡片里的日期 / 数字 / 版本号 / 路径在转录中逐字找不到 | 否，需判断 |
-| T3 判断项 | agent，见 `references/lint-rules.md` | 矛盾、过期未标注、缺失交叉引用、粒度失当 | 否，只报告 |
-
-T2 是治幻觉的机制：卡片声称的事实必须能在原始转录里逐字找到。候选集是**封闭且冻结**的
-（ISO 日期、版本号、具体数字、路径、文件名），命中的是「存疑」而不是「错误」——
-卡片是转述而非引用，判断留给人。
-
-报告里的 `evidence_checked` 给出本次**实际核对了几处**字面量：`0 存疑` 和「压根没跑」
-必须能区分开，跳过核验时报告会写明 `evidence_skipped` 及原因。
-
-## 与 LLM Wiki 生态的关系
-
-方法论来自 Andrej Karpathy 的 [llm-wiki](https://gist.github.com/karpathy/442a6bf555914893e9891c11519de94f)。
-本项目的差异点有三个：
-
-1. **素材源是 agent 对话缓存**，不是需要人工策展的文档——`raw/` 这层由对话自动生成；
-2. **分类受控**：领域取自可维护的两级词表，而不是让模型自由造页面，检索时的标签才可能一致；
-3. **渲染与校验是确定性的**：索引、日志、frontmatter、双链都由脚本生成与校验，
-   不依赖 agent 每次记得做对（对比之下，多数同类实现的 index/log 是 agent 手写的）。
-
-## 适用范围与边界
-
-- 面向豆包 Work 本地 `.sessions` 缓存结构；**不用于**实时对话、在线文档导出或网页采集。
-- 目前只适配豆包 Work 这一个来源。接其他 chat agent 需要另写提取器——
-  契约很薄（产出一份带 `session_id` 的转录 + 一份清单），阶段 B/C/D 无需改动。
-- 产物为本地 Markdown，可纳入 Git 版本管理，自主可控、可迁移到任意兼容 Markdown / 双链的笔记工具。
+- 合成数据规模小，问题与卡片由同一开发过程编写；没有独立 holdout 或真实用户评估。
+- 中文二元组不理解同义词、否定、实体别名或隐含上下文；无语义去重与自动过期判定。
+- Compaction benchmark 仅模拟 query + external memory，未调用或压缩真实模型。
+- 只实现 Doubao Work 与 Generic JSONL；不声称可解析 Codex/Claude 原生历史。
+- 本地单写者工具，非事务式全库更新；中断若造成身份副本漂移需恢复一致备份，无并发锁、daemon、远端数据库。
+- 不提供通用 Agent runtime、自动回答、向量搜索、云服务或生产级效果保证。
 
 ## License
 

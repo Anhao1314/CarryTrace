@@ -25,6 +25,7 @@ import argparse
 import json
 import os
 import re
+import shlex
 import sys
 from datetime import datetime
 
@@ -51,11 +52,17 @@ def safe_component(name):
 
 def reminder(vault, subdir):
     """压缩后注入的提醒。要短——每次压缩都会进上下文。"""
-    return "\n".join([
+    tool = os.path.join(os.path.dirname(os.path.abspath(__file__)), "query_memory.py")
+    machine_index = os.path.join(vault, subdir, "知识索引.jsonl")
+    route = ""
+    if os.path.isfile(tool) and os.path.isfile(machine_index):
+        command = shlex.join(["python3", tool, "--vault", vault, "--subdir", subdir, "--query", "<当前任务的历史决策问题>", "--top-k", "5"])
+        route = f"- 优先运行 `{command}`，按 memory_id 定位，再读所需卡片；工具失败时回退下方索引。\n"
+    return route + "\n".join([
         "[chat-distiller] 上一段上下文刚被压缩，细节已经不在你的上下文里了。",
         f"- 涉及历史决策、方案取舍、技术选型之前，先读 `{vault}/{subdir}/{INDEX_FILENAME}` 定位，"
         "再打开对应卡片；不要凭压缩摘要或印象作答。",
-        "- 索引里 `status` 非「现行」的卡片表示结论已被推翻，不要当作当前事实使用。",
+        "- 索引里 `status` 「已过期」不要当当前事实；「有争议」表示尚未解决的分歧，需明确披露。现行也需结合来源判断。",
         "- 如果这次工作产生了值得留存的结论，趁现在还没丢，说完手头这件事就把它沉淀进知识库。",
     ])
 
@@ -133,7 +140,7 @@ def main():
 if __name__ == "__main__":
     try:
         sys.exit(main())
-    except Exception as exc:          # hook 绝不能打断用户会话
+    except (Exception, SystemExit) as exc:          # hook 绝不能打断用户会话
         if "--debug" in sys.argv:
             print(f"[chat-distiller] {exc}", file=sys.stderr)
         sys.exit(0)

@@ -29,12 +29,16 @@
 """
 
 import argparse
+import hashlib
 import json
 import os
 import re
 import sys
 from collections import OrderedDict
 from datetime import datetime
+from pathlib import Path
+from memory_identity import (validate, stable, objects, json_text, atomic_write,
+                             load_published_source, note_identity_issues, external_relation_issues)
 
 # 知识卡片类型 -> Obsidian callout
 CALLOUT = {"method": "tip", "fact": "info", "decision": "important",
@@ -134,6 +138,7 @@ def collect_vault_notes(vault: str):
         for f in files:
             if f.endswith(".md"):
                 names.add(f[:-3])
+                names.add(os.path.relpath(os.path.join(root, f), vault).replace(os.sep, "/")[:-3])
             elif f.endswith((".base", ".canvas")):
                 names.add(f)
     return names
@@ -213,6 +218,8 @@ class Renderer:
         self.taxo_set = set(taxo_seconds)
         self.taxo_l1 = list(taxo_firsts)
         self.new_categories = []
+        self.registry = {}
+        self.identity_migration = False
 
     def _write(self, rel, text):
         """写入并登记变化。只有内容真的不同才算「变化」。
@@ -275,6 +282,26 @@ class Renderer:
             lines.append(f"{prefix}- 对话沉淀/领域/{tagseg(c)}")
         return lines
 
+    def link_name(self, ref):
+        return self.registry.get(ref, {}).get("note_name", ref)
+
+    def relations(self, obj):
+        return ([self.link_name(x) for x in obj.get("related", [])]
+                + [x[:-3] if x.endswith(".md") else x for x in obj.get("external_related", [])])
+
+    @staticmethod
+    def identity_fm(obj):
+        if not obj.get("memory_id"):
+            return []
+        lines = [f"memory_id: {obj['memory_id']}", f"display_id: {obj['display_id']}"]
+        if obj.get("source_memory_id"):
+            lines.append(f"source_memory_id: {obj['source_memory_id']}")
+        if obj.get("related"):
+            lines += ["related_memory_ids:"] + [f"  - {x}" for x in obj["related"]]
+        if obj.get("external_related"):
+            lines += ["external_related:"] + [f"  - {yscalar(x)}" for x in obj["external_related"]]
+        return lines
+
     # ---------- 单张知识卡片 ----------
     def render_card(self, cid, card, conv, conv_note_name, cats):
         kind = (card.get("kind") or "fact").lower()
@@ -285,7 +312,7 @@ class Renderer:
         if status not in VALID_STATUS:
             self.warnings.append(f"{cid}: 非法 status={status}，按「现行」处理")
             status = "现行"
-        superseded_by = str(card.get("superseded_by") or "").strip()
+        superseded_by = self.link_name(str(card.get("superseded_by") or "").strip())
         title = safe_filename(card.get("title") or "未命名卡片")
         date = conv.get("date", "")
         tag_lines = ["  - 对话沉淀/卡片", f"  - 对话沉淀/卡片/{kind}"]
@@ -297,7 +324,11 @@ class Renderer:
               f"status: {yscalar(status)}"] + cat_yaml + [
               f"date: {date}", f"source: {yscalar(conv_note_name)}",
               f"session_id: {conv.get('session_id','')}"]
+        fm += self.identity_fm(card)
+        if card.get("memory_id") and card.get("superseded_by"):
+            fm.append(f"superseded_by_memory_id: {card['superseded_by']}")
         if superseded_by:
+            self.internal_links.append(superseded_by)
             fm.append(f"superseded_by: {yscalar(superseded_by)}")
         fm += ["tags:"] + tag_lines + ["---", ""]
         body = cjk_space(card.get("body", "").strip())
@@ -310,14 +341,14 @@ class Renderer:
         if superseded_by:
             L += ["", f"> 现行结论见 [[{superseded_by}]]"]
         L += ["", body, "", "## 来源会话", f"- [[{conv_note_name}]]"]
-        related = card.get("related") or []
+        related = self.relations(card)
         if related:
             L += ["", "## 相关"] + [f"- [[{t}]]" for t in related]
             self.internal_links.extend(related)
         L.append("")
-        rel = f"知识卡片/{cid} - {title}.md"
+        rel = f"知识卡片/{self._entry_name(cid, card)}.md"
         self._write(rel, "\n".join(L))
-        return f"{cid} - {title}"
+        return self._entry_name(cid, card)
 
     # ---------- 单篇会话笔记 ----------
     def render_conversation(self, conv, seg_plans, sid_code, conv_cats, note_name):
@@ -338,6 +369,7 @@ class Renderer:
         cat_hint = "、".join(show_cat(c) for c in conv_cats)
         fm = ["---", "type: conversation-note", f"sid: {sid_code}", f"session_id: {sid}",
               f"date: {date}", f"topic: {yscalar(topic)}"]
+        fm += self.identity_fm(conv)
         fm += (["categories:"] + [f"  - {yscalar(c)}" for c in conv_cats]
                if conv_cats else ["categories: []"])
         fm += [f"value: {yscalar(value)}",
@@ -402,7 +434,7 @@ class Renderer:
         if all_names:
             L += ["## 沉淀的知识卡片", ""] + [f"- [[{n}]]" for n in all_names] + [""]
             self.internal_links.extend(all_names)
-        related = conv.get("related") or []
+        related = self.relations(conv)
         if related:
             L += ["## 关联到已有笔记", ""] + [f"- [[{t}]]" for t in related] + [""]
             self.internal_links.extend(related)
@@ -413,7 +445,7 @@ class Renderer:
 
     @staticmethod
     def _entry_name(cid, card):
-        return f"{cid} - {safe_filename(card.get('title') or '未命名卡片')}"
+        return card.get("note_name") or f"{cid} - {safe_filename(card.get('title') or '未命名卡片')}"
 
     # ---------- MOC ----------
     def render_moc(self, plan, note_name_of):
@@ -552,6 +584,9 @@ views:
         for conv, sid_code, conv_cats, seg_plans in plan:
             name = note_name_of[conv["session_id"]]
             conv_rows.append({
+                **({"memory_id": conv["memory_id"], "display_id": sid_code,
+                    "related": conv.get("related", []), "status": "现行"} if conv.get("memory_id") else {}),
+                **({"external_related": conv["external_related"]} if conv.get("external_related") else {}),
                 "type": "conversation", "id": sid_code, "link": name,
                 "title": conv.get("title", ""), "file": f"会话笔记/{name}.md",
                 "date": conv.get("date", ""), "topic": conv.get("topic", ""),
@@ -563,6 +598,11 @@ views:
             for _seg, entries in seg_plans:
                 for cid, card, cc in entries:
                     card_rows.append({
+                        **({"memory_id": card["memory_id"], "display_id": cid,
+                            "source_memory_id": conv["memory_id"], "source_session": conv["session_id"],
+                            "session_id": conv["session_id"], "related": card.get("related", []),
+                            "superseded_by": card.get("superseded_by")} if card.get("memory_id") else {}),
+                        **({"external_related": card["external_related"]} if card.get("external_related") else {}),
                         "type": "card", "id": cid, "link": self._entry_name(cid, card),
                         "title": safe_filename(card.get("title") or "未命名卡片"),
                         "file": f"知识卡片/{self._entry_name(cid, card)}.md",
@@ -634,8 +674,9 @@ views:
             parts.append("新增 " + ids(created))
         if updated:
             parts.append("更新 " + ids(updated))
-        entry = "## [{}] ingest | {}".format(
-            datetime.now().strftime("%Y-%m-%d"), "；".join(parts))
+        entry = "## [{}] {} | {}".format(
+            datetime.now().strftime("%Y-%m-%d"),
+            "identity-migration" if self.identity_migration else "ingest", "；".join(parts))
 
         path = os.path.join(self.base, LOG_MD)
         old = ""
@@ -660,11 +701,11 @@ views:
 
 
 def build_plan(convs, r):
-    """把会话规整为 (conv, sid_code, 会话cats, [(seg, [(cid,card,cats)])])，并全局连续编 C 号。"""
+    """Build a render plan; v2 uses registered display IDs, v1 uses sequential IDs."""
     plan = []
     g = 0
     for i, conv in enumerate(convs, 1):
-        sid_code = f"S{i:02d}"
+        sid_code = conv.get("display_id") or f"S{i:02d}"
         threads = conv.get("threads") or []
         # 会话级分类 = 显式 categories + 各段 categories
         seg_cat_lists = [t.get("categories") for t in threads] if threads else [conv.get("categories")]
@@ -681,7 +722,7 @@ def build_plan(convs, r):
                     g += 1
                     # 卡片自身分类优先，缺省继承所属段
                     cc = r.check_categories(card.get("categories") or seg_cats, f"C{g:02d}")
-                    entries.append((f"C{g:02d}", card, cc))
+                    entries.append((card.get("display_id") or f"C{g:02d}", card, cc))
                 seg_plans.append((seg, entries))
         else:
             entries = []
@@ -690,7 +731,7 @@ def build_plan(convs, r):
                 # 单主题：卡片自身分类优先，缺省继承会话显式分类
                 cc = r.check_categories(
                     card.get("categories") or conv.get("categories") or [], f"C{g:02d}")
-                entries.append((f"C{g:02d}", card, cc))
+                entries.append((card.get("display_id") or f"C{g:02d}", card, cc))
             seg_plans.append((None, entries))
         plan.append((conv, sid_code, conv_cats, seg_plans))
     return plan
@@ -751,15 +792,65 @@ def main():
         print(json.dumps({"ok": False, "error": "vault 不存在", "vault": args.vault}, ensure_ascii=False))
         sys.exit(1)
 
+    registry_path = Path(args.vault) / args.subdir / CONFIG_DIRNAME / "identity-registry.json"
+    try:
+        published = load_published_source(registry_path.parent.parent)
+        previous = published['identity_registry'] if published is not None else None
+        if published is not None:
+            issues = note_identity_issues(registry_path.parent.parent, published)
+            if issues:
+                raise ValueError('; '.join(issues))
+        memory_files = [p for folder in ("会话笔记", "知识卡片")
+                        for p in (registry_path.parent.parent / folder).glob("*.md")]
+        has_stable_notes = any(re.search(r"^memory_id: mem_", p.read_text(encoding="utf-8").split("\n---", 1)[0], re.M)
+                               for p in memory_files)
+        if has_stable_notes and published is None:
+            raise ValueError('identity drift: stable notes have no published source/registry')
+        if (previous or has_stable_notes) and not stable(data):
+            raise ValueError("vault is v2: legacy source cannot overwrite stable memory")
+        validate(data, previous)
+        if stable(data):
+            problems = external_relation_issues(data, args.vault, args.subdir)
+            if problems:
+                raise ValueError('; '.join(problems))
+            if not previous:
+                base = registry_path.parent.parent
+                existing = {str(p.relative_to(base)): hashlib.sha256(p.read_bytes()).hexdigest()
+                    for folder in ("会话笔记", "知识卡片") for p in sorted((base / folder).glob("*.md"))}
+                if existing and existing != data.get("migration_baseline"):
+                    raise ValueError("existing vault differs from migration baseline; migrate with --vault before rendering")
+            # Canonical display ordering makes input reordering a no-op on notes/index/log.
+            convs.sort(key=lambda c: int(c["display_id"][1:]))
+            for cv in convs:
+                for seg in cv.get("threads") or [cv]:
+                    if seg.get("cards"):
+                        seg["cards"].sort(key=lambda c: int(c["display_id"][1:]))
+            # Do not overwrite unrelated files when allocating a new path.
+            for obj, kind, _ in objects(data):
+                target = registry_path.parent.parent / ("会话笔记" if kind == "conversation" else "知识卡片") / (obj["note_name"] + ".md")
+                if target.exists():
+                    text = target.read_text(encoding="utf-8")
+                    match = re.search(r"^memory_id: (.+)$", text.split("\n---", 1)[0], re.M)
+                    if match and match.group(1) != obj["memory_id"]:
+                        raise ValueError(f"target occupied by another identity: {target}")
+                    if previous and obj["memory_id"] not in previous:
+                        raise ValueError(f"new identity target already exists: {target}")
+    except (ValueError, OSError, TypeError, KeyError) as exc:
+        print(json_text({"ok": False, "error": str(exc)}))
+        sys.exit(1)
+
     taxo_path, taxo_source = resolve_taxonomy(args.taxonomy, args.vault, args.subdir,
                                               args.dry_run)
     taxo_s, taxo_l1 = load_taxonomy(taxo_path)
     r = Renderer(args.vault, args.subdir, taxo_s, taxo_l1, args.dry_run)
 
+    r.registry = data.get("identity_registry", {})
+    r.identity_migration = stable(data) and not previous and bool(data.get("migration_baseline"))
+
     # 会话稳定短 ID 与笔记名（供卡片 source 双链）
-    sid_of = {cv["session_id"]: f"S{i:02d}" for i, cv in enumerate(convs, 1)}
+    sid_of = {cv["session_id"]: cv.get("display_id") or f"S{i:02d}" for i, cv in enumerate(convs, 1)}
     note_names = {
-        cv["session_id"]: f"{sid_of[cv['session_id']]} - {safe_filename(cv.get('title') or cv['session_id'])}"
+        cv["session_id"]: cv.get("note_name") or f"{sid_of[cv['session_id']]} - {safe_filename(cv.get('title') or cv['session_id'])}"
         for cv in convs
     }
 
@@ -805,6 +896,15 @@ def main():
               "meta_changed": sorted((set(r.created) | set(r.updated)) & GENERATED_META),
               "new_categories": r.new_categories,
               "dead_links": dead, "orphans": orphan, "warnings": r.warnings}
+    report["identity_mode"] = "stable-v2" if stable(data) else "legacy-v1 (explicit migration recommended)"
+    if stable(data):
+        state = {registry_path: json_text(data["identity_registry"]),
+                 registry_path.with_name("distill.json"): json_text(data)}
+        report["state_changed"] = [str(p.relative_to(Path(r.base))) for p, text in state.items()
+            if not p.exists() or p.read_text(encoding="utf-8") != text]
+        if not args.dry_run:
+            for path, text in state.items():
+                atomic_write(path, text)
     print(json.dumps(report, ensure_ascii=False, indent=2))
     if r.new_categories:
         print(f"ℹ️ 新分类（不在词表，确认后请回填 {taxo_path}）:", file=sys.stderr)

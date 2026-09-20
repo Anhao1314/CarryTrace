@@ -1,0 +1,1626 @@
+{
+  "schema_version": 1,
+  "evidence": "synthetic development benchmark; retrieval only",
+  "fixture_sha256": "94aaade788c6ff76ffe19d8ade10b25473700fc680cc58e7fab7895a9d7d2579",
+  "dataset": {
+    "sessions": 40,
+    "cards": 40,
+    "queries": 24,
+    "raw_transcript_characters": 92780,
+    "memory_index_characters": 35278
+  },
+  "definitions": {
+    "recall": "mean fraction of expected IDs found in top k",
+    "MRR": "mean reciprocal first relevant rank, cutoff 5",
+    "hit": "fraction of queries with at least one result of the named status in top k; controversial is exposure, not necessarily error"
+  },
+  "results": {
+    "Baseline": {
+      "metrics": {
+        "Recall@1": 0.416667,
+        "stale-hit@1": 0.375,
+        "controversial-hit@1": 0.125,
+        "Recall@3": 0.875,
+        "stale-hit@3": 0.5,
+        "controversial-hit@3": 0.25,
+        "Recall@5": 0.958333,
+        "stale-hit@5": 0.541667,
+        "controversial-hit@5": 0.291667,
+        "MRR": 0.652778
+      },
+      "mean_retrieved_characters": 9378.5,
+      "by_scenario": {
+        "compaction": {
+          "Recall@1": 0.5,
+          "stale-hit@1": 0.5,
+          "controversial-hit@1": 0.0,
+          "Recall@3": 1.0,
+          "stale-hit@3": 0.75,
+          "controversial-hit@3": 0.25,
+          "Recall@5": 1.0,
+          "stale-hit@5": 0.75,
+          "controversial-hit@5": 0.25,
+          "MRR": 0.708333
+        },
+        "conflicting": {
+          "Recall@1": 0.75,
+          "stale-hit@1": 0.0,
+          "controversial-hit@1": 0.75,
+          "Recall@3": 0.75,
+          "stale-hit@3": 0.25,
+          "controversial-hit@3": 0.75,
+          "Recall@5": 1.0,
+          "stale-hit@5": 0.25,
+          "controversial-hit@5": 1.0,
+          "MRR": 0.8125
+        },
+        "cross_session": {
+          "Recall@1": 0.25,
+          "stale-hit@1": 0.25,
+          "controversial-hit@1": 0.0,
+          "Recall@3": 1.0,
+          "stale-hit@3": 0.25,
+          "controversial-hit@3": 0.25,
+          "Recall@5": 1.0,
+          "stale-hit@5": 0.25,
+          "controversial-hit@5": 0.25,
+          "MRR": 0.625
+        },
+        "historical_decision": {
+          "Recall@1": 0.25,
+          "stale-hit@1": 0.25,
+          "controversial-hit@1": 0.0,
+          "Recall@3": 0.5,
+          "stale-hit@3": 0.25,
+          "controversial-hit@3": 0.0,
+          "Recall@5": 0.75,
+          "stale-hit@5": 0.5,
+          "controversial-hit@5": 0.0,
+          "MRR": 0.4375
+        },
+        "noise": {
+          "Recall@1": 0.75,
+          "stale-hit@1": 0.25,
+          "controversial-hit@1": 0.0,
+          "Recall@3": 1.0,
+          "stale-hit@3": 0.5,
+          "controversial-hit@3": 0.25,
+          "Recall@5": 1.0,
+          "stale-hit@5": 0.5,
+          "controversial-hit@5": 0.25,
+          "MRR": 0.875
+        },
+        "superseded": {
+          "Recall@1": 0.0,
+          "stale-hit@1": 1.0,
+          "controversial-hit@1": 0.0,
+          "Recall@3": 1.0,
+          "stale-hit@3": 1.0,
+          "controversial-hit@3": 0.0,
+          "Recall@5": 1.0,
+          "stale-hit@5": 1.0,
+          "controversial-hit@5": 0.0,
+          "MRR": 0.458333
+        }
+      },
+      "cases": [
+        {
+          "case_id": "q01",
+          "scenario": "historical_decision",
+          "expected": [
+            "mem_9812db1c5cc14a158d305811397b6dcb"
+          ],
+          "ids": [
+            "mem_b2f80c35033a4d51affe1a238bbcdac9",
+            "mem_9812db1c5cc14a158d305811397b6dcb"
+          ],
+          "retrieved_characters": 4652
+        },
+        {
+          "case_id": "q02",
+          "scenario": "historical_decision",
+          "expected": [
+            "mem_30c3e25040ff42b6b4da5b2cc9453c12"
+          ],
+          "ids": [
+            "mem_2e97e020825a48308a5717c96ce67eb4",
+            "mem_25020416490f4615ab767142dfff4a74",
+            "mem_1f230fea62594644837ca161142c0071",
+            "mem_30c3e25040ff42b6b4da5b2cc9453c12",
+            "mem_bfbed4e07c8047639dda2178e57fe32c"
+          ],
+          "retrieved_characters": 11610
+        },
+        {
+          "case_id": "q03",
+          "scenario": "historical_decision",
+          "expected": [
+            "mem_897cf876f8c14c349cbfcb2321519f7e"
+          ],
+          "ids": [
+            "mem_897cf876f8c14c349cbfcb2321519f7e",
+            "mem_d52a1119491d4582b1ceb88ff706a535",
+            "mem_f51f74d368de461abba0b4f2eab1c37d",
+            "mem_1e57386b7d0442a191fbe117ccf3ddac",
+            "mem_32dbf7d40fd54e1498157c2bee02fd72"
+          ],
+          "retrieved_characters": 11571
+        },
+        {
+          "case_id": "q04",
+          "scenario": "historical_decision",
+          "expected": [
+            "mem_139e4f03af6a4fb2aff4f113bed3afcd"
+          ],
+          "ids": [
+            "mem_cd6caf220afd4149b0aa160bd2051ec9"
+          ],
+          "retrieved_characters": 2295
+        },
+        {
+          "case_id": "q05",
+          "scenario": "superseded",
+          "expected": [
+            "mem_32dbf7d40fd54e1498157c2bee02fd72"
+          ],
+          "ids": [
+            "mem_1e57386b7d0442a191fbe117ccf3ddac",
+            "mem_32dbf7d40fd54e1498157c2bee02fd72",
+            "mem_d52a1119491d4582b1ceb88ff706a535",
+            "mem_372f37b9eab94a8bba2b187aa490ccfa",
+            "mem_db22523a973a4e818aa219a3beb03132"
+          ],
+          "retrieved_characters": 11568
+        },
+        {
+          "case_id": "q06",
+          "scenario": "superseded",
+          "expected": [
+            "mem_32839cf120a34f7fbfc4a13b8fb213ea"
+          ],
+          "ids": [
+            "mem_372f37b9eab94a8bba2b187aa490ccfa",
+            "mem_32839cf120a34f7fbfc4a13b8fb213ea",
+            "mem_c94c198bce364149b31e58a4fb93afc0",
+            "mem_db22523a973a4e818aa219a3beb03132",
+            "mem_1e57386b7d0442a191fbe117ccf3ddac"
+          ],
+          "retrieved_characters": 11610
+        },
+        {
+          "case_id": "q07",
+          "scenario": "superseded",
+          "expected": [
+            "mem_25020416490f4615ab767142dfff4a74"
+          ],
+          "ids": [
+            "mem_f2ad37c558f341aab01b26343d819d17",
+            "mem_6786ab214f3f4538bb28d57604d9a555",
+            "mem_25020416490f4615ab767142dfff4a74",
+            "mem_8c0e608efe65495f986be37197e68b96",
+            "mem_74ad95e406ba4907903bcb74cfa30c70"
+          ],
+          "retrieved_characters": 11590
+        },
+        {
+          "case_id": "q08",
+          "scenario": "superseded",
+          "expected": [
+            "mem_f7d4115917c747c5a85c144aa5506aa2"
+          ],
+          "ids": [
+            "mem_db22523a973a4e818aa219a3beb03132",
+            "mem_f7d4115917c747c5a85c144aa5506aa2",
+            "mem_372f37b9eab94a8bba2b187aa490ccfa",
+            "mem_1e57386b7d0442a191fbe117ccf3ddac",
+            "mem_25020416490f4615ab767142dfff4a74"
+          ],
+          "retrieved_characters": 11587
+        },
+        {
+          "case_id": "q09",
+          "scenario": "conflicting",
+          "expected": [
+            "mem_9b80582ac5b14ce2ace09e93ae85ee7b"
+          ],
+          "ids": [
+            "mem_9b28a8eab8df45499c3676bdc5907c53",
+            "mem_8c0e608efe65495f986be37197e68b96",
+            "mem_c94c198bce364149b31e58a4fb93afc0",
+            "mem_9b80582ac5b14ce2ace09e93ae85ee7b"
+          ],
+          "retrieved_characters": 9292
+        },
+        {
+          "case_id": "q10",
+          "scenario": "conflicting",
+          "expected": [
+            "mem_01e7c1b45da64acf9f19bf721342ee65"
+          ],
+          "ids": [
+            "mem_01e7c1b45da64acf9f19bf721342ee65",
+            "mem_95bf4280a5f74f9694bbffa8a606ee36",
+            "mem_f7d4115917c747c5a85c144aa5506aa2",
+            "mem_8b5e7516194c48ee855e46f9e6f5a5f7",
+            "mem_d52a1119491d4582b1ceb88ff706a535"
+          ],
+          "retrieved_characters": 11592
+        },
+        {
+          "case_id": "q11",
+          "scenario": "conflicting",
+          "expected": [
+            "mem_da8b1cd55d6048eba73a4a1e3415b287"
+          ],
+          "ids": [
+            "mem_da8b1cd55d6048eba73a4a1e3415b287",
+            "mem_d52a1119491d4582b1ceb88ff706a535",
+            "mem_01e7c1b45da64acf9f19bf721342ee65",
+            "mem_74ad95e406ba4907903bcb74cfa30c70"
+          ],
+          "retrieved_characters": 9289
+        },
+        {
+          "case_id": "q12",
+          "scenario": "conflicting",
+          "expected": [
+            "mem_45908849f07f47deb99aeb7d632f9b5e"
+          ],
+          "ids": [
+            "mem_45908849f07f47deb99aeb7d632f9b5e",
+            "mem_30c3e25040ff42b6b4da5b2cc9453c12",
+            "mem_9b28a8eab8df45499c3676bdc5907c53",
+            "mem_32839cf120a34f7fbfc4a13b8fb213ea",
+            "mem_25020416490f4615ab767142dfff4a74"
+          ],
+          "retrieved_characters": 11604
+        },
+        {
+          "case_id": "q13",
+          "scenario": "cross_session",
+          "expected": [
+            "mem_8b5e7516194c48ee855e46f9e6f5a5f7"
+          ],
+          "ids": [
+            "mem_95bf4280a5f74f9694bbffa8a606ee36",
+            "mem_8b5e7516194c48ee855e46f9e6f5a5f7",
+            "mem_d52a1119491d4582b1ceb88ff706a535",
+            "mem_db22523a973a4e818aa219a3beb03132",
+            "mem_f7d4115917c747c5a85c144aa5506aa2"
+          ],
+          "retrieved_characters": 11563
+        },
+        {
+          "case_id": "q14",
+          "scenario": "cross_session",
+          "expected": [
+            "mem_1f230fea62594644837ca161142c0071"
+          ],
+          "ids": [
+            "mem_f7d4115917c747c5a85c144aa5506aa2",
+            "mem_1f230fea62594644837ca161142c0071",
+            "mem_da8b1cd55d6048eba73a4a1e3415b287",
+            "mem_e2ed86c458fe451a85aefd95e6288e47",
+            "mem_9b80582ac5b14ce2ace09e93ae85ee7b"
+          ],
+          "retrieved_characters": 11645
+        },
+        {
+          "case_id": "q15",
+          "scenario": "cross_session",
+          "expected": [
+            "mem_e2ed86c458fe451a85aefd95e6288e47"
+          ],
+          "ids": [
+            "mem_e2ed86c458fe451a85aefd95e6288e47",
+            "mem_0da886fc25944f299470a96593371bca",
+            "mem_d52a1119491d4582b1ceb88ff706a535",
+            "mem_c24579bf6dd94509933aaa31aff0e0b8",
+            "mem_2e97e020825a48308a5717c96ce67eb4"
+          ],
+          "retrieved_characters": 11535
+        },
+        {
+          "case_id": "q16",
+          "scenario": "cross_session",
+          "expected": [
+            "mem_74ad95e406ba4907903bcb74cfa30c70"
+          ],
+          "ids": [
+            "mem_075b80e0ce2f4b30a47c10bc23c494bc",
+            "mem_74ad95e406ba4907903bcb74cfa30c70",
+            "mem_e2ed86c458fe451a85aefd95e6288e47",
+            "mem_897cf876f8c14c349cbfcb2321519f7e"
+          ],
+          "retrieved_characters": 9280
+        },
+        {
+          "case_id": "q17",
+          "scenario": "compaction",
+          "expected": [
+            "mem_a76fdf8a5ca04263b9af9606af154fb4"
+          ],
+          "ids": [
+            "mem_6786ab214f3f4538bb28d57604d9a555",
+            "mem_a76fdf8a5ca04263b9af9606af154fb4",
+            "mem_f2ad37c558f341aab01b26343d819d17",
+            "mem_c94c198bce364149b31e58a4fb93afc0",
+            "mem_897cf876f8c14c349cbfcb2321519f7e"
+          ],
+          "retrieved_characters": 11629
+        },
+        {
+          "case_id": "q18",
+          "scenario": "compaction",
+          "expected": [
+            "mem_bfbed4e07c8047639dda2178e57fe32c"
+          ],
+          "ids": [
+            "mem_bfbed4e07c8047639dda2178e57fe32c",
+            "mem_95bf4280a5f74f9694bbffa8a606ee36",
+            "mem_32dbf7d40fd54e1498157c2bee02fd72"
+          ],
+          "retrieved_characters": 6977
+        },
+        {
+          "case_id": "q19",
+          "scenario": "compaction",
+          "expected": [
+            "mem_b253f3a2c9df4716b23c96c00a2a96ec"
+          ],
+          "ids": [
+            "mem_b253f3a2c9df4716b23c96c00a2a96ec",
+            "mem_30c3e25040ff42b6b4da5b2cc9453c12",
+            "mem_01e7c1b45da64acf9f19bf721342ee65"
+          ],
+          "retrieved_characters": 7002
+        },
+        {
+          "case_id": "q20",
+          "scenario": "compaction",
+          "expected": [
+            "mem_c81388b51ece41959fc6ffa9f8c9de48"
+          ],
+          "ids": [
+            "mem_66382b6a39404177af253ca432db6228",
+            "mem_6786ab214f3f4538bb28d57604d9a555",
+            "mem_c81388b51ece41959fc6ffa9f8c9de48",
+            "mem_bfbed4e07c8047639dda2178e57fe32c"
+          ],
+          "retrieved_characters": 9290
+        },
+        {
+          "case_id": "q21",
+          "scenario": "noise",
+          "expected": [
+            "mem_c94c198bce364149b31e58a4fb93afc0"
+          ],
+          "ids": [
+            "mem_c94c198bce364149b31e58a4fb93afc0"
+          ],
+          "retrieved_characters": 2340
+        },
+        {
+          "case_id": "q22",
+          "scenario": "noise",
+          "expected": [
+            "mem_9ed960c672fb49f283fa190ee7ef3945"
+          ],
+          "ids": [
+            "mem_9ed960c672fb49f283fa190ee7ef3945",
+            "mem_c24579bf6dd94509933aaa31aff0e0b8",
+            "mem_45908849f07f47deb99aeb7d632f9b5e"
+          ],
+          "retrieved_characters": 6945
+        },
+        {
+          "case_id": "q23",
+          "scenario": "noise",
+          "expected": [
+            "mem_0da886fc25944f299470a96593371bca"
+          ],
+          "ids": [
+            "mem_0da886fc25944f299470a96593371bca",
+            "mem_6786ab214f3f4538bb28d57604d9a555",
+            "mem_8b5e7516194c48ee855e46f9e6f5a5f7"
+          ],
+          "retrieved_characters": 6970
+        },
+        {
+          "case_id": "q24",
+          "scenario": "noise",
+          "expected": [
+            "mem_8c0e608efe65495f986be37197e68b96"
+          ],
+          "ids": [
+            "mem_6786ab214f3f4538bb28d57604d9a555",
+            "mem_8c0e608efe65495f986be37197e68b96",
+            "mem_c94c198bce364149b31e58a4fb93afc0",
+            "mem_897cf876f8c14c349cbfcb2321519f7e",
+            "mem_a76fdf8a5ca04263b9af9606af154fb4"
+          ],
+          "retrieved_characters": 11648
+        }
+      ],
+      "context_size_reduction_vs_full_raw": 0.898917
+    },
+    "Structured Memory": {
+      "metrics": {
+        "Recall@1": 0.541667,
+        "stale-hit@1": 0.333333,
+        "controversial-hit@1": 0.125,
+        "Recall@3": 0.958333,
+        "stale-hit@3": 0.5,
+        "controversial-hit@3": 0.291667,
+        "Recall@5": 1.0,
+        "stale-hit@5": 0.5,
+        "controversial-hit@5": 0.291667,
+        "MRR": 0.760417
+      },
+      "mean_retrieved_characters": 1578.83,
+      "by_scenario": {
+        "compaction": {
+          "Recall@1": 0.75,
+          "stale-hit@1": 0.25,
+          "controversial-hit@1": 0.0,
+          "Recall@3": 1.0,
+          "stale-hit@3": 0.75,
+          "controversial-hit@3": 0.25,
+          "Recall@5": 1.0,
+          "stale-hit@5": 0.75,
+          "controversial-hit@5": 0.25,
+          "MRR": 0.875
+        },
+        "conflicting": {
+          "Recall@1": 0.75,
+          "stale-hit@1": 0.0,
+          "controversial-hit@1": 0.75,
+          "Recall@3": 1.0,
+          "stale-hit@3": 0.25,
+          "controversial-hit@3": 1.0,
+          "Recall@5": 1.0,
+          "stale-hit@5": 0.25,
+          "controversial-hit@5": 1.0,
+          "MRR": 0.875
+        },
+        "cross_session": {
+          "Recall@1": 0.75,
+          "stale-hit@1": 0.25,
+          "controversial-hit@1": 0.0,
+          "Recall@3": 1.0,
+          "stale-hit@3": 0.25,
+          "controversial-hit@3": 0.5,
+          "Recall@5": 1.0,
+          "stale-hit@5": 0.25,
+          "controversial-hit@5": 0.5,
+          "MRR": 0.875
+        },
+        "historical_decision": {
+          "Recall@1": 0.25,
+          "stale-hit@1": 0.25,
+          "controversial-hit@1": 0.0,
+          "Recall@3": 1.0,
+          "stale-hit@3": 0.25,
+          "controversial-hit@3": 0.0,
+          "Recall@5": 1.0,
+          "stale-hit@5": 0.25,
+          "controversial-hit@5": 0.0,
+          "MRR": 0.625
+        },
+        "noise": {
+          "Recall@1": 0.75,
+          "stale-hit@1": 0.25,
+          "controversial-hit@1": 0.0,
+          "Recall@3": 0.75,
+          "stale-hit@3": 0.5,
+          "controversial-hit@3": 0.0,
+          "Recall@5": 1.0,
+          "stale-hit@5": 0.5,
+          "controversial-hit@5": 0.0,
+          "MRR": 0.8125
+        },
+        "superseded": {
+          "Recall@1": 0.0,
+          "stale-hit@1": 1.0,
+          "controversial-hit@1": 0.0,
+          "Recall@3": 1.0,
+          "stale-hit@3": 1.0,
+          "controversial-hit@3": 0.0,
+          "Recall@5": 1.0,
+          "stale-hit@5": 1.0,
+          "controversial-hit@5": 0.0,
+          "MRR": 0.5
+        }
+      },
+      "cases": [
+        {
+          "case_id": "q01",
+          "scenario": "historical_decision",
+          "expected": [
+            "mem_9812db1c5cc14a158d305811397b6dcb"
+          ],
+          "ids": [
+            "mem_b2f80c35033a4d51affe1a238bbcdac9",
+            "mem_9812db1c5cc14a158d305811397b6dcb"
+          ],
+          "retrieved_characters": 830
+        },
+        {
+          "case_id": "q02",
+          "scenario": "historical_decision",
+          "expected": [
+            "mem_30c3e25040ff42b6b4da5b2cc9453c12"
+          ],
+          "ids": [
+            "mem_2e97e020825a48308a5717c96ce67eb4",
+            "mem_30c3e25040ff42b6b4da5b2cc9453c12",
+            "mem_25020416490f4615ab767142dfff4a74",
+            "mem_c94c198bce364149b31e58a4fb93afc0"
+          ],
+          "retrieved_characters": 1569
+        },
+        {
+          "case_id": "q03",
+          "scenario": "historical_decision",
+          "expected": [
+            "mem_897cf876f8c14c349cbfcb2321519f7e"
+          ],
+          "ids": [
+            "mem_897cf876f8c14c349cbfcb2321519f7e",
+            "mem_f51f74d368de461abba0b4f2eab1c37d",
+            "mem_74ad95e406ba4907903bcb74cfa30c70",
+            "mem_0da886fc25944f299470a96593371bca",
+            "mem_d52a1119491d4582b1ceb88ff706a535"
+          ],
+          "retrieved_characters": 1955
+        },
+        {
+          "case_id": "q04",
+          "scenario": "historical_decision",
+          "expected": [
+            "mem_139e4f03af6a4fb2aff4f113bed3afcd"
+          ],
+          "ids": [
+            "mem_cd6caf220afd4149b0aa160bd2051ec9",
+            "mem_139e4f03af6a4fb2aff4f113bed3afcd"
+          ],
+          "retrieved_characters": 773
+        },
+        {
+          "case_id": "q05",
+          "scenario": "superseded",
+          "expected": [
+            "mem_32dbf7d40fd54e1498157c2bee02fd72"
+          ],
+          "ids": [
+            "mem_1e57386b7d0442a191fbe117ccf3ddac",
+            "mem_32dbf7d40fd54e1498157c2bee02fd72",
+            "mem_74ad95e406ba4907903bcb74cfa30c70",
+            "mem_0da886fc25944f299470a96593371bca",
+            "mem_d52a1119491d4582b1ceb88ff706a535"
+          ],
+          "retrieved_characters": 2031
+        },
+        {
+          "case_id": "q06",
+          "scenario": "superseded",
+          "expected": [
+            "mem_32839cf120a34f7fbfc4a13b8fb213ea"
+          ],
+          "ids": [
+            "mem_372f37b9eab94a8bba2b187aa490ccfa",
+            "mem_32839cf120a34f7fbfc4a13b8fb213ea",
+            "mem_db22523a973a4e818aa219a3beb03132",
+            "mem_1e57386b7d0442a191fbe117ccf3ddac",
+            "mem_8c0e608efe65495f986be37197e68b96"
+          ],
+          "retrieved_characters": 2099
+        },
+        {
+          "case_id": "q07",
+          "scenario": "superseded",
+          "expected": [
+            "mem_25020416490f4615ab767142dfff4a74"
+          ],
+          "ids": [
+            "mem_f2ad37c558f341aab01b26343d819d17",
+            "mem_25020416490f4615ab767142dfff4a74",
+            "mem_8c0e608efe65495f986be37197e68b96",
+            "mem_c81388b51ece41959fc6ffa9f8c9de48",
+            "mem_a76fdf8a5ca04263b9af9606af154fb4"
+          ],
+          "retrieved_characters": 2039
+        },
+        {
+          "case_id": "q08",
+          "scenario": "superseded",
+          "expected": [
+            "mem_f7d4115917c747c5a85c144aa5506aa2"
+          ],
+          "ids": [
+            "mem_db22523a973a4e818aa219a3beb03132",
+            "mem_f7d4115917c747c5a85c144aa5506aa2",
+            "mem_372f37b9eab94a8bba2b187aa490ccfa",
+            "mem_1e57386b7d0442a191fbe117ccf3ddac",
+            "mem_32839cf120a34f7fbfc4a13b8fb213ea"
+          ],
+          "retrieved_characters": 2102
+        },
+        {
+          "case_id": "q09",
+          "scenario": "conflicting",
+          "expected": [
+            "mem_9b80582ac5b14ce2ace09e93ae85ee7b"
+          ],
+          "ids": [
+            "mem_9b28a8eab8df45499c3676bdc5907c53",
+            "mem_9b80582ac5b14ce2ace09e93ae85ee7b",
+            "mem_45908849f07f47deb99aeb7d632f9b5e"
+          ],
+          "retrieved_characters": 1159
+        },
+        {
+          "case_id": "q10",
+          "scenario": "conflicting",
+          "expected": [
+            "mem_01e7c1b45da64acf9f19bf721342ee65"
+          ],
+          "ids": [
+            "mem_01e7c1b45da64acf9f19bf721342ee65",
+            "mem_95bf4280a5f74f9694bbffa8a606ee36",
+            "mem_d52a1119491d4582b1ceb88ff706a535",
+            "mem_db22523a973a4e818aa219a3beb03132",
+            "mem_32839cf120a34f7fbfc4a13b8fb213ea"
+          ],
+          "retrieved_characters": 2030
+        },
+        {
+          "case_id": "q11",
+          "scenario": "conflicting",
+          "expected": [
+            "mem_da8b1cd55d6048eba73a4a1e3415b287"
+          ],
+          "ids": [
+            "mem_da8b1cd55d6048eba73a4a1e3415b287",
+            "mem_d52a1119491d4582b1ceb88ff706a535",
+            "mem_e2ed86c458fe451a85aefd95e6288e47",
+            "mem_8b5e7516194c48ee855e46f9e6f5a5f7",
+            "mem_74ad95e406ba4907903bcb74cfa30c70"
+          ],
+          "retrieved_characters": 1966
+        },
+        {
+          "case_id": "q12",
+          "scenario": "conflicting",
+          "expected": [
+            "mem_45908849f07f47deb99aeb7d632f9b5e"
+          ],
+          "ids": [
+            "mem_45908849f07f47deb99aeb7d632f9b5e",
+            "mem_897cf876f8c14c349cbfcb2321519f7e",
+            "mem_c81388b51ece41959fc6ffa9f8c9de48",
+            "mem_9b28a8eab8df45499c3676bdc5907c53",
+            "mem_01e7c1b45da64acf9f19bf721342ee65"
+          ],
+          "retrieved_characters": 1983
+        },
+        {
+          "case_id": "q13",
+          "scenario": "cross_session",
+          "expected": [
+            "mem_8b5e7516194c48ee855e46f9e6f5a5f7"
+          ],
+          "ids": [
+            "mem_95bf4280a5f74f9694bbffa8a606ee36",
+            "mem_8b5e7516194c48ee855e46f9e6f5a5f7",
+            "mem_01e7c1b45da64acf9f19bf721342ee65",
+            "mem_d52a1119491d4582b1ceb88ff706a535",
+            "mem_db22523a973a4e818aa219a3beb03132"
+          ],
+          "retrieved_characters": 2004
+        },
+        {
+          "case_id": "q14",
+          "scenario": "cross_session",
+          "expected": [
+            "mem_1f230fea62594644837ca161142c0071"
+          ],
+          "ids": [
+            "mem_1f230fea62594644837ca161142c0071",
+            "mem_da8b1cd55d6048eba73a4a1e3415b287"
+          ],
+          "retrieved_characters": 795
+        },
+        {
+          "case_id": "q15",
+          "scenario": "cross_session",
+          "expected": [
+            "mem_e2ed86c458fe451a85aefd95e6288e47"
+          ],
+          "ids": [
+            "mem_e2ed86c458fe451a85aefd95e6288e47",
+            "mem_0da886fc25944f299470a96593371bca"
+          ],
+          "retrieved_characters": 806
+        },
+        {
+          "case_id": "q16",
+          "scenario": "cross_session",
+          "expected": [
+            "mem_74ad95e406ba4907903bcb74cfa30c70"
+          ],
+          "ids": [
+            "mem_74ad95e406ba4907903bcb74cfa30c70",
+            "mem_075b80e0ce2f4b30a47c10bc23c494bc",
+            "mem_897cf876f8c14c349cbfcb2321519f7e"
+          ],
+          "retrieved_characters": 1180
+        },
+        {
+          "case_id": "q17",
+          "scenario": "compaction",
+          "expected": [
+            "mem_a76fdf8a5ca04263b9af9606af154fb4"
+          ],
+          "ids": [
+            "mem_a76fdf8a5ca04263b9af9606af154fb4",
+            "mem_6786ab214f3f4538bb28d57604d9a555",
+            "mem_d52a1119491d4582b1ceb88ff706a535",
+            "mem_f2ad37c558f341aab01b26343d819d17",
+            "mem_897cf876f8c14c349cbfcb2321519f7e"
+          ],
+          "retrieved_characters": 2025
+        },
+        {
+          "case_id": "q18",
+          "scenario": "compaction",
+          "expected": [
+            "mem_bfbed4e07c8047639dda2178e57fe32c"
+          ],
+          "ids": [
+            "mem_bfbed4e07c8047639dda2178e57fe32c",
+            "mem_b253f3a2c9df4716b23c96c00a2a96ec",
+            "mem_95bf4280a5f74f9694bbffa8a606ee36",
+            "mem_32dbf7d40fd54e1498157c2bee02fd72"
+          ],
+          "retrieved_characters": 1641
+        },
+        {
+          "case_id": "q19",
+          "scenario": "compaction",
+          "expected": [
+            "mem_b253f3a2c9df4716b23c96c00a2a96ec"
+          ],
+          "ids": [
+            "mem_b253f3a2c9df4716b23c96c00a2a96ec",
+            "mem_45908849f07f47deb99aeb7d632f9b5e",
+            "mem_a76fdf8a5ca04263b9af9606af154fb4"
+          ],
+          "retrieved_characters": 1198
+        },
+        {
+          "case_id": "q20",
+          "scenario": "compaction",
+          "expected": [
+            "mem_c81388b51ece41959fc6ffa9f8c9de48"
+          ],
+          "ids": [
+            "mem_66382b6a39404177af253ca432db6228",
+            "mem_c81388b51ece41959fc6ffa9f8c9de48",
+            "mem_bfbed4e07c8047639dda2178e57fe32c",
+            "mem_6786ab214f3f4538bb28d57604d9a555",
+            "mem_a76fdf8a5ca04263b9af9606af154fb4"
+          ],
+          "retrieved_characters": 2070
+        },
+        {
+          "case_id": "q21",
+          "scenario": "noise",
+          "expected": [
+            "mem_c94c198bce364149b31e58a4fb93afc0"
+          ],
+          "ids": [
+            "mem_c94c198bce364149b31e58a4fb93afc0"
+          ],
+          "retrieved_characters": 402
+        },
+        {
+          "case_id": "q22",
+          "scenario": "noise",
+          "expected": [
+            "mem_9ed960c672fb49f283fa190ee7ef3945"
+          ],
+          "ids": [
+            "mem_9ed960c672fb49f283fa190ee7ef3945",
+            "mem_c24579bf6dd94509933aaa31aff0e0b8",
+            "mem_c94c198bce364149b31e58a4fb93afc0"
+          ],
+          "retrieved_characters": 1169
+        },
+        {
+          "case_id": "q23",
+          "scenario": "noise",
+          "expected": [
+            "mem_0da886fc25944f299470a96593371bca"
+          ],
+          "ids": [
+            "mem_0da886fc25944f299470a96593371bca",
+            "mem_95bf4280a5f74f9694bbffa8a606ee36",
+            "mem_8b5e7516194c48ee855e46f9e6f5a5f7",
+            "mem_6786ab214f3f4538bb28d57604d9a555",
+            "mem_f7d4115917c747c5a85c144aa5506aa2"
+          ],
+          "retrieved_characters": 2039
+        },
+        {
+          "case_id": "q24",
+          "scenario": "noise",
+          "expected": [
+            "mem_8c0e608efe65495f986be37197e68b96"
+          ],
+          "ids": [
+            "mem_6786ab214f3f4538bb28d57604d9a555",
+            "mem_a76fdf8a5ca04263b9af9606af154fb4",
+            "mem_897cf876f8c14c349cbfcb2321519f7e",
+            "mem_8c0e608efe65495f986be37197e68b96",
+            "mem_9ed960c672fb49f283fa190ee7ef3945"
+          ],
+          "retrieved_characters": 2027
+        }
+      ],
+      "context_size_reduction_vs_full_raw": 0.982983
+    },
+    "Status-aware Memory": {
+      "metrics": {
+        "Recall@1": 0.708333,
+        "stale-hit@1": 0.0,
+        "controversial-hit@1": 0.0,
+        "Recall@3": 0.875,
+        "stale-hit@3": 0.0,
+        "controversial-hit@3": 0.166667,
+        "Recall@5": 0.916667,
+        "stale-hit@5": 0.0,
+        "controversial-hit@5": 0.25,
+        "MRR": 0.793056
+      },
+      "mean_retrieved_characters": 1345.0,
+      "by_scenario": {
+        "compaction": {
+          "Recall@1": 1.0,
+          "stale-hit@1": 0.0,
+          "controversial-hit@1": 0.0,
+          "Recall@3": 1.0,
+          "stale-hit@3": 0.0,
+          "controversial-hit@3": 0.25,
+          "Recall@5": 1.0,
+          "stale-hit@5": 0.0,
+          "controversial-hit@5": 0.25,
+          "MRR": 1.0
+        },
+        "conflicting": {
+          "Recall@1": 0.0,
+          "stale-hit@1": 0.0,
+          "controversial-hit@1": 0.0,
+          "Recall@3": 0.25,
+          "stale-hit@3": 0.0,
+          "controversial-hit@3": 0.25,
+          "Recall@5": 0.5,
+          "stale-hit@5": 0.0,
+          "controversial-hit@5": 0.5,
+          "MRR": 0.175
+        },
+        "cross_session": {
+          "Recall@1": 1.0,
+          "stale-hit@1": 0.0,
+          "controversial-hit@1": 0.0,
+          "Recall@3": 1.0,
+          "stale-hit@3": 0.0,
+          "controversial-hit@3": 0.25,
+          "Recall@5": 1.0,
+          "stale-hit@5": 0.0,
+          "controversial-hit@5": 0.5,
+          "MRR": 1.0
+        },
+        "historical_decision": {
+          "Recall@1": 0.5,
+          "stale-hit@1": 0.0,
+          "controversial-hit@1": 0.0,
+          "Recall@3": 1.0,
+          "stale-hit@3": 0.0,
+          "controversial-hit@3": 0.0,
+          "Recall@5": 1.0,
+          "stale-hit@5": 0.0,
+          "controversial-hit@5": 0.0,
+          "MRR": 0.75
+        },
+        "noise": {
+          "Recall@1": 0.75,
+          "stale-hit@1": 0.0,
+          "controversial-hit@1": 0.0,
+          "Recall@3": 1.0,
+          "stale-hit@3": 0.0,
+          "controversial-hit@3": 0.0,
+          "Recall@5": 1.0,
+          "stale-hit@5": 0.0,
+          "controversial-hit@5": 0.0,
+          "MRR": 0.833333
+        },
+        "superseded": {
+          "Recall@1": 1.0,
+          "stale-hit@1": 0.0,
+          "controversial-hit@1": 0.0,
+          "Recall@3": 1.0,
+          "stale-hit@3": 0.0,
+          "controversial-hit@3": 0.25,
+          "Recall@5": 1.0,
+          "stale-hit@5": 0.0,
+          "controversial-hit@5": 0.25,
+          "MRR": 1.0
+        }
+      },
+      "cases": [
+        {
+          "case_id": "q01",
+          "scenario": "historical_decision",
+          "expected": [
+            "mem_9812db1c5cc14a158d305811397b6dcb"
+          ],
+          "ids": [
+            "mem_9812db1c5cc14a158d305811397b6dcb"
+          ],
+          "retrieved_characters": 403
+        },
+        {
+          "case_id": "q02",
+          "scenario": "historical_decision",
+          "expected": [
+            "mem_30c3e25040ff42b6b4da5b2cc9453c12"
+          ],
+          "ids": [
+            "mem_2e97e020825a48308a5717c96ce67eb4",
+            "mem_30c3e25040ff42b6b4da5b2cc9453c12",
+            "mem_25020416490f4615ab767142dfff4a74",
+            "mem_c94c198bce364149b31e58a4fb93afc0"
+          ],
+          "retrieved_characters": 1569
+        },
+        {
+          "case_id": "q03",
+          "scenario": "historical_decision",
+          "expected": [
+            "mem_897cf876f8c14c349cbfcb2321519f7e"
+          ],
+          "ids": [
+            "mem_897cf876f8c14c349cbfcb2321519f7e",
+            "mem_f51f74d368de461abba0b4f2eab1c37d",
+            "mem_74ad95e406ba4907903bcb74cfa30c70",
+            "mem_0da886fc25944f299470a96593371bca",
+            "mem_d52a1119491d4582b1ceb88ff706a535"
+          ],
+          "retrieved_characters": 1955
+        },
+        {
+          "case_id": "q04",
+          "scenario": "historical_decision",
+          "expected": [
+            "mem_139e4f03af6a4fb2aff4f113bed3afcd"
+          ],
+          "ids": [
+            "mem_cd6caf220afd4149b0aa160bd2051ec9",
+            "mem_139e4f03af6a4fb2aff4f113bed3afcd"
+          ],
+          "retrieved_characters": 773
+        },
+        {
+          "case_id": "q05",
+          "scenario": "superseded",
+          "expected": [
+            "mem_32dbf7d40fd54e1498157c2bee02fd72"
+          ],
+          "ids": [
+            "mem_32dbf7d40fd54e1498157c2bee02fd72",
+            "mem_74ad95e406ba4907903bcb74cfa30c70",
+            "mem_0da886fc25944f299470a96593371bca",
+            "mem_d52a1119491d4582b1ceb88ff706a535",
+            "mem_32839cf120a34f7fbfc4a13b8fb213ea"
+          ],
+          "retrieved_characters": 2025
+        },
+        {
+          "case_id": "q06",
+          "scenario": "superseded",
+          "expected": [
+            "mem_32839cf120a34f7fbfc4a13b8fb213ea"
+          ],
+          "ids": [
+            "mem_32839cf120a34f7fbfc4a13b8fb213ea",
+            "mem_8c0e608efe65495f986be37197e68b96"
+          ],
+          "retrieved_characters": 825
+        },
+        {
+          "case_id": "q07",
+          "scenario": "superseded",
+          "expected": [
+            "mem_25020416490f4615ab767142dfff4a74"
+          ],
+          "ids": [
+            "mem_25020416490f4615ab767142dfff4a74",
+            "mem_8c0e608efe65495f986be37197e68b96",
+            "mem_c81388b51ece41959fc6ffa9f8c9de48",
+            "mem_a76fdf8a5ca04263b9af9606af154fb4"
+          ],
+          "retrieved_characters": 1620
+        },
+        {
+          "case_id": "q08",
+          "scenario": "superseded",
+          "expected": [
+            "mem_f7d4115917c747c5a85c144aa5506aa2"
+          ],
+          "ids": [
+            "mem_f7d4115917c747c5a85c144aa5506aa2",
+            "mem_32839cf120a34f7fbfc4a13b8fb213ea",
+            "mem_9b80582ac5b14ce2ace09e93ae85ee7b"
+          ],
+          "retrieved_characters": 1223
+        },
+        {
+          "case_id": "q09",
+          "scenario": "conflicting",
+          "expected": [
+            "mem_9b80582ac5b14ce2ace09e93ae85ee7b"
+          ],
+          "ids": [
+            "mem_9b28a8eab8df45499c3676bdc5907c53",
+            "mem_9b80582ac5b14ce2ace09e93ae85ee7b",
+            "mem_45908849f07f47deb99aeb7d632f9b5e"
+          ],
+          "retrieved_characters": 1159
+        },
+        {
+          "case_id": "q10",
+          "scenario": "conflicting",
+          "expected": [
+            "mem_01e7c1b45da64acf9f19bf721342ee65"
+          ],
+          "ids": [
+            "mem_d52a1119491d4582b1ceb88ff706a535",
+            "mem_32839cf120a34f7fbfc4a13b8fb213ea",
+            "mem_8b5e7516194c48ee855e46f9e6f5a5f7",
+            "mem_b253f3a2c9df4716b23c96c00a2a96ec",
+            "mem_bfbed4e07c8047639dda2178e57fe32c"
+          ],
+          "retrieved_characters": 1992
+        },
+        {
+          "case_id": "q11",
+          "scenario": "conflicting",
+          "expected": [
+            "mem_da8b1cd55d6048eba73a4a1e3415b287"
+          ],
+          "ids": [
+            "mem_d52a1119491d4582b1ceb88ff706a535",
+            "mem_e2ed86c458fe451a85aefd95e6288e47",
+            "mem_8b5e7516194c48ee855e46f9e6f5a5f7",
+            "mem_74ad95e406ba4907903bcb74cfa30c70",
+            "mem_da8b1cd55d6048eba73a4a1e3415b287"
+          ],
+          "retrieved_characters": 1966
+        },
+        {
+          "case_id": "q12",
+          "scenario": "conflicting",
+          "expected": [
+            "mem_45908849f07f47deb99aeb7d632f9b5e"
+          ],
+          "ids": [
+            "mem_897cf876f8c14c349cbfcb2321519f7e",
+            "mem_c81388b51ece41959fc6ffa9f8c9de48",
+            "mem_9b28a8eab8df45499c3676bdc5907c53",
+            "mem_bfbed4e07c8047639dda2178e57fe32c",
+            "mem_c94c198bce364149b31e58a4fb93afc0"
+          ],
+          "retrieved_characters": 2000
+        },
+        {
+          "case_id": "q13",
+          "scenario": "cross_session",
+          "expected": [
+            "mem_8b5e7516194c48ee855e46f9e6f5a5f7"
+          ],
+          "ids": [
+            "mem_8b5e7516194c48ee855e46f9e6f5a5f7",
+            "mem_d52a1119491d4582b1ceb88ff706a535",
+            "mem_bfbed4e07c8047639dda2178e57fe32c",
+            "mem_01e7c1b45da64acf9f19bf721342ee65"
+          ],
+          "retrieved_characters": 1570
+        },
+        {
+          "case_id": "q14",
+          "scenario": "cross_session",
+          "expected": [
+            "mem_1f230fea62594644837ca161142c0071"
+          ],
+          "ids": [
+            "mem_1f230fea62594644837ca161142c0071",
+            "mem_da8b1cd55d6048eba73a4a1e3415b287"
+          ],
+          "retrieved_characters": 795
+        },
+        {
+          "case_id": "q15",
+          "scenario": "cross_session",
+          "expected": [
+            "mem_e2ed86c458fe451a85aefd95e6288e47"
+          ],
+          "ids": [
+            "mem_e2ed86c458fe451a85aefd95e6288e47",
+            "mem_0da886fc25944f299470a96593371bca"
+          ],
+          "retrieved_characters": 806
+        },
+        {
+          "case_id": "q16",
+          "scenario": "cross_session",
+          "expected": [
+            "mem_74ad95e406ba4907903bcb74cfa30c70"
+          ],
+          "ids": [
+            "mem_74ad95e406ba4907903bcb74cfa30c70",
+            "mem_075b80e0ce2f4b30a47c10bc23c494bc",
+            "mem_897cf876f8c14c349cbfcb2321519f7e"
+          ],
+          "retrieved_characters": 1180
+        },
+        {
+          "case_id": "q17",
+          "scenario": "compaction",
+          "expected": [
+            "mem_a76fdf8a5ca04263b9af9606af154fb4"
+          ],
+          "ids": [
+            "mem_a76fdf8a5ca04263b9af9606af154fb4",
+            "mem_d52a1119491d4582b1ceb88ff706a535",
+            "mem_897cf876f8c14c349cbfcb2321519f7e",
+            "mem_25020416490f4615ab767142dfff4a74",
+            "mem_9ed960c672fb49f283fa190ee7ef3945"
+          ],
+          "retrieved_characters": 1980
+        },
+        {
+          "case_id": "q18",
+          "scenario": "compaction",
+          "expected": [
+            "mem_bfbed4e07c8047639dda2178e57fe32c"
+          ],
+          "ids": [
+            "mem_bfbed4e07c8047639dda2178e57fe32c",
+            "mem_b253f3a2c9df4716b23c96c00a2a96ec",
+            "mem_32dbf7d40fd54e1498157c2bee02fd72"
+          ],
+          "retrieved_characters": 1222
+        },
+        {
+          "case_id": "q19",
+          "scenario": "compaction",
+          "expected": [
+            "mem_b253f3a2c9df4716b23c96c00a2a96ec"
+          ],
+          "ids": [
+            "mem_b253f3a2c9df4716b23c96c00a2a96ec",
+            "mem_a76fdf8a5ca04263b9af9606af154fb4",
+            "mem_45908849f07f47deb99aeb7d632f9b5e"
+          ],
+          "retrieved_characters": 1198
+        },
+        {
+          "case_id": "q20",
+          "scenario": "compaction",
+          "expected": [
+            "mem_c81388b51ece41959fc6ffa9f8c9de48"
+          ],
+          "ids": [
+            "mem_c81388b51ece41959fc6ffa9f8c9de48",
+            "mem_bfbed4e07c8047639dda2178e57fe32c",
+            "mem_a76fdf8a5ca04263b9af9606af154fb4"
+          ],
+          "retrieved_characters": 1232
+        },
+        {
+          "case_id": "q21",
+          "scenario": "noise",
+          "expected": [
+            "mem_c94c198bce364149b31e58a4fb93afc0"
+          ],
+          "ids": [
+            "mem_c94c198bce364149b31e58a4fb93afc0"
+          ],
+          "retrieved_characters": 402
+        },
+        {
+          "case_id": "q22",
+          "scenario": "noise",
+          "expected": [
+            "mem_9ed960c672fb49f283fa190ee7ef3945"
+          ],
+          "ids": [
+            "mem_9ed960c672fb49f283fa190ee7ef3945",
+            "mem_c24579bf6dd94509933aaa31aff0e0b8",
+            "mem_c94c198bce364149b31e58a4fb93afc0"
+          ],
+          "retrieved_characters": 1169
+        },
+        {
+          "case_id": "q23",
+          "scenario": "noise",
+          "expected": [
+            "mem_0da886fc25944f299470a96593371bca"
+          ],
+          "ids": [
+            "mem_0da886fc25944f299470a96593371bca",
+            "mem_8b5e7516194c48ee855e46f9e6f5a5f7",
+            "mem_f7d4115917c747c5a85c144aa5506aa2"
+          ],
+          "retrieved_characters": 1207
+        },
+        {
+          "case_id": "q24",
+          "scenario": "noise",
+          "expected": [
+            "mem_8c0e608efe65495f986be37197e68b96"
+          ],
+          "ids": [
+            "mem_a76fdf8a5ca04263b9af9606af154fb4",
+            "mem_897cf876f8c14c349cbfcb2321519f7e",
+            "mem_8c0e608efe65495f986be37197e68b96",
+            "mem_9ed960c672fb49f283fa190ee7ef3945",
+            "mem_c94c198bce364149b31e58a4fb93afc0"
+          ],
+          "retrieved_characters": 2009
+        }
+      ],
+      "context_size_reduction_vs_full_raw": 0.985503
+    }
+  },
+  "intent_summary_version": 1,
+  "per_intent": {
+    "current-state": {
+      "case_ids": [
+        "q05",
+        "q06",
+        "q07",
+        "q08",
+        "q23"
+      ],
+      "query_count": 5,
+      "methods": {
+        "Baseline": {
+          "metrics": {
+            "Recall@1": 0.2,
+            "stale-hit@1": 0.8,
+            "controversial-hit@1": 0.0,
+            "Recall@3": 1.0,
+            "stale-hit@3": 1.0,
+            "controversial-hit@3": 0.0,
+            "Recall@5": 1.0,
+            "stale-hit@5": 1.0,
+            "controversial-hit@5": 0.0,
+            "MRR": 0.566667
+          },
+          "current_memory_recall": {
+            "Recall@1": 0.2,
+            "Recall@3": 1.0,
+            "Recall@5": 1.0
+          },
+          "stale_contamination": {
+            "@1": 0.8,
+            "@3": 1.0,
+            "@5": 1.0
+          }
+        },
+        "Structured Memory": {
+          "metrics": {
+            "Recall@1": 0.2,
+            "stale-hit@1": 0.8,
+            "controversial-hit@1": 0.0,
+            "Recall@3": 1.0,
+            "stale-hit@3": 1.0,
+            "controversial-hit@3": 0.0,
+            "Recall@5": 1.0,
+            "stale-hit@5": 1.0,
+            "controversial-hit@5": 0.0,
+            "MRR": 0.6
+          },
+          "current_memory_recall": {
+            "Recall@1": 0.2,
+            "Recall@3": 1.0,
+            "Recall@5": 1.0
+          },
+          "stale_contamination": {
+            "@1": 0.8,
+            "@3": 1.0,
+            "@5": 1.0
+          }
+        },
+        "Status-aware Memory": {
+          "metrics": {
+            "Recall@1": 1.0,
+            "stale-hit@1": 0.0,
+            "controversial-hit@1": 0.0,
+            "Recall@3": 1.0,
+            "stale-hit@3": 0.0,
+            "controversial-hit@3": 0.2,
+            "Recall@5": 1.0,
+            "stale-hit@5": 0.0,
+            "controversial-hit@5": 0.2,
+            "MRR": 1.0
+          },
+          "current_memory_recall": {
+            "Recall@1": 1.0,
+            "Recall@3": 1.0,
+            "Recall@5": 1.0
+          },
+          "stale_contamination": {
+            "@1": 0.0,
+            "@3": 0.0,
+            "@5": 0.0
+          }
+        }
+      },
+      "expected_expired_query_count": 0
+    },
+    "historical/superseded": {
+      "case_ids": [
+        "q01",
+        "q02",
+        "q03",
+        "q04",
+        "q21",
+        "q22",
+        "q24"
+      ],
+      "query_count": 7,
+      "methods": {
+        "Baseline": {
+          "metrics": {
+            "Recall@1": 0.428571,
+            "stale-hit@1": 0.285714,
+            "controversial-hit@1": 0.0,
+            "Recall@3": 0.714286,
+            "stale-hit@3": 0.285714,
+            "controversial-hit@3": 0.142857,
+            "Recall@5": 0.857143,
+            "stale-hit@5": 0.428571,
+            "controversial-hit@5": 0.142857,
+            "MRR": 0.607143
+          }
+        },
+        "Structured Memory": {
+          "metrics": {
+            "Recall@1": 0.428571,
+            "stale-hit@1": 0.285714,
+            "controversial-hit@1": 0.0,
+            "Recall@3": 0.857143,
+            "stale-hit@3": 0.285714,
+            "controversial-hit@3": 0.0,
+            "Recall@5": 1.0,
+            "stale-hit@5": 0.285714,
+            "controversial-hit@5": 0.0,
+            "MRR": 0.678571
+          }
+        },
+        "Status-aware Memory": {
+          "metrics": {
+            "Recall@1": 0.571429,
+            "stale-hit@1": 0.0,
+            "controversial-hit@1": 0.0,
+            "Recall@3": 1.0,
+            "stale-hit@3": 0.0,
+            "controversial-hit@3": 0.0,
+            "Recall@5": 1.0,
+            "stale-hit@5": 0.0,
+            "controversial-hit@5": 0.0,
+            "MRR": 0.761905
+          }
+        }
+      },
+      "expected_expired_query_count": 0,
+      "noncurrent_enabled": {
+        "implementation": "query_memory.search(include_noncurrent=True); same ranking as Structured Memory",
+        "metrics": {
+          "Recall@1": 0.428571,
+          "stale-hit@1": 0.285714,
+          "controversial-hit@1": 0.0,
+          "Recall@3": 0.857143,
+          "stale-hit@3": 0.285714,
+          "controversial-hit@3": 0.0,
+          "Recall@5": 1.0,
+          "stale-hit@5": 0.285714,
+          "controversial-hit@5": 0.0,
+          "MRR": 0.678571
+        }
+      },
+      "expired_target_recall": null,
+      "limitation": "No query expects an expired card in this fixture. History-enabled recall measures the original expected IDs only; stale-hit is exposure, not contamination, in this slice."
+    },
+    "conflict/controversial": {
+      "case_ids": [
+        "q09",
+        "q10",
+        "q11",
+        "q12"
+      ],
+      "query_count": 4,
+      "methods": {
+        "Baseline": {
+          "metrics": {
+            "Recall@1": 0.75,
+            "stale-hit@1": 0.0,
+            "controversial-hit@1": 0.75,
+            "Recall@3": 0.75,
+            "stale-hit@3": 0.25,
+            "controversial-hit@3": 0.75,
+            "Recall@5": 1.0,
+            "stale-hit@5": 0.25,
+            "controversial-hit@5": 1.0,
+            "MRR": 0.8125
+          },
+          "expected_controversial_recall": {
+            "@1": 0.75,
+            "@3": 0.75,
+            "@5": 1.0
+          }
+        },
+        "Structured Memory": {
+          "metrics": {
+            "Recall@1": 0.75,
+            "stale-hit@1": 0.0,
+            "controversial-hit@1": 0.75,
+            "Recall@3": 1.0,
+            "stale-hit@3": 0.25,
+            "controversial-hit@3": 1.0,
+            "Recall@5": 1.0,
+            "stale-hit@5": 0.25,
+            "controversial-hit@5": 1.0,
+            "MRR": 0.875
+          },
+          "expected_controversial_recall": {
+            "@1": 0.75,
+            "@3": 1.0,
+            "@5": 1.0
+          }
+        },
+        "Status-aware Memory": {
+          "metrics": {
+            "Recall@1": 0.0,
+            "stale-hit@1": 0.0,
+            "controversial-hit@1": 0.0,
+            "Recall@3": 0.25,
+            "stale-hit@3": 0.0,
+            "controversial-hit@3": 0.25,
+            "Recall@5": 0.5,
+            "stale-hit@5": 0.0,
+            "controversial-hit@5": 0.5,
+            "MRR": 0.175
+          },
+          "expected_controversial_recall": {
+            "@1": 0.0,
+            "@3": 0.25,
+            "@5": 0.5
+          }
+        }
+      },
+      "expected_expired_query_count": 0
+    },
+    "cross-session": {
+      "case_ids": [
+        "q13",
+        "q14",
+        "q15",
+        "q16"
+      ],
+      "query_count": 4,
+      "methods": {
+        "Baseline": {
+          "metrics": {
+            "Recall@1": 0.25,
+            "stale-hit@1": 0.25,
+            "controversial-hit@1": 0.0,
+            "Recall@3": 1.0,
+            "stale-hit@3": 0.25,
+            "controversial-hit@3": 0.25,
+            "Recall@5": 1.0,
+            "stale-hit@5": 0.25,
+            "controversial-hit@5": 0.25,
+            "MRR": 0.625
+          }
+        },
+        "Structured Memory": {
+          "metrics": {
+            "Recall@1": 0.75,
+            "stale-hit@1": 0.25,
+            "controversial-hit@1": 0.0,
+            "Recall@3": 1.0,
+            "stale-hit@3": 0.25,
+            "controversial-hit@3": 0.5,
+            "Recall@5": 1.0,
+            "stale-hit@5": 0.25,
+            "controversial-hit@5": 0.5,
+            "MRR": 0.875
+          }
+        },
+        "Status-aware Memory": {
+          "metrics": {
+            "Recall@1": 1.0,
+            "stale-hit@1": 0.0,
+            "controversial-hit@1": 0.0,
+            "Recall@3": 1.0,
+            "stale-hit@3": 0.0,
+            "controversial-hit@3": 0.25,
+            "Recall@5": 1.0,
+            "stale-hit@5": 0.0,
+            "controversial-hit@5": 0.5,
+            "MRR": 1.0
+          }
+        }
+      },
+      "expected_expired_query_count": 0
+    },
+    "compaction-recovery": {
+      "case_ids": [
+        "q17",
+        "q18",
+        "q19",
+        "q20"
+      ],
+      "query_count": 4,
+      "methods": {
+        "Baseline": {
+          "metrics": {
+            "Recall@1": 0.5,
+            "stale-hit@1": 0.5,
+            "controversial-hit@1": 0.0,
+            "Recall@3": 1.0,
+            "stale-hit@3": 0.75,
+            "controversial-hit@3": 0.25,
+            "Recall@5": 1.0,
+            "stale-hit@5": 0.75,
+            "controversial-hit@5": 0.25,
+            "MRR": 0.708333
+          }
+        },
+        "Structured Memory": {
+          "metrics": {
+            "Recall@1": 0.75,
+            "stale-hit@1": 0.25,
+            "controversial-hit@1": 0.0,
+            "Recall@3": 1.0,
+            "stale-hit@3": 0.75,
+            "controversial-hit@3": 0.25,
+            "Recall@5": 1.0,
+            "stale-hit@5": 0.75,
+            "controversial-hit@5": 0.25,
+            "MRR": 0.875
+          }
+        },
+        "Status-aware Memory": {
+          "metrics": {
+            "Recall@1": 1.0,
+            "stale-hit@1": 0.0,
+            "controversial-hit@1": 0.0,
+            "Recall@3": 1.0,
+            "stale-hit@3": 0.0,
+            "controversial-hit@3": 0.25,
+            "Recall@5": 1.0,
+            "stale-hit@5": 0.0,
+            "controversial-hit@5": 0.25,
+            "MRR": 1.0
+          }
+        }
+      },
+      "expected_expired_query_count": 0
+    }
+  }
+}

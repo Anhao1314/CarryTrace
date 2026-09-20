@@ -6,7 +6,7 @@ T3（矛盾、过期未标注、缺失交叉引用、孤儿概念）需要判断
 `references/lint-rules.md` 执行，本脚本不承担。
 
 两条设计原则（借自 karpathy-llm-wiki 的 check_evidence）：
-  1. **只报告，不改文件。** 修复一律交给 render_notes.py 重建——渲染是确定性且幂等的，
+  1. **只报告，不改文件。** 修复先核对源数据与登记表，再由 render_notes.py 重建——渲染是确定性且幂等的，
      让体检脚本自己也学会修，等于凭空多出第二个真相来源。
   2. **候选集封闭且冻结，命中的是「存疑」不是「错误」。** 卡片是转述而非引用，
      改写、省略、换算是合法的；判断交给人和 agent。
@@ -64,13 +64,20 @@ def parse_frontmatter(text):
     if end == -1:
         return {}, text
     block, body = text[4:end], text[end + 4:]
+    def scalar(value):
+        # The renderer uses JSON-compatible double quoting; do not strip literal
+        # trailing quotes from plain external note names or leave escapes undecoded.
+        if value.startswith('"') and value.endswith('"'):
+            return json.loads(value)
+        return value
+
     data, current = {}, None
     for line in block.splitlines():
         if not line.strip():
             continue
         if re.match(r"^\s*-\s+", line):
             if current is not None:
-                data[current].append(line.split("- ", 1)[1].strip().strip('"'))
+                data[current].append(scalar(line.split("- ", 1)[1].strip()))
             continue
         if ":" not in line:
             continue
@@ -81,7 +88,7 @@ def parse_frontmatter(text):
         elif value == "[]":
             data[key], current = [], None
         else:
-            data[key], current = value.strip('"'), None
+            data[key], current = scalar(value), None
     return data, body
 
 
@@ -113,7 +120,7 @@ def scan_dir(base, sub):
 
 
 def check_structure(base, taxonomy_path):
-    """T1：结构一致性。全部「重新渲染即可修复」。"""
+    """T1: report structure and identity inconsistencies; never guess repairs."""
     problems = []
     convs = scan_dir(base, CONV_DIR)
     cards = scan_dir(base, CARD_DIR)
@@ -122,6 +129,9 @@ def check_structure(base, taxonomy_path):
     def note(kind, item, detail):
         problems.append({"kind": kind, "item": item, "detail": detail})
 
+    stable_mode = (os.path.isfile(os.path.join(base, ".chat-distiller", "identity-registry.json"))
+                   or any("memory_id:" in read(path) for path in {**convs, **cards}.values()))
+    # Stable display IDs may have deliberate gaps (retired identities).
     # 编号连续性
     for label, files, prefix in (("会话", convs, "S"), ("卡片", cards, "C")):
         nums = []
@@ -134,7 +144,7 @@ def check_structure(base, taxonomy_path):
         if nums:
             expect = list(range(1, max(nums) + 1))
             missing = sorted(set(expect) - set(nums))
-            if missing:
+            if missing and not stable_mode:
                 note("numbering", label,
                      f"编号有空洞：{prefix}" + "、".join(f"{n:02d}" for n in missing))
             dupes = sorted({n for n in nums if nums.count(n) > 1})
@@ -163,11 +173,50 @@ def check_structure(base, taxonomy_path):
         sup = fm.get("superseded_by")
         if sup and sup not in cards:
             note("status", name, f"superseded_by 指向不存在的卡片「{sup}」")
-        if status and status != "现行" and not sup:
+        if status == "已过期" and not sup:
             note("status", name, f"状态为「{status}」但没有 superseded_by 指向新结论")
         for c in fm.get("categories") or []:
             if taxo and c not in taxo:
                 note("taxonomy", name, f"分类「{c}」不在词表")
+    if stable_mode:
+        from memory_identity import load_published_source, note_identity_issues, external_relation_issues
+        from query_memory import load_index
+        try:
+            source = load_published_source(base)
+            if source is None:
+                raise ValueError('identity drift: published source/registry missing')
+            registry = source['identity_registry']
+            for issue in note_identity_issues(base, source):
+                note('identity', 'notes', issue)
+            for issue in external_relation_issues(source, os.path.dirname(base), os.path.basename(base)):
+                note('external_link', 'external_related', issue)
+            rows = [json.loads(line) for line in read(os.path.join(base, '知识索引.jsonl')).splitlines() if line.strip()]
+            indexed = {row["memory_id"]: row for row in rows}
+            seen = set()
+            for name, path in {**convs, **cards}.items():
+                fm, _ = parse_frontmatter(read(path))
+                mid = fm.get("memory_id")
+                if mid in seen:
+                    note("identity", name, "duplicate memory_id")
+                seen.add(mid)
+                rec = registry.get(mid)
+                if not rec or rec["note_name"] != name or fm.get("display_id") != rec["display_id"]:
+                    note("identity", name, "missing memory_id / registry inconsistency")
+                for ref in (fm.get("related_memory_ids") or []) + [fm.get("source_memory_id"), fm.get("superseded_by_memory_id")]:
+                    if ref and (ref not in registry or not registry[ref]["active"]):
+                        note("identity", name, f"dangling stable relation: {ref}")
+                row = indexed.get(mid)
+                if row and (fm.get('external_related') or []) != row.get('external_related', []):
+                    note('external_link', name, 'external_related projection differs from source/index')
+                if row and name in cards:
+                    for field, key in (("status", "status"), ("source_memory_id", "source_memory_id"), ("superseded_by_memory_id", "superseded_by")):
+                        if (fm.get(field) or None) != (row.get(key) or None):
+                            note("identity", name, f"note/index inconsistency: {field}")
+                if name in cards and not fm.get("source_memory_id"):
+                    note("identity", name, "missing source_memory_id")
+            load_index(base)
+        except (ValueError, OSError, KeyError, TypeError) as exc:
+            note("identity", "registry/index", str(exc))
     return convs, cards, problems
 
 
@@ -253,10 +302,10 @@ def main():
     suspects, errors, skipped, checked = check_evidence(cards, transcripts)
 
     report = {
-        "ok": True,
+        "ok": not any(p["kind"] in {"identity", "external_link"} for p in structural),
         "vault": args.vault, "subdir": args.subdir,
         "counts": {"conversations": len(convs), "cards": len(cards)},
-        # T1：重新跑 render_notes.py 即可修复
+        # T1：先定位源数据/登记表问题，再渲染
         "structure_issues": structural,
         "index_issues": index_problems,
         # T2：存疑，需人工/agent 判断
@@ -273,7 +322,7 @@ def main():
 
     fixable = len(structural) + len(index_problems)
     if fixable:
-        print(f"\nℹ️ 发现 {fixable} 处结构问题——重新运行 render_notes.py 即可修复：",
+        print(f"\nℹ️ 发现 {fixable} 处结构问题——请检查源数据/登记表，必要时重新渲染：",
               file=sys.stderr)
         for p in (structural + index_problems)[:12]:
             print(f"  - [{p['kind']}] {p['item']}: {p['detail']}", file=sys.stderr)
@@ -289,6 +338,9 @@ def main():
         print(f"\nℹ️ {skipped}", file=sys.stderr)
     if not fixable and not suspects and not errors:
         print(f"✅ 体检通过：结构一致、证据可核验（核对了 {checked} 处字面量）。", file=sys.stderr)
+
+    if not report["ok"]:
+        sys.exit(1)
 
 
 if __name__ == "__main__":

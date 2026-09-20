@@ -42,6 +42,10 @@
 
 ## distill.json 字段规范
 
+以下描述保留 v1 作者输入。生产者可先写此格式，再显式登记为 v2。
+已有 v2 源必须保留身份，不能退回 v1。完整新增字段与迁移规则见 [stable-memory.md](stable-memory.md)。
+v2 的 related / superseded_by 必须使用稳定 memory_id；外部笔记名使用 external_related。
+
 顶层：`{"conversations": [ …每会话一个对象… ]}`（可带任意 `_` 开头说明字段，会被忽略）。
 
 | 字段 | 必填 | 规范 |
@@ -67,10 +71,10 @@
 - `status`：`现行`（默认）/`已过期`/`有争议`。**知识会过期**——这个字段是给检索用的：
   旧结论留在库里不删，但要让 agent 知道它已经不作数了。
 - `superseded_by`：取代它的新卡片，写卡片的完整显示名（如 `C21 - 改用容器隔离后的取舍标准`）。
-  `status` 非「现行」时应一并给出。
+  已过期且有明确替代卡片时给出；有争议不必有替代结论。
 - `categories`：卡片所属 `一级/二级` 领域（可多个）；**缺省时脚本让卡片继承所属主题段（threads）或会话的分类**，所以同段同类卡片可省略、只在跨领域时显式覆盖。
 - `tags`/`related` 可选。
-- 会话短 ID（S01、S02…）与卡片编号（C01、C02…）都由脚本按 conversations 与 threads 顺序连续分配，**不要自己编号**；会话日期只进 frontmatter，不进文件名。
+- v1 会话短 ID（S01、S02…）与卡片编号（C01、C02…）按顺序分配；v2 登记时分配后永久保留，**不要自己编号或编辑身份字段**；会话日期只进 frontmatter，不进文件名。
 
 主题段对象（`threads[]`）：`{topic, categories, summary?, key_points?, decisions?, todos?, cards?}`
 - `topic`：这段主题的小标题；`categories`：这段的领域（通常 1 个，可多个）。

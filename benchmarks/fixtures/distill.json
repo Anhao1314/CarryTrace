@@ -1,0 +1,1695 @@
+{
+  "conversations": [
+    {
+      "session_id": "dev-001",
+      "date": "2026-01-01",
+      "title": "开发环境先用 venv",
+      "summary": "因笔记本内存不足，暂不引入 Docker，使用 venv 隔离依赖。",
+      "topic": "开发记忆",
+      "categories": [
+        "技术开发/排错调试"
+      ],
+      "tags": [],
+      "value": "高",
+      "cards": [
+        {
+          "title": "开发环境先用 venv",
+          "body": "因笔记本内存不足，暂不引入 Docker，使用 venv 隔离依赖。",
+          "kind": "decision",
+          "status": "现行",
+          "memory_id": "mem_9812db1c5cc14a158d305811397b6dcb",
+          "display_id": "C01",
+          "note_name": "C01 - 开发环境先用 venv",
+          "source_memory_id": "mem_92e774134a0840059a9b4aaf0056fadb",
+          "related": []
+        }
+      ],
+      "memory_id": "mem_92e774134a0840059a9b4aaf0056fadb",
+      "display_id": "S01",
+      "note_name": "S01 - 开发环境先用 venv",
+      "related": []
+    },
+    {
+      "session_id": "dev-002",
+      "date": "2026-01-02",
+      "title": "搜索保持离线和标准库依赖",
+      "summary": "拒绝外部向量库是为了离线使用与简化安装。",
+      "topic": "开发记忆",
+      "categories": [
+        "技术开发/排错调试"
+      ],
+      "tags": [],
+      "value": "高",
+      "cards": [
+        {
+          "title": "搜索保持离线和标准库依赖",
+          "body": "拒绝外部向量库是为了离线使用与简化安装。",
+          "kind": "decision",
+          "status": "现行",
+          "memory_id": "mem_30c3e25040ff42b6b4da5b2cc9453c12",
+          "display_id": "C02",
+          "note_name": "C02 - 搜索保持离线和标准库依赖",
+          "source_memory_id": "mem_c811049aff5446a5b76321ff0010536c",
+          "related": []
+        }
+      ],
+      "memory_id": "mem_c811049aff5446a5b76321ff0010536c",
+      "display_id": "S02",
+      "note_name": "S02 - 搜索保持离线和标准库依赖",
+      "related": []
+    },
+    {
+      "session_id": "dev-003",
+      "date": "2026-01-03",
+      "title": "操作日志选择 JSONL",
+      "summary": "日志采用 JSONL，支持逐行追加和局部损坏后的恢复。",
+      "topic": "开发记忆",
+      "categories": [
+        "技术开发/排错调试"
+      ],
+      "tags": [],
+      "value": "高",
+      "cards": [
+        {
+          "title": "操作日志选择 JSONL",
+          "body": "日志采用 JSONL，支持逐行追加和局部损坏后的恢复。",
+          "kind": "decision",
+          "status": "现行",
+          "memory_id": "mem_897cf876f8c14c349cbfcb2321519f7e",
+          "display_id": "C03",
+          "note_name": "C03 - 操作日志选择 JSONL",
+          "source_memory_id": "mem_ab39c39db7154d838ec07dc77c507c13",
+          "related": []
+        }
+      ],
+      "memory_id": "mem_ab39c39db7154d838ec07dc77c507c13",
+      "display_id": "S03",
+      "note_name": "S03 - 操作日志选择 JSONL",
+      "related": []
+    },
+    {
+      "session_id": "dev-004",
+      "date": "2026-01-04",
+      "title": "照片整理坚持本地处理",
+      "summary": "家庭照片涉及隐私与不可撤回传播，不使用云端相册。",
+      "topic": "开发记忆",
+      "categories": [
+        "技术开发/排错调试"
+      ],
+      "tags": [],
+      "value": "高",
+      "cards": [
+        {
+          "title": "照片整理坚持本地处理",
+          "body": "家庭照片涉及隐私与不可撤回传播，不使用云端相册。",
+          "kind": "decision",
+          "status": "现行",
+          "memory_id": "mem_139e4f03af6a4fb2aff4f113bed3afcd",
+          "display_id": "C04",
+          "note_name": "C04 - 照片整理坚持本地处理",
+          "source_memory_id": "mem_d3e458e685244df28e60fd3da4a3822a",
+          "related": []
+        }
+      ],
+      "memory_id": "mem_d3e458e685244df28e60fd3da4a3822a",
+      "display_id": "S04",
+      "note_name": "S04 - 照片整理坚持本地处理",
+      "related": []
+    },
+    {
+      "session_id": "dev-005",
+      "date": "2026-01-05",
+      "title": "后端现行接口采用 FastAPI",
+      "summary": "后端已由 Flask 迁移到 FastAPI；新接口必须遵守异步调用约定。",
+      "topic": "开发记忆",
+      "categories": [
+        "技术开发/排错调试"
+      ],
+      "tags": [],
+      "value": "高",
+      "cards": [
+        {
+          "title": "后端现行接口采用 FastAPI",
+          "body": "后端已由 Flask 迁移到 FastAPI；新接口必须遵守异步调用约定。",
+          "kind": "decision",
+          "status": "现行",
+          "memory_id": "mem_32dbf7d40fd54e1498157c2bee02fd72",
+          "display_id": "C05",
+          "note_name": "C05 - 后端现行接口采用 FastAPI",
+          "source_memory_id": "mem_ba1fcb0868a645e09eef9e01a7947db8",
+          "related": []
+        }
+      ],
+      "memory_id": "mem_ba1fcb0868a645e09eef9e01a7947db8",
+      "display_id": "S05",
+      "note_name": "S05 - 后端现行接口采用 FastAPI",
+      "related": []
+    },
+    {
+      "session_id": "dev-006",
+      "date": "2026-01-06",
+      "title": "部署环境升级 Python 3.12",
+      "summary": "部署服务现在统一 Python 3.12，旧 Python 3.9 环境已停用。",
+      "topic": "开发记忆",
+      "categories": [
+        "技术开发/排错调试"
+      ],
+      "tags": [],
+      "value": "高",
+      "cards": [
+        {
+          "title": "部署环境升级 Python 3.12",
+          "body": "部署服务现在统一 Python 3.12，旧 Python 3.9 环境已停用。",
+          "kind": "decision",
+          "status": "现行",
+          "memory_id": "mem_32839cf120a34f7fbfc4a13b8fb213ea",
+          "display_id": "C06",
+          "note_name": "C06 - 部署环境升级 Python 3.12",
+          "source_memory_id": "mem_888a7eb644974ca4896379acf1b7ccc8",
+          "related": []
+        }
+      ],
+      "memory_id": "mem_888a7eb644974ca4896379acf1b7ccc8",
+      "display_id": "S06",
+      "note_name": "S06 - 部署环境升级 Python 3.12",
+      "related": []
+    },
+    {
+      "session_id": "dev-007",
+      "date": "2026-01-07",
+      "title": "备份改为每日运行",
+      "summary": "当前备份频率为每日，替代每周任务，以降低数据损失窗口。",
+      "topic": "开发记忆",
+      "categories": [
+        "技术开发/排错调试"
+      ],
+      "tags": [],
+      "value": "高",
+      "cards": [
+        {
+          "title": "备份改为每日运行",
+          "body": "当前备份频率为每日，替代每周任务，以降低数据损失窗口。",
+          "kind": "decision",
+          "status": "现行",
+          "memory_id": "mem_25020416490f4615ab767142dfff4a74",
+          "display_id": "C07",
+          "note_name": "C07 - 备份改为每日运行",
+          "source_memory_id": "mem_41a7494f28674136b7bb7bd666f126e4",
+          "related": []
+        }
+      ],
+      "memory_id": "mem_41a7494f28674136b7bb7bd666f126e4",
+      "display_id": "S07",
+      "note_name": "S07 - 备份改为每日运行",
+      "related": []
+    },
+    {
+      "session_id": "dev-008",
+      "date": "2026-01-08",
+      "title": "凭据转移到系统钥匙串",
+      "summary": "API 令牌现存于系统钥匙串，不再使用 .env 保存长期密钥。",
+      "topic": "开发记忆",
+      "categories": [
+        "技术开发/排错调试"
+      ],
+      "tags": [],
+      "value": "高",
+      "cards": [
+        {
+          "title": "凭据转移到系统钥匙串",
+          "body": "API 令牌现存于系统钥匙串，不再使用 .env 保存长期密钥。",
+          "kind": "decision",
+          "status": "现行",
+          "memory_id": "mem_f7d4115917c747c5a85c144aa5506aa2",
+          "display_id": "C08",
+          "note_name": "C08 - 凭据转移到系统钥匙串",
+          "source_memory_id": "mem_a324c1369ad84af5b045c30b6c40050c",
+          "related": []
+        }
+      ],
+      "memory_id": "mem_a324c1369ad84af5b045c30b6c40050c",
+      "display_id": "S08",
+      "note_name": "S08 - 凭据转移到系统钥匙串",
+      "related": []
+    },
+    {
+      "session_id": "dev-009",
+      "date": "2026-01-09",
+      "title": "缓存时效仍有争议",
+      "summary": "缓存 TTL 存在五分钟与一小时两种意见，尚未决策。",
+      "topic": "开发记忆",
+      "categories": [
+        "技术开发/排错调试"
+      ],
+      "tags": [],
+      "value": "高",
+      "cards": [
+        {
+          "title": "缓存时效仍有争议",
+          "body": "缓存 TTL 存在五分钟与一小时两种意见，尚未决策。",
+          "kind": "decision",
+          "status": "有争议",
+          "memory_id": "mem_9b80582ac5b14ce2ace09e93ae85ee7b",
+          "display_id": "C09",
+          "note_name": "C09 - 缓存时效仍有争议",
+          "source_memory_id": "mem_26a30c833c354c2ab3ec4ef390ef30d4",
+          "related": []
+        }
+      ],
+      "memory_id": "mem_26a30c833c354c2ab3ec4ef390ef30d4",
+      "display_id": "S09",
+      "note_name": "S09 - 缓存时效仍有争议",
+      "related": []
+    },
+    {
+      "session_id": "dev-010",
+      "date": "2026-01-10",
+      "title": "文件名大小写策略未定",
+      "summary": "是否统一文件名大小写仍有争议，需要兼容性测试。",
+      "topic": "开发记忆",
+      "categories": [
+        "技术开发/排错调试"
+      ],
+      "tags": [],
+      "value": "高",
+      "cards": [
+        {
+          "title": "文件名大小写策略未定",
+          "body": "是否统一文件名大小写仍有争议，需要兼容性测试。",
+          "kind": "decision",
+          "status": "有争议",
+          "memory_id": "mem_01e7c1b45da64acf9f19bf721342ee65",
+          "display_id": "C10",
+          "note_name": "C10 - 文件名大小写策略未定",
+          "source_memory_id": "mem_a436038547c749c39465ba079f359655",
+          "related": []
+        }
+      ],
+      "memory_id": "mem_a436038547c749c39465ba079f359655",
+      "display_id": "S10",
+      "note_name": "S10 - 文件名大小写策略未定",
+      "related": []
+    },
+    {
+      "session_id": "dev-011",
+      "date": "2026-01-11",
+      "title": "归档保留时间尚未确定",
+      "summary": "归档保留一年还是永久仍在争议中，不应作为已定政策。",
+      "topic": "开发记忆",
+      "categories": [
+        "技术开发/排错调试"
+      ],
+      "tags": [],
+      "value": "高",
+      "cards": [
+        {
+          "title": "归档保留时间尚未确定",
+          "body": "归档保留一年还是永久仍在争议中，不应作为已定政策。",
+          "kind": "decision",
+          "status": "有争议",
+          "memory_id": "mem_da8b1cd55d6048eba73a4a1e3415b287",
+          "display_id": "C11",
+          "note_name": "C11 - 归档保留时间尚未确定",
+          "source_memory_id": "mem_3604accae9c3478bb5c0deba806bdcc4",
+          "related": []
+        }
+      ],
+      "memory_id": "mem_3604accae9c3478bb5c0deba806bdcc4",
+      "display_id": "S11",
+      "note_name": "S11 - 归档保留时间尚未确定",
+      "related": []
+    },
+    {
+      "session_id": "dev-012",
+      "date": "2026-01-12",
+      "title": "删除确认机制待决策",
+      "summary": "删除操作是否二次确认尚有争议，没有最终规则。",
+      "topic": "开发记忆",
+      "categories": [
+        "技术开发/排错调试"
+      ],
+      "tags": [],
+      "value": "高",
+      "cards": [
+        {
+          "title": "删除确认机制待决策",
+          "body": "删除操作是否二次确认尚有争议，没有最终规则。",
+          "kind": "decision",
+          "status": "有争议",
+          "memory_id": "mem_45908849f07f47deb99aeb7d632f9b5e",
+          "display_id": "C12",
+          "note_name": "C12 - 删除确认机制待决策",
+          "source_memory_id": "mem_fc5c41d6415f446ca703cdb873b6a20a",
+          "related": []
+        }
+      ],
+      "memory_id": "mem_fc5c41d6415f446ca703cdb873b6a20a",
+      "display_id": "S12",
+      "note_name": "S12 - 删除确认机制待决策",
+      "related": []
+    },
+    {
+      "session_id": "dev-013",
+      "date": "2026-01-13",
+      "title": "标题编辑保留笔记路径",
+      "summary": "为保护历史引用，编辑标题时不重命名已有笔记文件。",
+      "topic": "开发记忆",
+      "categories": [
+        "技术开发/排错调试"
+      ],
+      "tags": [],
+      "value": "高",
+      "cards": [
+        {
+          "title": "标题编辑保留笔记路径",
+          "body": "为保护历史引用，编辑标题时不重命名已有笔记文件。",
+          "kind": "decision",
+          "status": "现行",
+          "memory_id": "mem_8b5e7516194c48ee855e46f9e6f5a5f7",
+          "display_id": "C13",
+          "note_name": "C13 - 标题编辑保留笔记路径",
+          "source_memory_id": "mem_736d8cc8ffd1443d98813cab4edc2170",
+          "related": []
+        }
+      ],
+      "memory_id": "mem_736d8cc8ffd1443d98813cab4edc2170",
+      "display_id": "S13",
+      "note_name": "S13 - 标题编辑保留笔记路径",
+      "related": []
+    },
+    {
+      "session_id": "dev-014",
+      "date": "2026-01-14",
+      "title": "时间存储与展示分离",
+      "summary": "持久化时间使用 UTC；本地时区转换仅发生在展示层。",
+      "topic": "开发记忆",
+      "categories": [
+        "技术开发/排错调试"
+      ],
+      "tags": [],
+      "value": "高",
+      "cards": [
+        {
+          "title": "时间存储与展示分离",
+          "body": "持久化时间使用 UTC；本地时区转换仅发生在展示层。",
+          "kind": "decision",
+          "status": "现行",
+          "memory_id": "mem_1f230fea62594644837ca161142c0071",
+          "display_id": "C14",
+          "note_name": "C14 - 时间存储与展示分离",
+          "source_memory_id": "mem_bdbf21d8251a426fbaf23415aed7dc04",
+          "related": []
+        }
+      ],
+      "memory_id": "mem_bdbf21d8251a426fbaf23415aed7dc04",
+      "display_id": "S14",
+      "note_name": "S14 - 时间存储与展示分离",
+      "related": []
+    },
+    {
+      "session_id": "dev-015",
+      "date": "2026-01-15",
+      "title": "导出消息保留来源会话",
+      "summary": "消息导出逐行写入，并保留 session_id 供回溯。",
+      "topic": "开发记忆",
+      "categories": [
+        "技术开发/排错调试"
+      ],
+      "tags": [],
+      "value": "高",
+      "cards": [
+        {
+          "title": "导出消息保留来源会话",
+          "body": "消息导出逐行写入，并保留 session_id 供回溯。",
+          "kind": "decision",
+          "status": "现行",
+          "memory_id": "mem_e2ed86c458fe451a85aefd95e6288e47",
+          "display_id": "C15",
+          "note_name": "C15 - 导出消息保留来源会话",
+          "source_memory_id": "mem_2249cc85adcb4700b8cda035fb52dcef",
+          "related": []
+        }
+      ],
+      "memory_id": "mem_2249cc85adcb4700b8cda035fb52dcef",
+      "display_id": "S15",
+      "note_name": "S15 - 导出消息保留来源会话",
+      "related": []
+    },
+    {
+      "session_id": "dev-016",
+      "date": "2026-01-16",
+      "title": "项目使用 MIT 许可证",
+      "summary": "项目选择 MIT 许可证，分发时保留版权与许可声明。",
+      "topic": "开发记忆",
+      "categories": [
+        "技术开发/排错调试"
+      ],
+      "tags": [],
+      "value": "高",
+      "cards": [
+        {
+          "title": "项目使用 MIT 许可证",
+          "body": "项目选择 MIT 许可证，分发时保留版权与许可声明。",
+          "kind": "decision",
+          "status": "现行",
+          "memory_id": "mem_74ad95e406ba4907903bcb74cfa30c70",
+          "display_id": "C16",
+          "note_name": "C16 - 项目使用 MIT 许可证",
+          "source_memory_id": "mem_6f1c0876aa69483c8f50b4274ff779bc",
+          "related": []
+        }
+      ],
+      "memory_id": "mem_6f1c0876aa69483c8f50b4274ff779bc",
+      "display_id": "S16",
+      "note_name": "S16 - 项目使用 MIT 许可证",
+      "related": []
+    },
+    {
+      "session_id": "dev-017",
+      "date": "2026-01-17",
+      "title": "恢复任务先查外部决策",
+      "summary": "压缩恢复先查 pending 和外部记忆中的历史决策，再继续未完成工作。",
+      "topic": "开发记忆",
+      "categories": [
+        "技术开发/排错调试"
+      ],
+      "tags": [],
+      "value": "高",
+      "cards": [
+        {
+          "title": "恢复任务先查外部决策",
+          "body": "压缩恢复先查 pending 和外部记忆中的历史决策，再继续未完成工作。",
+          "kind": "decision",
+          "status": "现行",
+          "memory_id": "mem_a76fdf8a5ca04263b9af9606af154fb4",
+          "display_id": "C17",
+          "note_name": "C17 - 恢复任务先查外部决策",
+          "source_memory_id": "mem_35c2e023bcbe4acfb5bc98160d95cf8e",
+          "related": []
+        }
+      ],
+      "memory_id": "mem_35c2e023bcbe4acfb5bc98160d95cf8e",
+      "display_id": "S17",
+      "note_name": "S17 - 恢复任务先查外部决策",
+      "related": []
+    },
+    {
+      "session_id": "dev-018",
+      "date": "2026-01-18",
+      "title": "迁移下一步先做预览",
+      "summary": "未完成的迁移需要先 dry-run 并核对孤儿文件，尚未授权提交。",
+      "topic": "开发记忆",
+      "categories": [
+        "技术开发/排错调试"
+      ],
+      "tags": [],
+      "value": "高",
+      "cards": [
+        {
+          "title": "迁移下一步先做预览",
+          "body": "未完成的迁移需要先 dry-run 并核对孤儿文件，尚未授权提交。",
+          "kind": "decision",
+          "status": "现行",
+          "memory_id": "mem_bfbed4e07c8047639dda2178e57fe32c",
+          "display_id": "C18",
+          "note_name": "C18 - 迁移下一步先做预览",
+          "source_memory_id": "mem_91e6eabaab844267b9097e23e3feaadb",
+          "related": []
+        }
+      ],
+      "memory_id": "mem_91e6eabaab844267b9097e23e3feaadb",
+      "display_id": "S18",
+      "note_name": "S18 - 迁移下一步先做预览",
+      "related": []
+    },
+    {
+      "session_id": "dev-019",
+      "date": "2026-01-19",
+      "title": "检索验收尚缺中文回归",
+      "summary": "检索工作下一步补中文查询测试；英文回归已经通过。",
+      "topic": "开发记忆",
+      "categories": [
+        "技术开发/排错调试"
+      ],
+      "tags": [],
+      "value": "高",
+      "cards": [
+        {
+          "title": "检索验收尚缺中文回归",
+          "body": "检索工作下一步补中文查询测试；英文回归已经通过。",
+          "kind": "decision",
+          "status": "现行",
+          "memory_id": "mem_b253f3a2c9df4716b23c96c00a2a96ec",
+          "display_id": "C19",
+          "note_name": "C19 - 检索验收尚缺中文回归",
+          "source_memory_id": "mem_7aa1ccfaf5ee48e6ba7ab68a4c1abb0d",
+          "related": []
+        }
+      ],
+      "memory_id": "mem_7aa1ccfaf5ee48e6ba7ab68a4c1abb0d",
+      "display_id": "S19",
+      "note_name": "S19 - 检索验收尚缺中文回归",
+      "related": []
+    },
+    {
+      "session_id": "dev-020",
+      "date": "2026-01-20",
+      "title": "当前交付需要人工 review",
+      "summary": "本轮完成后停止并等待人工 review，不 commit、不 push。",
+      "topic": "开发记忆",
+      "categories": [
+        "技术开发/排错调试"
+      ],
+      "tags": [],
+      "value": "高",
+      "cards": [
+        {
+          "title": "当前交付需要人工 review",
+          "body": "本轮完成后停止并等待人工 review，不 commit、不 push。",
+          "kind": "decision",
+          "status": "现行",
+          "memory_id": "mem_c81388b51ece41959fc6ffa9f8c9de48",
+          "display_id": "C20",
+          "note_name": "C20 - 当前交付需要人工 review",
+          "source_memory_id": "mem_8659fda3733b459f92e9a9ecb9fe6ff4",
+          "related": []
+        }
+      ],
+      "memory_id": "mem_8659fda3733b459f92e9a9ecb9fe6ff4",
+      "display_id": "S20",
+      "note_name": "S20 - 当前交付需要人工 review",
+      "related": []
+    },
+    {
+      "session_id": "dev-021",
+      "date": "2026-01-21",
+      "title": "权限失败来自只读挂载",
+      "summary": "排错确认根因是只读挂载；修改挂载权限后恢复，重装依赖无效。",
+      "topic": "开发记忆",
+      "categories": [
+        "技术开发/排错调试"
+      ],
+      "tags": [],
+      "value": "高",
+      "cards": [
+        {
+          "title": "权限失败来自只读挂载",
+          "body": "排错确认根因是只读挂载；修改挂载权限后恢复，重装依赖无效。",
+          "kind": "decision",
+          "status": "现行",
+          "memory_id": "mem_c94c198bce364149b31e58a4fb93afc0",
+          "display_id": "C21",
+          "note_name": "C21 - 权限失败来自只读挂载",
+          "source_memory_id": "mem_d5ad694ebc554e75a6d9b4169a8ee99c",
+          "related": []
+        }
+      ],
+      "memory_id": "mem_d5ad694ebc554e75a6d9b4169a8ee99c",
+      "display_id": "S21",
+      "note_name": "S21 - 权限失败来自只读挂载",
+      "related": []
+    },
+    {
+      "session_id": "dev-022",
+      "date": "2026-01-22",
+      "title": "下载失败需修复代理",
+      "summary": "下载异常来自过期代理配置与连接超时，修复代理即可恢复。",
+      "topic": "开发记忆",
+      "categories": [
+        "技术开发/排错调试"
+      ],
+      "tags": [],
+      "value": "高",
+      "cards": [
+        {
+          "title": "下载失败需修复代理",
+          "body": "下载异常来自过期代理配置与连接超时，修复代理即可恢复。",
+          "kind": "decision",
+          "status": "现行",
+          "memory_id": "mem_9ed960c672fb49f283fa190ee7ef3945",
+          "display_id": "C22",
+          "note_name": "C22 - 下载失败需修复代理",
+          "source_memory_id": "mem_8545daf9ba2e4a4baf8e1ebeb2906d72",
+          "related": []
+        }
+      ],
+      "memory_id": "mem_8545daf9ba2e4a4baf8e1ebeb2906d72",
+      "display_id": "S22",
+      "note_name": "S22 - 下载失败需修复代理",
+      "related": []
+    },
+    {
+      "session_id": "dev-023",
+      "date": "2026-01-23",
+      "title": "长期引用使用稳定身份",
+      "summary": "临时路径会随会话变化，跨会话引用使用不可变 memory_id。",
+      "topic": "开发记忆",
+      "categories": [
+        "技术开发/排错调试"
+      ],
+      "tags": [],
+      "value": "高",
+      "cards": [
+        {
+          "title": "长期引用使用稳定身份",
+          "body": "临时路径会随会话变化，跨会话引用使用不可变 memory_id。",
+          "kind": "decision",
+          "status": "现行",
+          "memory_id": "mem_0da886fc25944f299470a96593371bca",
+          "display_id": "C23",
+          "note_name": "C23 - 长期引用使用稳定身份",
+          "source_memory_id": "mem_857cd59dcd77488ebef186aa43a41145",
+          "related": []
+        }
+      ],
+      "memory_id": "mem_857cd59dcd77488ebef186aa43a41145",
+      "display_id": "S23",
+      "note_name": "S23 - 长期引用使用稳定身份",
+      "related": []
+    },
+    {
+      "session_id": "dev-024",
+      "date": "2026-01-24",
+      "title": "同步不能替代离线备份",
+      "summary": "同步会传播误删；备份应包含历史版本与离线副本。",
+      "topic": "开发记忆",
+      "categories": [
+        "技术开发/排错调试"
+      ],
+      "tags": [],
+      "value": "高",
+      "cards": [
+        {
+          "title": "同步不能替代离线备份",
+          "body": "同步会传播误删；备份应包含历史版本与离线副本。",
+          "kind": "decision",
+          "status": "现行",
+          "memory_id": "mem_8c0e608efe65495f986be37197e68b96",
+          "display_id": "C24",
+          "note_name": "C24 - 同步不能替代离线备份",
+          "source_memory_id": "mem_c3abbaa3de5e4b13b92814b6861a7f60",
+          "related": []
+        }
+      ],
+      "memory_id": "mem_c3abbaa3de5e4b13b92814b6861a7f60",
+      "display_id": "S24",
+      "note_name": "S24 - 同步不能替代离线备份",
+      "related": []
+    },
+    {
+      "session_id": "old-001",
+      "date": "2025-12-01",
+      "title": "旧后端框架",
+      "summary": "现在后端使用 Flask 框架。后端选型已确定为 Flask。",
+      "topic": "旧决策",
+      "categories": [
+        "技术开发/排错调试"
+      ],
+      "cards": [
+        {
+          "title": "旧后端框架",
+          "body": "现在后端使用 Flask 框架。后端选型已确定为 Flask。",
+          "kind": "decision",
+          "status": "已过期",
+          "superseded_by": "mem_32dbf7d40fd54e1498157c2bee02fd72",
+          "memory_id": "mem_1e57386b7d0442a191fbe117ccf3ddac",
+          "display_id": "C25",
+          "note_name": "C25 - 旧后端框架",
+          "source_memory_id": "mem_13bc82f107b7413fb4b1719608bda458",
+          "related": []
+        }
+      ],
+      "memory_id": "mem_13bc82f107b7413fb4b1719608bda458",
+      "display_id": "S25",
+      "note_name": "S25 - 旧后端框架",
+      "related": []
+    },
+    {
+      "session_id": "old-002",
+      "date": "2025-12-01",
+      "title": "旧部署版本",
+      "summary": "现在部署用的 Python 版本是 Python 3.9。",
+      "topic": "旧决策",
+      "categories": [
+        "技术开发/排错调试"
+      ],
+      "cards": [
+        {
+          "title": "旧部署版本",
+          "body": "现在部署用的 Python 版本是 Python 3.9。",
+          "kind": "decision",
+          "status": "已过期",
+          "superseded_by": "mem_32839cf120a34f7fbfc4a13b8fb213ea",
+          "memory_id": "mem_372f37b9eab94a8bba2b187aa490ccfa",
+          "display_id": "C26",
+          "note_name": "C26 - 旧部署版本",
+          "source_memory_id": "mem_242bf90672b840b999354ec7a51ba618",
+          "related": []
+        }
+      ],
+      "memory_id": "mem_242bf90672b840b999354ec7a51ba618",
+      "display_id": "S26",
+      "note_name": "S26 - 旧部署版本",
+      "related": []
+    },
+    {
+      "session_id": "old-003",
+      "date": "2025-12-01",
+      "title": "旧备份频率",
+      "summary": "当前备份任务每周跑一次，备份计划每周执行。",
+      "topic": "旧决策",
+      "categories": [
+        "技术开发/排错调试"
+      ],
+      "cards": [
+        {
+          "title": "旧备份频率",
+          "body": "当前备份任务每周跑一次，备份计划每周执行。",
+          "kind": "decision",
+          "status": "已过期",
+          "superseded_by": "mem_25020416490f4615ab767142dfff4a74",
+          "memory_id": "mem_f2ad37c558f341aab01b26343d819d17",
+          "display_id": "C27",
+          "note_name": "C27 - 旧备份频率",
+          "source_memory_id": "mem_35ad8e2ff1134668bb525a61fbbb78f3",
+          "related": []
+        }
+      ],
+      "memory_id": "mem_35ad8e2ff1134668bb525a61fbbb78f3",
+      "display_id": "S27",
+      "note_name": "S27 - 旧备份频率",
+      "related": []
+    },
+    {
+      "session_id": "old-004",
+      "date": "2025-12-01",
+      "title": "旧令牌存储",
+      "summary": "现在 API 令牌存在 .env 文件里。",
+      "topic": "旧决策",
+      "categories": [
+        "技术开发/排错调试"
+      ],
+      "cards": [
+        {
+          "title": "旧令牌存储",
+          "body": "现在 API 令牌存在 .env 文件里。",
+          "kind": "decision",
+          "status": "已过期",
+          "superseded_by": "mem_f7d4115917c747c5a85c144aa5506aa2",
+          "memory_id": "mem_db22523a973a4e818aa219a3beb03132",
+          "display_id": "C28",
+          "note_name": "C28 - 旧令牌存储",
+          "source_memory_id": "mem_8190518c51c3433aa29abc4b1f538149",
+          "related": []
+        }
+      ],
+      "memory_id": "mem_8190518c51c3433aa29abc4b1f538149",
+      "display_id": "S28",
+      "note_name": "S28 - 旧令牌存储",
+      "related": []
+    },
+    {
+      "session_id": "old-005",
+      "date": "2025-12-01",
+      "title": "旧容器要求",
+      "summary": "开发环境全部用 Docker。Docker 能消除依赖差异。",
+      "topic": "旧决策",
+      "categories": [
+        "技术开发/排错调试"
+      ],
+      "cards": [
+        {
+          "title": "旧容器要求",
+          "body": "开发环境全部用 Docker。Docker 能消除依赖差异。",
+          "kind": "decision",
+          "status": "已过期",
+          "superseded_by": "mem_9812db1c5cc14a158d305811397b6dcb",
+          "memory_id": "mem_b2f80c35033a4d51affe1a238bbcdac9",
+          "display_id": "C29",
+          "note_name": "C29 - 旧容器要求",
+          "source_memory_id": "mem_2246d5c21e7d4ed2951348ef3eac80ed",
+          "related": []
+        }
+      ],
+      "memory_id": "mem_2246d5c21e7d4ed2951348ef3eac80ed",
+      "display_id": "S29",
+      "note_name": "S29 - 旧容器要求",
+      "related": []
+    },
+    {
+      "session_id": "old-006",
+      "date": "2025-12-01",
+      "title": "旧路径规则",
+      "summary": "改标题后文件应该改名，文件名跟着标题变化。",
+      "topic": "旧决策",
+      "categories": [
+        "技术开发/排错调试"
+      ],
+      "cards": [
+        {
+          "title": "旧路径规则",
+          "body": "改标题后文件应该改名，文件名跟着标题变化。",
+          "kind": "decision",
+          "status": "已过期",
+          "superseded_by": "mem_8b5e7516194c48ee855e46f9e6f5a5f7",
+          "memory_id": "mem_95bf4280a5f74f9694bbffa8a606ee36",
+          "display_id": "C30",
+          "note_name": "C30 - 旧路径规则",
+          "source_memory_id": "mem_718b388d129544089ae90e9e7a19d813",
+          "related": []
+        }
+      ],
+      "memory_id": "mem_718b388d129544089ae90e9e7a19d813",
+      "display_id": "S30",
+      "note_name": "S30 - 旧路径规则",
+      "related": []
+    },
+    {
+      "session_id": "old-007",
+      "date": "2025-12-01",
+      "title": "旧恢复流程",
+      "summary": "上下文压缩后直接阅读压缩摘要就可以恢复任务。",
+      "topic": "旧决策",
+      "categories": [
+        "技术开发/排错调试"
+      ],
+      "cards": [
+        {
+          "title": "旧恢复流程",
+          "body": "上下文压缩后直接阅读压缩摘要就可以恢复任务。",
+          "kind": "decision",
+          "status": "已过期",
+          "superseded_by": "mem_a76fdf8a5ca04263b9af9606af154fb4",
+          "memory_id": "mem_6786ab214f3f4538bb28d57604d9a555",
+          "display_id": "C31",
+          "note_name": "C31 - 旧恢复流程",
+          "source_memory_id": "mem_270230e5c6e14e35bc3211fb5be3518b",
+          "related": []
+        }
+      ],
+      "memory_id": "mem_270230e5c6e14e35bc3211fb5be3518b",
+      "display_id": "S31",
+      "note_name": "S31 - 旧恢复流程",
+      "related": []
+    },
+    {
+      "session_id": "old-008",
+      "date": "2025-12-01",
+      "title": "旧提交流程",
+      "summary": "这轮完成后能直接提交代码并推送，不必 review。",
+      "topic": "旧决策",
+      "categories": [
+        "技术开发/排错调试"
+      ],
+      "cards": [
+        {
+          "title": "旧提交流程",
+          "body": "这轮完成后能直接提交代码并推送，不必 review。",
+          "kind": "decision",
+          "status": "已过期",
+          "superseded_by": "mem_c81388b51ece41959fc6ffa9f8c9de48",
+          "memory_id": "mem_66382b6a39404177af253ca432db6228",
+          "display_id": "C32",
+          "note_name": "C32 - 旧提交流程",
+          "source_memory_id": "mem_6663ef81341046febbb4b5723bf3e390",
+          "related": []
+        }
+      ],
+      "memory_id": "mem_6663ef81341046febbb4b5723bf3e390",
+      "display_id": "S32",
+      "note_name": "S32 - 旧提交流程",
+      "related": []
+    },
+    {
+      "session_id": "noise-001",
+      "date": "2026-02-01",
+      "title": "配色预览",
+      "summary": "界面提供蓝色和灰色预览。",
+      "topic": "其他",
+      "categories": [
+        "技术开发/排错调试"
+      ],
+      "cards": [
+        {
+          "title": "配色预览",
+          "body": "界面提供蓝色和灰色预览。",
+          "kind": "fact",
+          "memory_id": "mem_2477033db2b34548816ebccf99faa4a3",
+          "display_id": "C33",
+          "note_name": "C33 - 配色预览",
+          "source_memory_id": "mem_edaa65a484854ea18514941f42b047d0",
+          "related": []
+        }
+      ],
+      "memory_id": "mem_edaa65a484854ea18514941f42b047d0",
+      "display_id": "S33",
+      "note_name": "S33 - 配色预览",
+      "related": []
+    },
+    {
+      "session_id": "noise-002",
+      "date": "2026-02-01",
+      "title": "测试数据生成",
+      "summary": "测试数据只用合成记录。",
+      "topic": "其他",
+      "categories": [
+        "技术开发/排错调试"
+      ],
+      "cards": [
+        {
+          "title": "测试数据生成",
+          "body": "测试数据只用合成记录。",
+          "kind": "fact",
+          "memory_id": "mem_2e97e020825a48308a5717c96ce67eb4",
+          "display_id": "C34",
+          "note_name": "C34 - 测试数据生成",
+          "source_memory_id": "mem_b9056484ae7d4763b2ab01e5c9f3a522",
+          "related": []
+        }
+      ],
+      "memory_id": "mem_b9056484ae7d4763b2ab01e5c9f3a522",
+      "display_id": "S34",
+      "note_name": "S34 - 测试数据生成",
+      "related": []
+    },
+    {
+      "session_id": "noise-003",
+      "date": "2026-02-01",
+      "title": "相册缩略图",
+      "summary": "相册缩略图用小尺寸 JPEG。",
+      "topic": "其他",
+      "categories": [
+        "技术开发/排错调试"
+      ],
+      "cards": [
+        {
+          "title": "相册缩略图",
+          "body": "相册缩略图用小尺寸 JPEG。",
+          "kind": "fact",
+          "memory_id": "mem_cd6caf220afd4149b0aa160bd2051ec9",
+          "display_id": "C35",
+          "note_name": "C35 - 相册缩略图",
+          "source_memory_id": "mem_2a5daea6f9ac47979e57abdcbce506c6",
+          "related": []
+        }
+      ],
+      "memory_id": "mem_2a5daea6f9ac47979e57abdcbce506c6",
+      "display_id": "S35",
+      "note_name": "S35 - 相册缩略图",
+      "related": []
+    },
+    {
+      "session_id": "noise-004",
+      "date": "2026-02-01",
+      "title": "日志排版",
+      "summary": "日志面板采用等宽字体。",
+      "topic": "其他",
+      "categories": [
+        "技术开发/排错调试"
+      ],
+      "cards": [
+        {
+          "title": "日志排版",
+          "body": "日志面板采用等宽字体。",
+          "kind": "fact",
+          "memory_id": "mem_f51f74d368de461abba0b4f2eab1c37d",
+          "display_id": "C36",
+          "note_name": "C36 - 日志排版",
+          "source_memory_id": "mem_ec08189291364fee822d56910bc94145",
+          "related": []
+        }
+      ],
+      "memory_id": "mem_ec08189291364fee822d56910bc94145",
+      "display_id": "S36",
+      "note_name": "S36 - 日志排版",
+      "related": []
+    },
+    {
+      "session_id": "noise-005",
+      "date": "2026-02-01",
+      "title": "缓存统计",
+      "summary": "缓存命中数需要独立统计。",
+      "topic": "其他",
+      "categories": [
+        "技术开发/排错调试"
+      ],
+      "cards": [
+        {
+          "title": "缓存统计",
+          "body": "缓存命中数需要独立统计。",
+          "kind": "fact",
+          "memory_id": "mem_9b28a8eab8df45499c3676bdc5907c53",
+          "display_id": "C37",
+          "note_name": "C37 - 缓存统计",
+          "source_memory_id": "mem_15f23506d6ca48cfa16c611d4a5fa3fe",
+          "related": []
+        }
+      ],
+      "memory_id": "mem_15f23506d6ca48cfa16c611d4a5fa3fe",
+      "display_id": "S37",
+      "note_name": "S37 - 缓存统计",
+      "related": []
+    },
+    {
+      "session_id": "noise-006",
+      "date": "2026-02-01",
+      "title": "归档压缩",
+      "summary": "归档文件使用 zip 格式。",
+      "topic": "其他",
+      "categories": [
+        "技术开发/排错调试"
+      ],
+      "cards": [
+        {
+          "title": "归档压缩",
+          "body": "归档文件使用 zip 格式。",
+          "kind": "fact",
+          "memory_id": "mem_d52a1119491d4582b1ceb88ff706a535",
+          "display_id": "C38",
+          "note_name": "C38 - 归档压缩",
+          "source_memory_id": "mem_f53dd808561142119f5252fedbb4dc5e",
+          "related": []
+        }
+      ],
+      "memory_id": "mem_f53dd808561142119f5252fedbb4dc5e",
+      "display_id": "S38",
+      "note_name": "S38 - 归档压缩",
+      "related": []
+    },
+    {
+      "session_id": "noise-007",
+      "date": "2026-02-01",
+      "title": "下载进度",
+      "summary": "下载进度按字节计算。",
+      "topic": "其他",
+      "categories": [
+        "技术开发/排错调试"
+      ],
+      "cards": [
+        {
+          "title": "下载进度",
+          "body": "下载进度按字节计算。",
+          "kind": "fact",
+          "memory_id": "mem_c24579bf6dd94509933aaa31aff0e0b8",
+          "display_id": "C39",
+          "note_name": "C39 - 下载进度",
+          "source_memory_id": "mem_da4b60e465394fd79e1ec5c35f21ef6f",
+          "related": []
+        }
+      ],
+      "memory_id": "mem_da4b60e465394fd79e1ec5c35f21ef6f",
+      "display_id": "S39",
+      "note_name": "S39 - 下载进度",
+      "related": []
+    },
+    {
+      "session_id": "noise-008",
+      "date": "2026-02-01",
+      "title": "许可证显示",
+      "summary": "设置页显示依赖的许可证。",
+      "topic": "其他",
+      "categories": [
+        "技术开发/排错调试"
+      ],
+      "cards": [
+        {
+          "title": "许可证显示",
+          "body": "设置页显示依赖的许可证。",
+          "kind": "fact",
+          "memory_id": "mem_075b80e0ce2f4b30a47c10bc23c494bc",
+          "display_id": "C40",
+          "note_name": "C40 - 许可证显示",
+          "source_memory_id": "mem_db6320a6652448238a77701f4abfeedc",
+          "related": []
+        }
+      ],
+      "memory_id": "mem_db6320a6652448238a77701f4abfeedc",
+      "display_id": "S40",
+      "note_name": "S40 - 许可证显示",
+      "related": []
+    }
+  ],
+  "identity_registry": {
+    "mem_92e774134a0840059a9b4aaf0056fadb": {
+      "display_id": "S01",
+      "note_name": "S01 - 开发环境先用 venv",
+      "type": "conversation",
+      "session_id": "dev-001",
+      "active": true
+    },
+    "mem_9812db1c5cc14a158d305811397b6dcb": {
+      "display_id": "C01",
+      "note_name": "C01 - 开发环境先用 venv",
+      "type": "card",
+      "session_id": "dev-001",
+      "active": true
+    },
+    "mem_c811049aff5446a5b76321ff0010536c": {
+      "display_id": "S02",
+      "note_name": "S02 - 搜索保持离线和标准库依赖",
+      "type": "conversation",
+      "session_id": "dev-002",
+      "active": true
+    },
+    "mem_30c3e25040ff42b6b4da5b2cc9453c12": {
+      "display_id": "C02",
+      "note_name": "C02 - 搜索保持离线和标准库依赖",
+      "type": "card",
+      "session_id": "dev-002",
+      "active": true
+    },
+    "mem_ab39c39db7154d838ec07dc77c507c13": {
+      "display_id": "S03",
+      "note_name": "S03 - 操作日志选择 JSONL",
+      "type": "conversation",
+      "session_id": "dev-003",
+      "active": true
+    },
+    "mem_897cf876f8c14c349cbfcb2321519f7e": {
+      "display_id": "C03",
+      "note_name": "C03 - 操作日志选择 JSONL",
+      "type": "card",
+      "session_id": "dev-003",
+      "active": true
+    },
+    "mem_d3e458e685244df28e60fd3da4a3822a": {
+      "display_id": "S04",
+      "note_name": "S04 - 照片整理坚持本地处理",
+      "type": "conversation",
+      "session_id": "dev-004",
+      "active": true
+    },
+    "mem_139e4f03af6a4fb2aff4f113bed3afcd": {
+      "display_id": "C04",
+      "note_name": "C04 - 照片整理坚持本地处理",
+      "type": "card",
+      "session_id": "dev-004",
+      "active": true
+    },
+    "mem_ba1fcb0868a645e09eef9e01a7947db8": {
+      "display_id": "S05",
+      "note_name": "S05 - 后端现行接口采用 FastAPI",
+      "type": "conversation",
+      "session_id": "dev-005",
+      "active": true
+    },
+    "mem_32dbf7d40fd54e1498157c2bee02fd72": {
+      "display_id": "C05",
+      "note_name": "C05 - 后端现行接口采用 FastAPI",
+      "type": "card",
+      "session_id": "dev-005",
+      "active": true
+    },
+    "mem_888a7eb644974ca4896379acf1b7ccc8": {
+      "display_id": "S06",
+      "note_name": "S06 - 部署环境升级 Python 3.12",
+      "type": "conversation",
+      "session_id": "dev-006",
+      "active": true
+    },
+    "mem_32839cf120a34f7fbfc4a13b8fb213ea": {
+      "display_id": "C06",
+      "note_name": "C06 - 部署环境升级 Python 3.12",
+      "type": "card",
+      "session_id": "dev-006",
+      "active": true
+    },
+    "mem_41a7494f28674136b7bb7bd666f126e4": {
+      "display_id": "S07",
+      "note_name": "S07 - 备份改为每日运行",
+      "type": "conversation",
+      "session_id": "dev-007",
+      "active": true
+    },
+    "mem_25020416490f4615ab767142dfff4a74": {
+      "display_id": "C07",
+      "note_name": "C07 - 备份改为每日运行",
+      "type": "card",
+      "session_id": "dev-007",
+      "active": true
+    },
+    "mem_a324c1369ad84af5b045c30b6c40050c": {
+      "display_id": "S08",
+      "note_name": "S08 - 凭据转移到系统钥匙串",
+      "type": "conversation",
+      "session_id": "dev-008",
+      "active": true
+    },
+    "mem_f7d4115917c747c5a85c144aa5506aa2": {
+      "display_id": "C08",
+      "note_name": "C08 - 凭据转移到系统钥匙串",
+      "type": "card",
+      "session_id": "dev-008",
+      "active": true
+    },
+    "mem_26a30c833c354c2ab3ec4ef390ef30d4": {
+      "display_id": "S09",
+      "note_name": "S09 - 缓存时效仍有争议",
+      "type": "conversation",
+      "session_id": "dev-009",
+      "active": true
+    },
+    "mem_9b80582ac5b14ce2ace09e93ae85ee7b": {
+      "display_id": "C09",
+      "note_name": "C09 - 缓存时效仍有争议",
+      "type": "card",
+      "session_id": "dev-009",
+      "active": true
+    },
+    "mem_a436038547c749c39465ba079f359655": {
+      "display_id": "S10",
+      "note_name": "S10 - 文件名大小写策略未定",
+      "type": "conversation",
+      "session_id": "dev-010",
+      "active": true
+    },
+    "mem_01e7c1b45da64acf9f19bf721342ee65": {
+      "display_id": "C10",
+      "note_name": "C10 - 文件名大小写策略未定",
+      "type": "card",
+      "session_id": "dev-010",
+      "active": true
+    },
+    "mem_3604accae9c3478bb5c0deba806bdcc4": {
+      "display_id": "S11",
+      "note_name": "S11 - 归档保留时间尚未确定",
+      "type": "conversation",
+      "session_id": "dev-011",
+      "active": true
+    },
+    "mem_da8b1cd55d6048eba73a4a1e3415b287": {
+      "display_id": "C11",
+      "note_name": "C11 - 归档保留时间尚未确定",
+      "type": "card",
+      "session_id": "dev-011",
+      "active": true
+    },
+    "mem_fc5c41d6415f446ca703cdb873b6a20a": {
+      "display_id": "S12",
+      "note_name": "S12 - 删除确认机制待决策",
+      "type": "conversation",
+      "session_id": "dev-012",
+      "active": true
+    },
+    "mem_45908849f07f47deb99aeb7d632f9b5e": {
+      "display_id": "C12",
+      "note_name": "C12 - 删除确认机制待决策",
+      "type": "card",
+      "session_id": "dev-012",
+      "active": true
+    },
+    "mem_736d8cc8ffd1443d98813cab4edc2170": {
+      "display_id": "S13",
+      "note_name": "S13 - 标题编辑保留笔记路径",
+      "type": "conversation",
+      "session_id": "dev-013",
+      "active": true
+    },
+    "mem_8b5e7516194c48ee855e46f9e6f5a5f7": {
+      "display_id": "C13",
+      "note_name": "C13 - 标题编辑保留笔记路径",
+      "type": "card",
+      "session_id": "dev-013",
+      "active": true
+    },
+    "mem_bdbf21d8251a426fbaf23415aed7dc04": {
+      "display_id": "S14",
+      "note_name": "S14 - 时间存储与展示分离",
+      "type": "conversation",
+      "session_id": "dev-014",
+      "active": true
+    },
+    "mem_1f230fea62594644837ca161142c0071": {
+      "display_id": "C14",
+      "note_name": "C14 - 时间存储与展示分离",
+      "type": "card",
+      "session_id": "dev-014",
+      "active": true
+    },
+    "mem_2249cc85adcb4700b8cda035fb52dcef": {
+      "display_id": "S15",
+      "note_name": "S15 - 导出消息保留来源会话",
+      "type": "conversation",
+      "session_id": "dev-015",
+      "active": true
+    },
+    "mem_e2ed86c458fe451a85aefd95e6288e47": {
+      "display_id": "C15",
+      "note_name": "C15 - 导出消息保留来源会话",
+      "type": "card",
+      "session_id": "dev-015",
+      "active": true
+    },
+    "mem_6f1c0876aa69483c8f50b4274ff779bc": {
+      "display_id": "S16",
+      "note_name": "S16 - 项目使用 MIT 许可证",
+      "type": "conversation",
+      "session_id": "dev-016",
+      "active": true
+    },
+    "mem_74ad95e406ba4907903bcb74cfa30c70": {
+      "display_id": "C16",
+      "note_name": "C16 - 项目使用 MIT 许可证",
+      "type": "card",
+      "session_id": "dev-016",
+      "active": true
+    },
+    "mem_35c2e023bcbe4acfb5bc98160d95cf8e": {
+      "display_id": "S17",
+      "note_name": "S17 - 恢复任务先查外部决策",
+      "type": "conversation",
+      "session_id": "dev-017",
+      "active": true
+    },
+    "mem_a76fdf8a5ca04263b9af9606af154fb4": {
+      "display_id": "C17",
+      "note_name": "C17 - 恢复任务先查外部决策",
+      "type": "card",
+      "session_id": "dev-017",
+      "active": true
+    },
+    "mem_91e6eabaab844267b9097e23e3feaadb": {
+      "display_id": "S18",
+      "note_name": "S18 - 迁移下一步先做预览",
+      "type": "conversation",
+      "session_id": "dev-018",
+      "active": true
+    },
+    "mem_bfbed4e07c8047639dda2178e57fe32c": {
+      "display_id": "C18",
+      "note_name": "C18 - 迁移下一步先做预览",
+      "type": "card",
+      "session_id": "dev-018",
+      "active": true
+    },
+    "mem_7aa1ccfaf5ee48e6ba7ab68a4c1abb0d": {
+      "display_id": "S19",
+      "note_name": "S19 - 检索验收尚缺中文回归",
+      "type": "conversation",
+      "session_id": "dev-019",
+      "active": true
+    },
+    "mem_b253f3a2c9df4716b23c96c00a2a96ec": {
+      "display_id": "C19",
+      "note_name": "C19 - 检索验收尚缺中文回归",
+      "type": "card",
+      "session_id": "dev-019",
+      "active": true
+    },
+    "mem_8659fda3733b459f92e9a9ecb9fe6ff4": {
+      "display_id": "S20",
+      "note_name": "S20 - 当前交付需要人工 review",
+      "type": "conversation",
+      "session_id": "dev-020",
+      "active": true
+    },
+    "mem_c81388b51ece41959fc6ffa9f8c9de48": {
+      "display_id": "C20",
+      "note_name": "C20 - 当前交付需要人工 review",
+      "type": "card",
+      "session_id": "dev-020",
+      "active": true
+    },
+    "mem_d5ad694ebc554e75a6d9b4169a8ee99c": {
+      "display_id": "S21",
+      "note_name": "S21 - 权限失败来自只读挂载",
+      "type": "conversation",
+      "session_id": "dev-021",
+      "active": true
+    },
+    "mem_c94c198bce364149b31e58a4fb93afc0": {
+      "display_id": "C21",
+      "note_name": "C21 - 权限失败来自只读挂载",
+      "type": "card",
+      "session_id": "dev-021",
+      "active": true
+    },
+    "mem_8545daf9ba2e4a4baf8e1ebeb2906d72": {
+      "display_id": "S22",
+      "note_name": "S22 - 下载失败需修复代理",
+      "type": "conversation",
+      "session_id": "dev-022",
+      "active": true
+    },
+    "mem_9ed960c672fb49f283fa190ee7ef3945": {
+      "display_id": "C22",
+      "note_name": "C22 - 下载失败需修复代理",
+      "type": "card",
+      "session_id": "dev-022",
+      "active": true
+    },
+    "mem_857cd59dcd77488ebef186aa43a41145": {
+      "display_id": "S23",
+      "note_name": "S23 - 长期引用使用稳定身份",
+      "type": "conversation",
+      "session_id": "dev-023",
+      "active": true
+    },
+    "mem_0da886fc25944f299470a96593371bca": {
+      "display_id": "C23",
+      "note_name": "C23 - 长期引用使用稳定身份",
+      "type": "card",
+      "session_id": "dev-023",
+      "active": true
+    },
+    "mem_c3abbaa3de5e4b13b92814b6861a7f60": {
+      "display_id": "S24",
+      "note_name": "S24 - 同步不能替代离线备份",
+      "type": "conversation",
+      "session_id": "dev-024",
+      "active": true
+    },
+    "mem_8c0e608efe65495f986be37197e68b96": {
+      "display_id": "C24",
+      "note_name": "C24 - 同步不能替代离线备份",
+      "type": "card",
+      "session_id": "dev-024",
+      "active": true
+    },
+    "mem_13bc82f107b7413fb4b1719608bda458": {
+      "display_id": "S25",
+      "note_name": "S25 - 旧后端框架",
+      "type": "conversation",
+      "session_id": "old-001",
+      "active": true
+    },
+    "mem_1e57386b7d0442a191fbe117ccf3ddac": {
+      "display_id": "C25",
+      "note_name": "C25 - 旧后端框架",
+      "type": "card",
+      "session_id": "old-001",
+      "active": true
+    },
+    "mem_242bf90672b840b999354ec7a51ba618": {
+      "display_id": "S26",
+      "note_name": "S26 - 旧部署版本",
+      "type": "conversation",
+      "session_id": "old-002",
+      "active": true
+    },
+    "mem_372f37b9eab94a8bba2b187aa490ccfa": {
+      "display_id": "C26",
+      "note_name": "C26 - 旧部署版本",
+      "type": "card",
+      "session_id": "old-002",
+      "active": true
+    },
+    "mem_35ad8e2ff1134668bb525a61fbbb78f3": {
+      "display_id": "S27",
+      "note_name": "S27 - 旧备份频率",
+      "type": "conversation",
+      "session_id": "old-003",
+      "active": true
+    },
+    "mem_f2ad37c558f341aab01b26343d819d17": {
+      "display_id": "C27",
+      "note_name": "C27 - 旧备份频率",
+      "type": "card",
+      "session_id": "old-003",
+      "active": true
+    },
+    "mem_8190518c51c3433aa29abc4b1f538149": {
+      "display_id": "S28",
+      "note_name": "S28 - 旧令牌存储",
+      "type": "conversation",
+      "session_id": "old-004",
+      "active": true
+    },
+    "mem_db22523a973a4e818aa219a3beb03132": {
+      "display_id": "C28",
+      "note_name": "C28 - 旧令牌存储",
+      "type": "card",
+      "session_id": "old-004",
+      "active": true
+    },
+    "mem_2246d5c21e7d4ed2951348ef3eac80ed": {
+      "display_id": "S29",
+      "note_name": "S29 - 旧容器要求",
+      "type": "conversation",
+      "session_id": "old-005",
+      "active": true
+    },
+    "mem_b2f80c35033a4d51affe1a238bbcdac9": {
+      "display_id": "C29",
+      "note_name": "C29 - 旧容器要求",
+      "type": "card",
+      "session_id": "old-005",
+      "active": true
+    },
+    "mem_718b388d129544089ae90e9e7a19d813": {
+      "display_id": "S30",
+      "note_name": "S30 - 旧路径规则",
+      "type": "conversation",
+      "session_id": "old-006",
+      "active": true
+    },
+    "mem_95bf4280a5f74f9694bbffa8a606ee36": {
+      "display_id": "C30",
+      "note_name": "C30 - 旧路径规则",
+      "type": "card",
+      "session_id": "old-006",
+      "active": true
+    },
+    "mem_270230e5c6e14e35bc3211fb5be3518b": {
+      "display_id": "S31",
+      "note_name": "S31 - 旧恢复流程",
+      "type": "conversation",
+      "session_id": "old-007",
+      "active": true
+    },
+    "mem_6786ab214f3f4538bb28d57604d9a555": {
+      "display_id": "C31",
+      "note_name": "C31 - 旧恢复流程",
+      "type": "card",
+      "session_id": "old-007",
+      "active": true
+    },
+    "mem_6663ef81341046febbb4b5723bf3e390": {
+      "display_id": "S32",
+      "note_name": "S32 - 旧提交流程",
+      "type": "conversation",
+      "session_id": "old-008",
+      "active": true
+    },
+    "mem_66382b6a39404177af253ca432db6228": {
+      "display_id": "C32",
+      "note_name": "C32 - 旧提交流程",
+      "type": "card",
+      "session_id": "old-008",
+      "active": true
+    },
+    "mem_edaa65a484854ea18514941f42b047d0": {
+      "display_id": "S33",
+      "note_name": "S33 - 配色预览",
+      "type": "conversation",
+      "session_id": "noise-001",
+      "active": true
+    },
+    "mem_2477033db2b34548816ebccf99faa4a3": {
+      "display_id": "C33",
+      "note_name": "C33 - 配色预览",
+      "type": "card",
+      "session_id": "noise-001",
+      "active": true
+    },
+    "mem_b9056484ae7d4763b2ab01e5c9f3a522": {
+      "display_id": "S34",
+      "note_name": "S34 - 测试数据生成",
+      "type": "conversation",
+      "session_id": "noise-002",
+      "active": true
+    },
+    "mem_2e97e020825a48308a5717c96ce67eb4": {
+      "display_id": "C34",
+      "note_name": "C34 - 测试数据生成",
+      "type": "card",
+      "session_id": "noise-002",
+      "active": true
+    },
+    "mem_2a5daea6f9ac47979e57abdcbce506c6": {
+      "display_id": "S35",
+      "note_name": "S35 - 相册缩略图",
+      "type": "conversation",
+      "session_id": "noise-003",
+      "active": true
+    },
+    "mem_cd6caf220afd4149b0aa160bd2051ec9": {
+      "display_id": "C35",
+      "note_name": "C35 - 相册缩略图",
+      "type": "card",
+      "session_id": "noise-003",
+      "active": true
+    },
+    "mem_ec08189291364fee822d56910bc94145": {
+      "display_id": "S36",
+      "note_name": "S36 - 日志排版",
+      "type": "conversation",
+      "session_id": "noise-004",
+      "active": true
+    },
+    "mem_f51f74d368de461abba0b4f2eab1c37d": {
+      "display_id": "C36",
+      "note_name": "C36 - 日志排版",
+      "type": "card",
+      "session_id": "noise-004",
+      "active": true
+    },
+    "mem_15f23506d6ca48cfa16c611d4a5fa3fe": {
+      "display_id": "S37",
+      "note_name": "S37 - 缓存统计",
+      "type": "conversation",
+      "session_id": "noise-005",
+      "active": true
+    },
+    "mem_9b28a8eab8df45499c3676bdc5907c53": {
+      "display_id": "C37",
+      "note_name": "C37 - 缓存统计",
+      "type": "card",
+      "session_id": "noise-005",
+      "active": true
+    },
+    "mem_f53dd808561142119f5252fedbb4dc5e": {
+      "display_id": "S38",
+      "note_name": "S38 - 归档压缩",
+      "type": "conversation",
+      "session_id": "noise-006",
+      "active": true
+    },
+    "mem_d52a1119491d4582b1ceb88ff706a535": {
+      "display_id": "C38",
+      "note_name": "C38 - 归档压缩",
+      "type": "card",
+      "session_id": "noise-006",
+      "active": true
+    },
+    "mem_da4b60e465394fd79e1ec5c35f21ef6f": {
+      "display_id": "S39",
+      "note_name": "S39 - 下载进度",
+      "type": "conversation",
+      "session_id": "noise-007",
+      "active": true
+    },
+    "mem_c24579bf6dd94509933aaa31aff0e0b8": {
+      "display_id": "C39",
+      "note_name": "C39 - 下载进度",
+      "type": "card",
+      "session_id": "noise-007",
+      "active": true
+    },
+    "mem_db6320a6652448238a77701f4abfeedc": {
+      "display_id": "S40",
+      "note_name": "S40 - 许可证显示",
+      "type": "conversation",
+      "session_id": "noise-008",
+      "active": true
+    },
+    "mem_075b80e0ce2f4b30a47c10bc23c494bc": {
+      "display_id": "C40",
+      "note_name": "C40 - 许可证显示",
+      "type": "card",
+      "session_id": "noise-008",
+      "active": true
+    }
+  },
+  "schema_version": 2
+}

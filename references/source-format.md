@@ -72,3 +72,36 @@
 - **空会话 / A0**：清单「标记」列里标 `⚠️空`，一般 value=弃。
 - **时间**：缓存内为 UTC，脚本统一转北京时间（UTC+8）`YYYY-MM-DD HH:MM`。
 - **幂等**：重复提取只覆盖 `_kb_staging/`，绝不修改 `.sessions` 原始缓存与 Obsidian 库。
+
+## Adapter entry points
+
+The existing command remains unchanged (`--source doubao_work` is optional).
+Implementation lives in `scripts/source_adapters/doubao_work.py`; shared cleaning,
+transcript rendering and index writing live in `transcript.py`.
+
+The second supported source is **Generic JSONL**, not a parser for any vendor's history:
+
+```bash
+python3 scripts/extract_sessions.py --source generic_jsonl --input messages.jsonl --out _kb_staging
+```
+
+Each nonempty line is one object:
+
+```json
+{"session_id":"project-01","timestamp":"2026-01-01T08:00:00+08:00","role":"user","content":"为什么不用 Docker？"}
+```
+
+All four fields are required. `session_id` is 1–120 ASCII filename-safe characters,
+starting with a letter/digit, then letters/digits/`_`/`.`/`-`. IDs must be unique
+across the combined source collection; prefix them yourself if different exporters
+reuse IDs. `timestamp` must be ISO 8601 with timezone. `role` is user, assistant,
+tool or system; the latter two are validated then discarded. `content` must be a
+string. Extra fields are ignored. Multimodal generic content is not supported.
+
+Records are grouped by session, ordered by timestamp and then original line order.
+Timestamps display in UTC+8; provenance labels identify the source. The output has
+the same transcript and sessions_index contracts as Doubao Work (source/agent
+metadata differs). Every line is validated before writing: malformed input reports
+file/line/field and exits 1 with no partial output. Doubao's existing tolerant bad-line
+behavior is preserved. Reusing staging can leave old transcripts; use a clean output
+folder when changing the session selection.
