@@ -1,0 +1,4 @@
+{"session_id":"demo-before","timestamp":"2026-01-01T00:00:00Z","role":"user","content":"What is the initial database plan for the prototype?"}
+{"session_id":"demo-before","timestamp":"2026-01-01T00:00:01Z","role":"assistant","content":"The prototype will use a hosted database."}
+{"session_id":"demo-after","timestamp":"2026-01-02T00:00:00Z","role":"user","content":"Change the prototype to local SQLite and preserve the existing API. The database timeout remains unresolved."}
+{"session_id":"demo-after","timestamp":"2026-01-02T00:00:01Z","role":"assistant","content":"Use local SQLite, not the earlier hosted database plan. Preserve the existing API; inspect the source before choosing a timeout."}

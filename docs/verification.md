@@ -48,3 +48,31 @@ Use new temporary directory names on subsequent runs. The smoke script fails if 
 `.github/workflows/tests.yml` runs the full source suite and installed-wheel smoke checks on Python 3.9 and 3.12. `.github/workflows/evidence.yml` replays the frozen baseline, executes candidate tests, compares benchmark outputs with the baseline, tests the installed wheel, and uploads inspectable evidence. CI definitions are not themselves a success claim: inspect the completed workflow run for the specific commit.
 
 The original 40-session / 40-card / 24-query fixture remains a small development regression set. It is unchanged and still does not establish automatic-distillation quality, expired-target recall, or final agent-answer correctness.
+
+## Documentation and onboarding verification
+
+The documentation refresh builds on merged source `d0032e90b9db378c5ec446e698713f2d5daa2190`
+(tree `27429a1332f7340c17ebdc1d703976286f8a6235`). It does not change engine code, source
+schema, runtime dependencies, or frozen benchmark fixtures.
+
+Local verification in a clean Linux / Python 3.13.5 environment:
+
+- **147 source tests passed**: the prior 137 plus 10 documentation-contract regressions.
+- The exact marked Bash and Python examples in both READMEs match and execute with the
+  installed CLI. SDK imports are checked from outside the source checkout.
+- The ingestion example extracts synthetic JSONL and lints the rendered demo vault.
+- Four recovery cases are checked: current, historical, no match, and budget exhausted.
+  The generated [JSON receipt](../examples/recovery/expected.json) and
+  [display SVG](../assets/recovery-demo.svg) must match fresh execution.
+- Local Markdown file targets and fragments are checked. External HTTP destinations are
+  counted but not fetched; this is not an external-link availability audit.
+- Two benchmark runs remain byte-identical to each other and the committed baseline.
+
+Run `python tools/verify_docs.py` with the installed environment activated. Demo writes
+use new temporary directories, not an existing user vault. The optional `--write-demo`
+flag regenerates only the repository's demo JSON/SVG after execution; ordinary verification
+never updates expected artifacts. These are synthetic CLI observations, not a live model,
+native-host compaction test, or measured improvement in agent task success.
+
+Both CI workflows also run these installed documentation checks. The evidence workflow
+retains `docs-smoke.json` beside the source-test, benchmark, and wheel-install logs.
