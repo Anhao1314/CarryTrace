@@ -1,0 +1,54 @@
+name: verified evidence
+
+on:
+  push:
+    branches: [main, codex/verified-memory-engine]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  evidence:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Record source and environment
+        shell: bash
+        run: |
+          mkdir -p "$RUNNER_TEMP/evidence"
+          git rev-parse HEAD > "$RUNNER_TEMP/evidence/commit.txt"
+          python3 --version > "$RUNNER_TEMP/evidence/python.txt"
+          git archive --format=tar HEAD > "$RUNNER_TEMP/evidence/source.tar"
+      - name: Replay frozen pre-upgrade baseline
+        shell: bash
+        run: |
+          mkdir -p "$RUNNER_TEMP/baseline"
+          git archive 3b12860e0be50472fde8808f36fe5f85639a16c7 | tar -x -C "$RUNNER_TEMP/baseline"
+          cd "$RUNNER_TEMP/baseline"
+          python3 -m unittest discover -s tests -v 2>&1 | tee "$RUNNER_TEMP/evidence/baseline-tests.txt"
+          python3 benchmarks/evaluate.py --out "$RUNNER_TEMP/evidence/baseline-benchmark"
+      - name: Run candidate tests
+        shell: bash
+        run: python3 -m unittest discover -s tests -v 2>&1 | tee "$RUNNER_TEMP/evidence/candidate-tests.txt"
+      - name: Replay candidate benchmark twice
+        shell: bash
+        run: |
+          python3 benchmarks/evaluate.py --out "$RUNNER_TEMP/evidence/candidate-benchmark"
+          python3 benchmarks/evaluate.py --out "$RUNNER_TEMP/evidence/repeated-benchmark"
+          diff -r "$RUNNER_TEMP/evidence/candidate-benchmark" "$RUNNER_TEMP/evidence/repeated-benchmark"
+          diff -r "$RUNNER_TEMP/evidence/baseline-benchmark" "$RUNNER_TEMP/evidence/candidate-benchmark"
+      - name: Upload inspectable evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: verified-evidence-${{ github.sha }}
+          path: ${{ runner.temp }}/evidence
+          retention-days: 7
+          if-no-files-found: error
