@@ -1,0 +1,21 @@
+[build-system]
+requires = ["setuptools>=61", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "chat-distiller"
+version = "0.2.0"
+description = "Local, verifiable structured memory and bounded context recovery for agents"
+readme = "README.md"
+requires-python = ">=3.9"
+license = {file = "LICENSE"}
+dependencies = []
+
+[project.scripts]
+chat-distiller = "chat_distiller.cli:main"
+
+[tool.setuptools.packages.find]
+include = ["chat_distiller*"]
+
+[tool.setuptools.package-data]
+"chat_distiller._internal" = ["taxonomy.template.md"]

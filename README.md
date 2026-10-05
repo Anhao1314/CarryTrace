@@ -2,6 +2,30 @@
 
 **Structured Agent Memory & Context Recovery for long-running AI agents.**
 
+### 0.2.0 · 可安装的 Memory Engine
+
+新增可导入的只读 `MemoryStore`、统一 `chat-distiller` 命令，以及保留来源与状态的有界恢复包。
+原有脚本、稳定身份、v2 数据格式与词面检索算法保持兼容；不需要迁移已有 v2 vault。
+同时修复笔记 `status` / `kind` 漂移未被查询阻断的缺口。
+
+```bash
+python3 -m pip install .
+chat-distiller inspect --vault /path/to/vault
+chat-distiller recover --vault /path/to/vault --query '当前任务的历史决策与限制' --max-bytes 4096
+```
+
+```python
+from chat_distiller import MemoryStore, serialize_packet
+memory = MemoryStore("/path/to/vault")
+packet = memory.recover("当前任务的历史决策与限制", max_bytes=4096)
+wire = serialize_packet(packet)  # 完整 UTF-8 JSON 字节预算，不是 token 预算
+```
+
+本地实测 **137 项测试通过 + 独立 wheel 安装后的 16 项检查通过**；原合成 benchmark 输出保持不变。
+[接口与边界](docs/memory-engine.md) · [复现步骤与验证记录](docs/verification.md)
+
+下面的评测仍是旧有的合成开发集，不表示这次改造提升了模型效果。
+
 当上下文被 compaction、会话切换或长期任务打断，历史决策的理由、当前状态和来源
 可能不再可见。本项目把对话蒸馏为可检查的外部记忆，再通过轻量检索帮助恢复工作上下文。
 它提供恢复入口，不保证找回所有信息，也不自动判断记忆是否真实或仍然有效。
@@ -18,7 +42,7 @@ Conversation → deterministic extraction → agent semantic distillation
 - **Lifecycle**：现行 / 已过期 / 有争议；稳定 ID 解析来源、关联与替代关系。
 - **Recovery hook**：PreCompact 留 pending 标记；压缩后提示按问题检索，不灌入整库内容。
 - **Portable**：Doubao Work 与 Generic JSONL 两种输入；确定性工具仅用 Python 标准库；语义蒸馏由宿主 Agent 完成，无需单独接入模型服务。
-- **101 个测试**：既有 28 个回归用例保留，新增身份、迁移、检索、adapter、benchmark 与 hook 验证。
+- **137 个测试**：保留原有 101 项回归，新增 36 项包接口、状态漂移、恢复预算与故障注入验证；另有独立安装后的 16 项端到端检查。
 
 ## Development evidence — synthetic, offline
 
@@ -138,6 +162,7 @@ vault 源快照是已发布版本，独立登记表与笔记是派生副本；�
 `PreCompact` 写入 pending 标记，只记录会话 ID、次数、时间和来源指针，不自动浓缩。
 `SessionStart(source=compact)` 在索引存在时提醒 Agent 使用 `query_memory.py` 按当前问题查找。
 工具或机器索引缺失时回退到 Markdown 索引；索引不存在则静默。异常不影响用户会话。
+新增 `recover` 可由调用方显式请求有界 JSON 记忆包；原 hook 行为保持不变，不自动调用它。
 Hook 只 remind / route，不读整库、不自动查询、不自动注入历史正文。
 
 [Hook 配置示例](assets/hooks.example.json) 保留原来的事件接口。需要运行环境实际支持并启用
