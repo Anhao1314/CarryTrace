@@ -1,0 +1,57 @@
+name: assemble verified engine
+
+on:
+  push:
+    branches: [codex/verified-memory-engine]
+    paths:
+      - '.upgrade/**'
+      - '.github/workflows/assemble-engine.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  assemble:
+    if: github.ref == 'refs/heads/codex/verified-memory-engine'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Assemble exact locally tested tree
+        run: python3 .upgrade/assemble.py
+      - name: Run all source tests
+        shell: bash
+        run: python3 -m unittest discover -s tests -v 2>&1 | tee "$RUNNER_TEMP/engine-assembly-evidence/tests.txt"
+      - name: Replay regression benchmark
+        shell: bash
+        run: |
+          python3 benchmarks/evaluate.py --out "$RUNNER_TEMP/engine-assembly-evidence/benchmark-a"
+          python3 benchmarks/evaluate.py --out "$RUNNER_TEMP/engine-assembly-evidence/benchmark-b"
+          diff -r "$RUNNER_TEMP/engine-assembly-evidence/benchmark-a" "$RUNNER_TEMP/engine-assembly-evidence/benchmark-b"
+          cmp benchmarks/benchmark-results.json "$RUNNER_TEMP/engine-assembly-evidence/benchmark-a/benchmark-results.json"
+          cmp benchmarks/benchmark-results.md "$RUNNER_TEMP/engine-assembly-evidence/benchmark-a/benchmark-results.md"
+      - name: Verify isolated wheel
+        shell: bash
+        run: |
+          python3 -m pip install "setuptools>=61" wheel
+          python3 -m pip wheel . --no-deps --no-build-isolation --wheel-dir "$RUNNER_TEMP/wheels"
+          python3 -m venv "$RUNNER_TEMP/installed"
+          "$RUNNER_TEMP/installed/bin/python" -m pip install --no-index --no-deps "$RUNNER_TEMP/wheels/"*.whl
+          cd "$RUNNER_TEMP"
+          "$RUNNER_TEMP/installed/bin/python" "$GITHUB_WORKSPACE/tools/verify_install.py" | tee "$RUNNER_TEMP/engine-assembly-evidence/installed-smoke.json"
+      - name: Publish verified tree object only
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: python3 .upgrade/assemble.py --publish
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: engine-assembly-evidence
+          path: ${{ runner.temp }}/engine-assembly-evidence
+          retention-days: 7
+          if-no-files-found: error
