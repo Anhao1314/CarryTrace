@@ -4,6 +4,9 @@ on:
   push:
   pull_request:
 
+permissions:
+  contents: read
+
 jobs:
   unittest:
     runs-on: ubuntu-latest
@@ -20,3 +23,14 @@ jobs:
         run: python3 -m unittest discover -s tests -v
       - name: Offline synthetic benchmark
         run: python3 benchmarks/evaluate.py --out "$RUNNER_TEMP/chat-distiller-benchmark"
+      - name: Build installable wheel
+        run: |
+          python3 -m pip install "setuptools>=61" wheel
+          python3 -m pip wheel . --no-deps --no-build-isolation --wheel-dir "$RUNNER_TEMP/wheels"
+      - name: Verify isolated installed package
+        shell: bash
+        run: |
+          python3 -m venv "$RUNNER_TEMP/installed"
+          "$RUNNER_TEMP/installed/bin/python" -m pip install --no-index --no-deps "$RUNNER_TEMP/wheels/"*.whl
+          cd "$RUNNER_TEMP"
+          "$RUNNER_TEMP/installed/bin/python" "$GITHUB_WORKSPACE/tools/verify_install.py"

@@ -1,1 +1,1 @@
-"""Source adapters: Doubao Work and the public generic JSONL contract."""
+"""Backward-compatible source adapter imports."""

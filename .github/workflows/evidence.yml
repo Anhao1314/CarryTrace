@@ -44,6 +44,15 @@ jobs:
           python3 benchmarks/evaluate.py --out "$RUNNER_TEMP/evidence/repeated-benchmark"
           diff -r "$RUNNER_TEMP/evidence/candidate-benchmark" "$RUNNER_TEMP/evidence/repeated-benchmark"
           diff -r "$RUNNER_TEMP/evidence/baseline-benchmark" "$RUNNER_TEMP/evidence/candidate-benchmark"
+      - name: Verify wheel outside source checkout
+        shell: bash
+        run: |
+          python3 -m pip install "setuptools>=61" wheel
+          python3 -m pip wheel . --no-deps --no-build-isolation --wheel-dir "$RUNNER_TEMP/wheels" 2>&1 | tee "$RUNNER_TEMP/evidence/wheel-build.txt"
+          python3 -m venv "$RUNNER_TEMP/installed"
+          "$RUNNER_TEMP/installed/bin/python" -m pip install --no-index --no-deps "$RUNNER_TEMP/wheels/"*.whl
+          cd "$RUNNER_TEMP"
+          "$RUNNER_TEMP/installed/bin/python" "$GITHUB_WORKSPACE/tools/verify_install.py" | tee "$RUNNER_TEMP/evidence/installed-smoke.json"
       - name: Upload inspectable evidence
         if: always()
         uses: actions/upload-artifact@v4

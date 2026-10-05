@@ -1,23 +1,13 @@
 #!/usr/bin/env python3
-"""Compatible extraction entry point; select --source doubao_work or generic_jsonl."""
+"""Backward-compatible entry point; implementation lives in the package."""
 import sys
-from source_adapters import doubao_work, generic_jsonl
+from pathlib import Path
 
+# Only legacy script entry points adjust the source-checkout import path.
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+from chat_distiller._internal import extract_sessions as _implementation
 
-def main():
-    source = 'doubao_work'
-    if '--source' in sys.argv:
-        at = sys.argv.index('--source')
-        if at + 1 >= len(sys.argv):
-            raise SystemExit('--source requires doubao_work or generic_jsonl')
-        source = sys.argv[at+1]
-        del sys.argv[at:at+2]
-    if source == 'doubao_work':
-        return doubao_work.main()
-    if source == 'generic_jsonl':
-        return generic_jsonl.main()
-    raise SystemExit('unknown --source: ' + source)
-
-
-if __name__ == '__main__':
-    sys.exit(main())
+if __name__ == "__main__":
+    sys.exit(_implementation.main())
+else:
+    sys.modules[__name__] = _implementation
