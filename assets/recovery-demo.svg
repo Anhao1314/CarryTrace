@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1040 398" role="img" aria-labelledby="title desc">
+<title id="title">chat-distiller: executed recovery demo</title>
+<desc id="desc">A synthetic example distinguishes current and historical lookup, no match, and an exhausted byte budget. This is a display projection of actual CLI output, not a model evaluation.</desc>
+<rect width="1040" height="398" rx="18" fill="#101824"/>
+<text x="42" y="43" fill="#91a4b9" font-family="sans-serif" font-size="12" letter-spacing="2">CHAT-DISTILLER / EXECUTED DEMO</text>
+<text x="42" y="79" fill="#ffffff" font-family="sans-serif" font-size="26" font-weight="600">A changed decision. An inspectable trail.</text>
+<g font-family="ui-monospace, monospace" font-size="15">
+<g fill="#91a4b9"><text x="42" y="119">SCENARIO</text><text x="338" y="119">PACKET STATUS</text><text x="622" y="119">RECORDS</text><text x="742" y="119">EXPIRED</text><text x="850" y="119">SIZE</text></g>
+<path d="M32 172H1008" stroke="#293446"/>
+<text x="42" y="156" fill="#e6edf3">Current decision</text>
+<text x="338" y="156" fill="#e6edf3">ready</text>
+<text x="622" y="156" fill="#e6edf3">2</text>
+<text x="742" y="156" fill="#e6edf3">0</text>
+<text x="850" y="156" fill="#e6edf3">1398 B</text>
+<path d="M32 221H1008" stroke="#293446"/>
+<text x="42" y="205" fill="#e6edf3">Earlier decision</text>
+<text x="338" y="205" fill="#e6edf3">ready</text>
+<text x="622" y="205" fill="#e6edf3">3</text>
+<text x="742" y="205" fill="#e6edf3">1</text>
+<text x="850" y="205" fill="#e6edf3">1956 B</text>
+<path d="M32 270H1008" stroke="#293446"/>
+<text x="42" y="254" fill="#e6edf3">Unknown question</text>
+<text x="338" y="254" fill="#e6edf3">no_match</text>
+<text x="622" y="254" fill="#e6edf3">0</text>
+<text x="742" y="254" fill="#e6edf3">0</text>
+<text x="850" y="254" fill="#e6edf3">426 B</text>
+<path d="M32 319H1008" stroke="#293446"/>
+<text x="42" y="303" fill="#e6edf3">Budget too small</text>
+<text x="338" y="303" fill="#e6edf3">budget_exhausted</text>
+<text x="622" y="303" fill="#e6edf3">0</text>
+<text x="742" y="303" fill="#e6edf3">0</text>
+<text x="850" y="303" fill="#e6edf3">432 B</text>
+</g>
+<text x="42" y="367" fill="#91a4b9" font-family="sans-serif" font-size="14">Handwritten synthetic cards. CLI execution, not automatic distillation or host recovery.</text>
+</svg>

@@ -1,0 +1,42 @@
+{
+  "fixture_sha256": "59f65c99e1abe8a111130870ef150212f5248924219735ff2c972aba69b5a142",
+  "scope": "synthetic CLI display projection; no model or host compaction",
+  "cases": {
+    "current": {
+      "status": "ready",
+      "intent": "current",
+      "memory_count": 2,
+      "used_bytes": 1398,
+      "budget_bytes": 4096,
+      "requires_review": true,
+      "expired_count": 0
+    },
+    "historical": {
+      "status": "ready",
+      "intent": "historical",
+      "memory_count": 3,
+      "used_bytes": 1956,
+      "budget_bytes": 4096,
+      "requires_review": true,
+      "expired_count": 1
+    },
+    "unknown": {
+      "status": "no_match",
+      "intent": "current",
+      "memory_count": 0,
+      "used_bytes": 426,
+      "budget_bytes": 4096,
+      "requires_review": false,
+      "expired_count": 0
+    },
+    "budget": {
+      "status": "budget_exhausted",
+      "intent": "current",
+      "memory_count": 0,
+      "used_bytes": 432,
+      "budget_bytes": 800,
+      "requires_review": false,
+      "expired_count": 0
+    }
+  }
+}
