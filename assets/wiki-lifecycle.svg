@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 680 440" role="img" aria-labelledby="title desc" lang="en">
+<title id="title">Source changes. The old Wiki steps aside.</title>
+<desc id="desc">Executed synthetic lifecycle: publish, mark stale, fall back to updated memory, and recompile. No model evaluation.</desc>
+<rect width="680" height="440" rx="18" fill="#101824"/>
+<g font-family="system-ui, -apple-system, 'Noto Sans CJK SC', sans-serif">
+<text x="28" y="38" fill="#a7b8cb" font-size="16" letter-spacing="1.5">CHAT-DISTILLER / KNOWLEDGE WIKI</text>
+<text x="28" y="78" fill="#ffffff" font-size="29" font-weight="600">Knowledge changes. Keep the trail.</text>
+<rect x="20" y="104" width="312" height="130" rx="12" fill="#192534" stroke="#334459"/>
+<text x="38" y="133" fill="#a7c8f0" font-size="16" font-weight="600">01 / PUBLISH</text>
+<text x="38" y="174" fill="#ffffff" font-size="28" font-weight="600">SQLite · rev 1</text>
+<text x="38" y="210" fill="#c1cedd" font-size="19">Citations + dispute</text>
+<rect x="348" y="104" width="312" height="130" rx="12" fill="#192534" stroke="#334459"/>
+<text x="366" y="133" fill="#a7c8f0" font-size="16" font-weight="600">02 / SOURCE UPDATE</text>
+<text x="366" y="174" fill="#ffffff" font-size="28" font-weight="600">1 stale page</text>
+<text x="366" y="210" fill="#c1cedd" font-size="19">Recheck before reuse</text>
+<rect x="20" y="246" width="312" height="130" rx="12" fill="#192534" stroke="#334459"/>
+<text x="38" y="275" fill="#a7c8f0" font-size="16" font-weight="600">03 / FALLBACK</text>
+<text x="38" y="316" fill="#ffffff" font-size="28" font-weight="600">PostgreSQL</text>
+<text x="38" y="352" fill="#c1cedd" font-size="19">0 stale Wiki pages served</text>
+<rect x="348" y="246" width="312" height="130" rx="12" fill="#192534" stroke="#334459"/>
+<text x="366" y="275" fill="#a7c8f0" font-size="16" font-weight="600">04 / RECOMPILE</text>
+<text x="366" y="316" fill="#ffffff" font-size="28" font-weight="600">rev 2 · same ID</text>
+<text x="366" y="352" fill="#c1cedd" font-size="19">Old revision retained</text>
+<text x="28" y="412" fill="#a7b8cb" font-size="19">16 CLI steps · 12 checks · synthetic data</text>
+</g>
+</svg>
