@@ -1,16 +1,15 @@
 # chat-distiller
 
-**Keep the decision. Keep the trail.**
+**Keep the decision. Keep the trail. Bring back the right context.**
 
-Local conversation memory and a versioned knowledge Wiki for long-running agents.
-Turn retained decisions into cited topic pages, detect when their inputs change, and
-recover relevant knowledge with its supporting records.
+Local persistent context for long-running agents. Connect Doubao Work once, incrementally stage
+changed conversations, and recover task context without walking through the low-level pipeline.
 
 [![Tests](https://github.com/Anhao1314/chat-distiller/actions/workflows/tests.yml/badge.svg?branch=main)](https://github.com/Anhao1314/chat-distiller/actions/workflows/tests.yml)
 [![Evidence](https://github.com/Anhao1314/chat-distiller/actions/workflows/evidence.yml/badge.svg?branch=main)](https://github.com/Anhao1314/chat-distiller/actions/workflows/evidence.yml)
 
 **English** · [简体中文](README.zh-CN.md)  
-[Run the demo](#demo) · [Build a Wiki](#quick-start) · [Python API](#python-api) · [Evidence](#evidence) · [Limits](#limits)
+[Start: Doubao context](#start-here-three-commands) · [Engine demo](#demo) · [Advanced Wiki](#quick-start) · [Evidence](#evidence) · [Limits](#limits)
 
 ![Executed Wiki lifecycle: publish revision 1, invalidate it after a source update, recover updated atomic memory, and recompile revision 2 with the same identity.](assets/wiki-lifecycle.svg)
 
@@ -32,10 +31,33 @@ The additional layer is optional: existing v2 memory and `MemoryStore` still wor
 > The host decides what information means. Code checks references, state, and publication.
 > **A valid citation does not prove a synthesis is true.**
 
+## Start here: three commands
+
+**Python 3.9+ · package 0.4.0 · no third-party runtime dependencies.**
+
+```bash
+chat-distiller connect doubao
+chat-distiller sync
+chat-distiller context "continue the previous project"
+```
+
+On macOS, `connect` discovers the current Doubao Work session cache and creates a managed local
+Context Home. `sync` only stages new or changed sessions and never writes to the Doubao source.
+`context` prefers validated memory / Knowledge Wiki and, before semantic distillation exists,
+can return byte-bounded raw excerpts marked `requires_review`.
+
+Use `chat-distiller status` for health and `--json` for Agent-readable output.
+If auto-discovery fails, pass `--sessions-root` once during connect.
+
+Semantic judgment is still explicit. Sync writes a pending review bundle; a host Agent can publish
+structured memory through the guarded proposal protocol. Source changes make an older proposal stale.
+
+[Context Gateway guide](docs/context-gateway.md) · [Executed Gateway experiment](benchmarks/gateway/results.md)
+
 <a id="demo"></a>
 ## Run the full lifecycle
 
-**Python 3.9+ · package 0.3.0 · no third-party runtime dependencies.**
+**Engine demo; no real user data.**
 Use Bash from a source checkout. Install from this repository, not an assumed PyPI release.
 Installation may download build tools; the installed runtime and demo need no model key or service.
 
