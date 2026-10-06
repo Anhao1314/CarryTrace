@@ -46,7 +46,7 @@ suspicion; they do not establish truth or validate every semantic claim.
 | New source, new vault | `migrate --mode init`, then `render` |
 | Existing legacy vault | Back up; `migrate --mode upgrade --vault …`; inspect report before rendering |
 | Existing v2 vault, new cards | Preserve complete identity history; `migrate --mode register`; render explicitly |
-| Existing v2 vault, package update only | No data migration required for package 0.2.0 |
+| Existing v2 vault, package update only | No data migration required for package 0.4.0 |
 
 Do not initialize fresh identities over an existing vault. Use `--dry-run` to inspect
 registration/render plans, but persist the real run before using its UUIDs: preview
