@@ -22,7 +22,9 @@ jobs:
       - name: 跑回归测试
         run: python3 -m unittest discover -s tests -v
       - name: Offline synthetic benchmark
-        run: python3 benchmarks/evaluate.py --out "$RUNNER_TEMP/chat-distiller-benchmark"
+        run: |
+          python3 benchmarks/evaluate.py --out "$RUNNER_TEMP/chat-distiller-benchmark"
+          python3 benchmarks/wiki/evaluate.py --check
       - name: Build installable wheel
         run: |
           python3 -m pip install "setuptools>=61" wheel
@@ -34,4 +36,5 @@ jobs:
           "$RUNNER_TEMP/installed/bin/python" -m pip install --no-index --no-deps "$RUNNER_TEMP/wheels/"*.whl
           cd "$RUNNER_TEMP"
           "$RUNNER_TEMP/installed/bin/python" "$GITHUB_WORKSPACE/tools/verify_install.py"
+          "$RUNNER_TEMP/installed/bin/python" "$GITHUB_WORKSPACE/tools/verify_wiki.py"
           PATH="$RUNNER_TEMP/installed/bin:$PATH" "$RUNNER_TEMP/installed/bin/python" "$GITHUB_WORKSPACE/tools/verify_docs.py"

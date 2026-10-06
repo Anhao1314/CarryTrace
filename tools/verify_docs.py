@@ -111,7 +111,7 @@ def demo_svg(cases):
 
 def verify_demo(root):
     texts = [(root / f).read_text(encoding="utf-8") for f in README_FILES]
-    for name, language in (("quickstart", "bash"), ("sdk", "python"), ("expected", "json")):
+    for name, language in (("quickstart", "bash"), ("sdk", "python"), ("expected", "json"), ("wiki", "bash")):
         if example(texts[0], name, language) != example(texts[1], name, language):
             raise ValueError("bilingual example drift: " + name)
     entry = shutil.which("chat-distiller")
@@ -125,6 +125,7 @@ def verify_demo(root):
         # Source checkout is cwd for the relative example fixture, not the SDK import.
         script = example(texts[0], "quickstart", "bash")
         script += '\n' + example((root / 'docs/ingestion.md').read_text(encoding='utf-8'), 'ingestion', 'bash') + '\n'
+        script += "\n" + example(texts[0], "wiki", "bash") + "\n"
         script += '\nprintf "%s" "$DEMO_DIR" > "$RECEIPT_DIR/demo-path"\n'
         script += 'cd "$DEMO_DIR"\npython - <<\'README_PY\'\n'
         script += example(texts[0], "sdk", "python") + '\nREADME_PY\n'
@@ -134,6 +135,11 @@ def verify_demo(root):
             raise AssertionError(proc.stdout + proc.stderr)
         base = Path((Path(tmp) / "demo-path").read_text()).resolve()
         base.relative_to(Path(tmp).resolve())
+        knowledge = json.loads((base / "knowledge.json").read_text(encoding="utf-8"))
+        if knowledge["schema_version"] != 2 or not knowledge["knowledge"]:
+            raise AssertionError("wiki README example did not return knowledge")
+        if not (base / "wiki-view/manifest.json").is_file():
+            raise AssertionError("wiki README export is incomplete")
         # Verify that subprocesses use the installed distribution, not cwd or PYTHONPATH.
         imported = subprocess.check_output([python, "-c", "import chat_distiller; print(chat_distiller.__file__)"],
                                            cwd=base, env=env, text=True).strip()
@@ -188,7 +194,7 @@ def main():
         elif path.read_text(encoding="utf-8") != content:
             raise AssertionError("stale demo artifact: " + name)
     report = dict(ok=True, **check_links(ROOT, files), readme_languages=2,
-                  executed_examples=["quickstart", "ingestion", "sdk"], recovery_scenarios=len(demo["cases"]),
+                  executed_examples=["quickstart", "ingestion", "wiki", "sdk"], recovery_scenarios=len(demo["cases"]),
                   generated_assets_match=True, data=demo["scope"])
     print(json.dumps(report, ensure_ascii=False, indent=2))
 

@@ -38,7 +38,7 @@ with tempfile.TemporaryDirectory(prefix="chat-distiller-installed-") as tmp:
             raise AssertionError(f"command {args!r}: exit {proc.returncode}\n{proc.stdout}\n{proc.stderr}")
         return proc.stdout
 
-    require("0.2.0" in command("--version"), "installed console entry point")
+    require(chat_distiller.__version__ in command("--version"), "installed console entry point")
     raw = base / "messages.jsonl"
     messages = [
         {"session_id": "smoke", "timestamp": "2026-01-01T00:00:00Z", "role": "user", "content": "部署采用什么方案？"},

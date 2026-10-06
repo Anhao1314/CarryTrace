@@ -3,7 +3,16 @@
 Package versions below describe the Python distribution, not a claim of a PyPI release
 or a corresponding Git tag.
 
-## Unreleased: documentation and onboarding
+## Package 0.3.0: Knowledge Wiki
+
+- Added optional `KnowledgeStore` and `wiki` commands without changing atomic memory schema 2.
+- Added cited proposals, scoped status validation, stable knowledge IDs, revision history and navigation links.
+- Added conservative whole-source staleness checks, layered byte-bounded recovery and explicit Markdown exports.
+- Added exclusive writer locks, revision guards and one-file compiled-state publication with failure tests.
+- Added research/design notes, host synthesis workflow, a 16-command installed demo and CompileBench engineering experiments.
+- Kept the old retrieval benchmark and legacy recovery packet unchanged. No automatic LLM accuracy claim or PyPI publication.
+
+## Documentation and onboarding (2026-10-06)
 
 - Rebuilt the homepage around the use case, a safe first run, evidence, and integration.
 - Added an English README and a synchronized Chinese edition.

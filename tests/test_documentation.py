@@ -25,7 +25,7 @@ class DocumentationTests(unittest.TestCase):
 
     def test_bilingual_examples_match(self):
         en, zh = [(ROOT / f).read_text(encoding="utf-8") for f in docs.README_FILES]
-        for name, language in (("quickstart", "bash"), ("sdk", "python"), ("expected", "json")):
+        for name, language in (("quickstart", "bash"), ("sdk", "python"), ("expected", "json"), ("wiki", "bash")):
             self.assertEqual(docs.example(en, name, language), docs.example(zh, name, language))
 
     def test_headings_and_explicit_anchors(self):

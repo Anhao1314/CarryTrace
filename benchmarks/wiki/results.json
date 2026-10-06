@@ -1,0 +1,146 @@
+{
+  "suite": "CompileBench engineering v1",
+  "fixture_sha256": "6c4f7f4b96c80ed189af012ec341f3bdd55b3b645aeedf71cf734edf4f954037",
+  "data": "curated synthetic atomic cards; extractive proposals; no model calls",
+  "scope": "lifecycle and structural safety, not entailment or agent task success",
+  "cases": [
+    {
+      "topic": "database",
+      "input_cards": 3,
+      "page_count": 1,
+      "repeat_byte_identical": true,
+      "invalid_proposals_rejected_without_state": {
+        "unknown_id": true,
+        "invented_quote": true,
+        "omitted_dispute": true,
+        "status_laundering": true
+      },
+      "initial_current_and_dispute_preserved": true,
+      "freshness_ablation": {
+        "disabled_stale_page_served": true,
+        "enabled_stale_page_served": false
+      },
+      "stale_proposal_rejected": true,
+      "atomic_fallback_has_updated_value": true,
+      "identity_preserved_after_refresh": true,
+      "page_revision_after_refresh": 2,
+      "old_revision_inspectable": true,
+      "exact_budget_checks": [
+        true,
+        true,
+        true,
+        true
+      ],
+      "export_manifest_exists": true,
+      "initial_layered_packet_bytes": 2289
+    },
+    {
+      "topic": "deployment",
+      "input_cards": 3,
+      "page_count": 1,
+      "repeat_byte_identical": true,
+      "invalid_proposals_rejected_without_state": {
+        "unknown_id": true,
+        "invented_quote": true,
+        "omitted_dispute": true,
+        "status_laundering": true
+      },
+      "initial_current_and_dispute_preserved": true,
+      "freshness_ablation": {
+        "disabled_stale_page_served": true,
+        "enabled_stale_page_served": false
+      },
+      "stale_proposal_rejected": true,
+      "atomic_fallback_has_updated_value": true,
+      "identity_preserved_after_refresh": true,
+      "page_revision_after_refresh": 2,
+      "old_revision_inspectable": true,
+      "exact_budget_checks": [
+        true,
+        true,
+        true,
+        true
+      ],
+      "export_manifest_exists": true,
+      "initial_layered_packet_bytes": 2330
+    },
+    {
+      "topic": "scheduler",
+      "input_cards": 3,
+      "page_count": 1,
+      "repeat_byte_identical": true,
+      "invalid_proposals_rejected_without_state": {
+        "unknown_id": true,
+        "invented_quote": true,
+        "omitted_dispute": true,
+        "status_laundering": true
+      },
+      "initial_current_and_dispute_preserved": true,
+      "freshness_ablation": {
+        "disabled_stale_page_served": true,
+        "enabled_stale_page_served": false
+      },
+      "stale_proposal_rejected": true,
+      "atomic_fallback_has_updated_value": true,
+      "identity_preserved_after_refresh": true,
+      "page_revision_after_refresh": 2,
+      "old_revision_inspectable": true,
+      "exact_budget_checks": [
+        true,
+        true,
+        true,
+        true
+      ],
+      "export_manifest_exists": true,
+      "initial_layered_packet_bytes": 2332
+    },
+    {
+      "topic": "retrieval",
+      "input_cards": 3,
+      "page_count": 1,
+      "repeat_byte_identical": true,
+      "invalid_proposals_rejected_without_state": {
+        "unknown_id": true,
+        "invented_quote": true,
+        "omitted_dispute": true,
+        "status_laundering": true
+      },
+      "initial_current_and_dispute_preserved": true,
+      "freshness_ablation": {
+        "disabled_stale_page_served": true,
+        "enabled_stale_page_served": false
+      },
+      "stale_proposal_rejected": true,
+      "atomic_fallback_has_updated_value": true,
+      "identity_preserved_after_refresh": true,
+      "page_revision_after_refresh": 2,
+      "old_revision_inspectable": true,
+      "exact_budget_checks": [
+        true,
+        true,
+        true,
+        true
+      ],
+      "export_manifest_exists": true,
+      "initial_layered_packet_bytes": 2290
+    }
+  ],
+  "summary": {
+    "topics": 4,
+    "cards": 12,
+    "invalid_proposals_blocked": 16,
+    "invalid_proposals_total": 16,
+    "stale_served_gate_disabled": 4,
+    "stale_served_gate_enabled": 0,
+    "exact_budget_passes": 16,
+    "exact_budget_total": 16,
+    "failures": []
+  },
+  "limits": [
+    "Not an independent holdout or automatic LLM synthesis evaluation.",
+    "Status and scope are explicit; unknown semantic contradictions can be missed.",
+    "A false synthesis with a real quote can pass structurally and remains review-required.",
+    "Ablation is a controlled static-page consumer, not a comparison to other wiki products.",
+    "Conservative whole-source invalidation also stales pages after unrelated changes."
+  ]
+}

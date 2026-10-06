@@ -44,6 +44,10 @@ jobs:
           python3 benchmarks/evaluate.py --out "$RUNNER_TEMP/evidence/repeated-benchmark"
           diff -r "$RUNNER_TEMP/evidence/candidate-benchmark" "$RUNNER_TEMP/evidence/repeated-benchmark"
           diff -r "$RUNNER_TEMP/evidence/baseline-benchmark" "$RUNNER_TEMP/evidence/candidate-benchmark"
+          python3 benchmarks/wiki/evaluate.py --out "$RUNNER_TEMP/evidence/wiki-benchmark"
+          python3 benchmarks/wiki/evaluate.py --out "$RUNNER_TEMP/evidence/wiki-repeat"
+          diff -r "$RUNNER_TEMP/evidence/wiki-benchmark" "$RUNNER_TEMP/evidence/wiki-repeat"
+          cmp benchmarks/wiki/results.json "$RUNNER_TEMP/evidence/wiki-benchmark/results.json"
       - name: Verify wheel outside source checkout
         shell: bash
         run: |
@@ -53,6 +57,8 @@ jobs:
           "$RUNNER_TEMP/installed/bin/python" -m pip install --no-index --no-deps "$RUNNER_TEMP/wheels/"*.whl
           cd "$RUNNER_TEMP"
           "$RUNNER_TEMP/installed/bin/python" "$GITHUB_WORKSPACE/tools/verify_install.py" | tee "$RUNNER_TEMP/evidence/installed-smoke.json"
+          "$RUNNER_TEMP/installed/bin/python" "$GITHUB_WORKSPACE/tools/verify_wiki.py" | tee "$RUNNER_TEMP/evidence/installed-wiki.json"
+          "$RUNNER_TEMP/installed/bin/python" "$GITHUB_WORKSPACE/tools/wiki_demo.py" --out "$RUNNER_TEMP/evidence/wiki-demo" > "$RUNNER_TEMP/evidence/wiki-demo.json"
           PATH="$RUNNER_TEMP/installed/bin:$PATH" "$RUNNER_TEMP/installed/bin/python" "$GITHUB_WORKSPACE/tools/verify_docs.py" | tee "$RUNNER_TEMP/evidence/docs-smoke.json"
       - name: Upload inspectable evidence
         if: always()
