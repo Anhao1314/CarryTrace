@@ -2,40 +2,42 @@
 
 **Keep the decision. Keep the trail.**
 
-Local, inspectable memory for long-running agents. Turn conversations into structured
-records, retrieve them with explicit lifecycle states, and build source-linked recovery
-packets within a byte budget. An optional LLM-Wiki-style compiler maintains versioned topic pages over that memory.
+Local conversation memory and a versioned knowledge Wiki for long-running agents.
+Turn retained decisions into cited topic pages, detect when their inputs change, and
+recover relevant knowledge with its supporting records.
 
 [![Tests](https://github.com/Anhao1314/chat-distiller/actions/workflows/tests.yml/badge.svg?branch=main)](https://github.com/Anhao1314/chat-distiller/actions/workflows/tests.yml)
 [![Evidence](https://github.com/Anhao1314/chat-distiller/actions/workflows/evidence.yml/badge.svg?branch=main)](https://github.com/Anhao1314/chat-distiller/actions/workflows/evidence.yml)
 
 **English** · [简体中文](README.zh-CN.md)  
-[Try it](#quick-start) · [Python API](#python-api) · [Knowledge Wiki](#knowledge-wiki) · [Evidence](#evidence) · [Documentation](docs/README.md)
+[Run the demo](#demo) · [Build a Wiki](#quick-start) · [Python API](#python-api) · [Evidence](#evidence) · [Limits](#limits)
 
-![Executed synthetic demo: current lookup excludes the expired card; historical lookup includes it; unknown queries and exhausted budgets are distinct.](assets/recovery-demo.svg)
+![Executed Wiki lifecycle: publish revision 1, invalidate it after a source update, recover updated atomic memory, and recompile revision 2 with the same identity.](assets/wiki-lifecycle.svg)
 
-*Static display projection generated from actual CLI output, not a terminal recording
-or a model evaluation. [Fixture and results](examples/recovery/expected.json).*
+*Generated from the [16-step CLI demo](tools/wiki_demo.py) and its [checked receipt](examples/wiki/lifecycle.expected.json).
+Synthetic data, a prewritten synthesis, and an extractive refresh. No model calls or live host-compaction test.*
 
-## Why this exists
+## Built for work that spans conversations
 
-A project changes direction. A session ends. The next agent needs to know **what is
-current, what was replaced, and where the decision came from**, not just find familiar words.
+| When you need to… | Use chat-distiller to… |
+| --- | --- |
+| Resume development after a handoff | Retrieve prior decisions, constraints, and their source records. |
+| Keep a project knowledge base current | Maintain a topic page with stable identity, revisions, and explicit stale detection. |
+| Give another agent focused context | Produce byte-bounded recovery packets; inspect the same knowledge as Markdown. |
 
-chat-distiller keeps those distinctions explicit. A host agent or human decides what to
-retain and whether a claim is current, expired, or disputed. Deterministic code registers
-identities, renders files, validates supported projections, and retrieves records.
+Inspired by the **LLM Wiki** maintenance pattern, not a fork or a bundled third-party Wiki.
+The additional layer is optional: existing v2 memory and `MemoryStore` still work without it.
+[Design and attribution](docs/wiki-design.md).
 
-> Judgment belongs to the agent. Structure and integrity belong to deterministic code.
+> The host decides what information means. Code checks references, state, and publication.
+> **A valid citation does not prove a synthesis is true.**
 
-It is a memory component, not an autonomous agent, truth detector, or replacement for
-semantic search. Obsidian is an optional reader, not a dependency.
+<a id="demo"></a>
+## Run the full lifecycle
 
-<a id="quick-start"></a>
-## Quick start
-
-Python **3.9+**. The commands below use Bash and a source checkout. Installation may
-fetch build tools; the runtime and demo need no model key or network service.
+**Python 3.9+ · package 0.3.0 · no third-party runtime dependencies.**
+Use Bash from a source checkout. Install from this repository, not an assumed PyPI release.
+Installation may download build tools; the installed runtime and demo need no model key or service.
 
 ```bash
 git clone https://github.com/Anhao1314/chat-distiller.git
@@ -45,9 +47,48 @@ python3 -m venv .venv
 python -m pip install .
 ```
 
-The bundled example contains **handwritten synthetic cards**, not automatically distilled
-memories. It records a change from a hosted database to local SQLite and one unresolved
-timeout. Run it in a new temporary vault, never in your personal knowledge base:
+Already have a checkout? Update it without overwriting local work, then reinstall with
+`python -m pip install .`. The following demo creates a **new disposable directory**, not a personal vault:
+
+<!-- verify:lifecycle -->
+```bash
+export WIKI_DEMO_PARENT="$(mktemp -d)"
+python tools/wiki_demo.py --out "$WIKI_DEMO_PARENT/run"
+```
+
+Actual summary excerpt; the complete output also reports twelve named checks and the receipt paths:
+
+<!-- verify:lifecycle-expected -->
+```json
+{
+  "ok": true,
+  "model_calls": 0,
+  "commands_executed": 16
+}
+```
+
+The demo publishes a SQLite knowledge page, changes its source to PostgreSQL, excludes
+the stale page during recovery, then recompiles under the **same knowledge ID** and retains revision 1.
+It does not connect to or migrate a real database. The initial synthesis is prewritten, not model-generated during the run.
+
+Open `$WIKI_DEMO_PARENT/run/wiki-v2/index.md` in a Markdown reader or Obsidian.
+The same `run/` directory contains `wiki-v1/`, `proposal.json`, `summary.json`, and the raw step receipts.
+**The exported Wiki is a static snapshot, not a live second authority.**
+
+<a id="quick-start"></a>
+<a id="knowledge-wiki"></a>
+## Build and maintain a Wiki
+
+Start with published v2 atomic memory. `prepare` selects records and produces an **extractive draft**;
+a human or host agent can turn it into a synthesis while retaining citations and scoped disputes.
+`compile` checks the proposal; **only `--apply` publishes it**.
+
+<details>
+<summary><strong>Manual walkthrough: disposable memory → proposal → checked Wiki</strong></summary>
+
+Use the installed environment above, from the repository root. This separate walkthrough defines
+`DEMO_DIR` for the Python example and the [ingestion guide](docs/ingestion.md).
+The cards are handwritten synthetic input. Do not substitute a real vault for this disposable one.
 
 <!-- verify:quickstart -->
 ```bash
@@ -59,9 +100,8 @@ chat-distiller recover --vault "$DEMO_DIR/vault" --query database --max-bytes 40
 python -m json.tool "$DEMO_DIR/recovery.json"
 ```
 
-An excerpt of the actual recovery output follows. The complete packet also contains two
-records, their source IDs, states, and full bodies. UUIDs and the source hash vary on each
-new initialization; the byte count below is specific to this fixture.
+Atomic recovery output excerpt; the full packet contains two complete records with sources.
+IDs and source hashes vary on initialization; this byte count belongs to the fixed example.
 
 <!-- verify:expected -->
 ```json
@@ -74,45 +114,9 @@ new initialization; the byte count below is specific to this fixture.
 ```
 
 `requires_review` is true because the unresolved timeout remains visible. `ready` means
-records fit, **not** that a task has been completed. The old hosted-database card is absent
-from current lookup; `--intent historical` makes it eligible again.
+records fit, not that an agent completed its task. `--intent historical` also allows the old hosted-database card.
 
-**Using your own data?** Follow [ingestion and migration](docs/ingestion.md). Existing v2
-vaults need no schema migration for package 0.3.0. Back up legacy vaults before explicit
-upgrade. Never use this demo's `init` output to replace an existing vault.
-
-<a id="python-api"></a>
-## Python API
-
-With the same environment and `DEMO_DIR` from the quick start:
-
-<!-- verify:sdk -->
-```python
-import os
-from pathlib import Path
-from chat_distiller import MemoryStore, serialize_packet
-
-memory = MemoryStore(Path(os.environ["DEMO_DIR"]) / "vault")
-hits = memory.search("database")
-card = memory.get(hits[0]["memory_id"]) if hits else None
-packet = memory.recover("database", max_bytes=4096)
-wire = serialize_packet(packet)
-assert len(wire.encode("utf-8")) == packet["used_bytes"] <= 4096
-print(packet["status"], len(packet["memories"]), packet["requires_review"])
-```
-
-`MemoryStore` is **read-only**. Each operation revalidates published state; it does not
-silently repair or migrate it. Use the explicit CLI commands for extraction, registration,
-and rendering. [API, errors, and packet contract](docs/memory-engine.md).
-
-<a id="knowledge-wiki"></a>
-## Knowledge Wiki: compile, maintain, recover
-
-**New in 0.3.0:** group atomic memories into source-linked topic pages inspired by the LLM Wiki pattern.
-Keep one stable knowledge identity across revisions; retain old versions and scoped disputes.
-Any change to the atomic source makes old pages stale, so they cannot silently serve as current knowledge.
-
-After the quick start, reuse the same temporary `DEMO_DIR`:
+Reuse the same `DEMO_DIR` to compile the knowledge layer:
 
 <!-- verify:wiki -->
 ```bash
@@ -123,95 +127,149 @@ chat-distiller wiki recover --vault "$DEMO_DIR/vault" --query database --max-byt
 chat-distiller wiki export --vault "$DEMO_DIR/vault" --out "$DEMO_DIR/wiki-view"
 ```
 
-Preparation is extractive and offline. A host agent can rewrite the proposal into a synthesis before compilation;
-all claims need literal memory citations and semantic synthesis remains review-required. Compilation validates by
-default; only `--apply` publishes. The export is a static Markdown snapshot, not a live second authority.
+To practice host synthesis, edit `proposal.json` after `prepare` and before the validation command.
+Keep quotes, source IDs, scope, and state. The walkthrough itself leaves the extractive draft unchanged.
+See the [proposal contract](references/knowledge-schema.md) for the supported format.
 
-[Complete guide and host workflow](docs/knowledge-wiki.md) · [Research and design](docs/wiki-design.md) ·
-[Executed compiler experiments](benchmarks/wiki/results.md).
-To run the full 16-command lifecycle demonstration: `python tools/wiki_demo.py --out /path/to/new-demo-directory`.
+</details>
 
-## How it works
+**Your own conversations:** use the [ingestion and migration guide](docs/ingestion.md).
+Inputs are Doubao Work local cache or Generic JSONL; a host agent or human performs semantic distillation.
+Existing v2 vaults need no schema migration. Back up legacy vaults before explicit upgrade;
+never replace existing identities with a new demo's `init` output.
 
-```mermaid
-flowchart LR
-    A[Conversations] --> B[Extract]
-    B --> C[Human or agent judgment]
-    C --> D[Register and render]
-    D --> E[Local v2 memory]
-    E --> W[Knowledge proposals and versioned wiki]
-    W --> R[Freshness gate and layered recovery]
-    E --> F[Validated MemoryStore]
-    F --> G[Search or bounded recovery]
-    G --> H[Caller inspects sources]
+After publishing, use `wiki status` to find stale pages and repeat prepare, review, validate, and apply.
+The same topic retains its ID and prior revisions; an identical proposal returns `no_change`.
+[Full Wiki guide](docs/knowledge-wiki.md).
+
+<a id="python-api"></a>
+## Python API
+
+After the manual walkthrough above, reuse its environment and `DEMO_DIR`:
+
+<!-- verify:sdk -->
+```python
+import os
+from pathlib import Path
+from chat_distiller import KnowledgeStore, MemoryStore, serialize_packet
+
+vault = Path(os.environ["DEMO_DIR"]) / "vault"
+memory = MemoryStore(vault)
+wiki = KnowledgeStore(vault)
+
+hits = memory.search("database")
+page = wiki.get("database")
+packet = wiki.recover("database", max_bytes=8192)
+wire = serialize_packet(packet)
+assert len(wire.encode("utf-8")) == packet["used_bytes"] <= 8192
+print(packet["status"], len(packet["knowledge"]), packet["requires_review"])
 ```
 
-Atomic memory has one core under `chat_distiller/_internal`; the optional compiler lives under `chat_distiller/wiki`. The unified CLI and
-legacy scripts share it. The read-only API consumes the published source and its derived
-index. Hooks only remind a host to look up memory; they do not call `recover` automatically.
-[Detailed architecture and trust boundaries](docs/architecture.md).
+`MemoryStore` is read-only. `KnowledgeStore` adds explicit preparation and publication;
+`compile(proposal)` is a preview, while `compile(proposal, apply=True)` publishes.
+Neither interface calls a model. [Memory API and errors](docs/memory-engine.md) · [Knowledge API](docs/knowledge-wiki.md#python-接口).
 
-| Property | Behavior and boundary |
+## Two layers, one source of record
+
+```mermaid
+flowchart TD
+    A[Conversations] --> B[Host distillation + deterministic registration]
+    B --> C[Published atomic memory]
+    C --> D[Host proposal + checked compilation]
+    D --> E[Versioned knowledge pages]
+    E --> F[Freshness gate + bounded recovery]
+    C --> F
+    E --> G[Static Markdown export]
+```
+
+The knowledge layer is derived from atomic memory. Any atomic-source change, **including an unrelated one**,
+makes older compiled pages stale. Default Wiki search excludes them; layered recovery can fall back to
+atomic records. That fallback is not a guarantee of complete topic or conflict coverage.
+
+| Distinction | What it actually means |
 | --- | --- |
-| Stable identity | Persistent `memory_id`; display numbers and filenames remain reserved across updates. |
-| Explicit lifecycle | `现行` (current), `已过期` (expired), `有争议` (disputed). Status is supplied, not inferred. |
-| Checked reads | Reject source/registry/index inconsistency and supported note-projection drift; not full-file tamper detection. |
-| Bounded recovery | Include whole records with provenance, or omit them. Count complete UTF-8 JSON bytes, **not tokens**. |
-| Visible uncertainty | Distinguish `no_match` from `budget_exhausted`; preserve disputed and historical labels. |
-| Local files | No third-party runtime dependencies. Local single-writer storage, not a transactional database. |
+| `current` / `historical` / `disputed` | Claim lifecycle supplied by the host, not automatic truth classification. |
+| `fresh` / `stale` | Whether a compiled page matches the current source snapshot, not whether its claims are true. |
+| Preview / publish | Validation alone does not write. Wiki publication has a cooperative lock and revision check, not a cross-layer transaction. |
+| Byte budget / token budget | Count the whole UTF-8 JSON packet. Include complete knowledge units with support, or omit them; bytes are not tokens. |
+
+[Architecture](docs/architecture.md) · [Knowledge contract](references/knowledge-schema.md) · [Research and trade-offs](docs/wiki-design.md).
 
 <a id="evidence"></a>
-## Evidence, with the trade-off intact
+## Evidence you can replay
 
-**Synthetic development fixture: 40 sessions, 40 handwritten cards, 24 queries. Retrieval
-only.** No independent holdout, automatic-distillation assessment, or final-agent-answer
-assessment. The knowledge layer does not change this frozen retrieval benchmark or its scores.
+### Knowledge lifecycle
+
+**CompileBench: four topics, twelve curated atomic cards, no model calls.**
+These are controlled engineering checks, not semantic accuracy or real-user task success.
+
+| Check | Observed |
+| --- | ---: |
+| Invalid proposals blocked without creating compiled state | 16 / 16 |
+| Complete UTF-8 packet budget checks | 16 / 16 |
+| Stale pages served with the freshness gate disabled | 4 / 4 |
+| Stale pages served with the freshness gate enabled | 0 / 4 |
+| Updated topics retaining identity and the old revision | 4 / 4 |
+
+The disabled-gate comparison is a controlled static consumer, not another Wiki product.
+**Negative result retained:** an incorrect synthesis with a real quote can pass structural checks;
+synthesis and inference remain review-required.
+[Per-case results](benchmarks/wiki/results.json) · [Report and limitations](benchmarks/wiki/results.md) · [Wiki verification ledger](docs/wiki-verification.md).
+
+<details>
+<summary><strong>Atomic retrieval benchmark: unchanged, including its trade-off</strong></summary>
+
+40 synthetic sessions, 40 handwritten cards, 24 queries. Retrieval only; no independent
+holdout, automatic-distillation assessment, or final-answer evaluation. Wiki compilation does not change these scores.
 
 | Method | Recall@1 | Recall@5 | MRR@5 | stale-hit@5 |
 | --- | ---: | ---: | ---: | ---: |
-| Raw transcript lexical baseline | 0.4167 | 0.9583 | 0.6528 | 0.5417 |
+| Raw transcript lexical | 0.4167 | 0.9583 | 0.6528 | 0.5417 |
 | Structured memory | 0.5417 | **1.0000** | 0.7604 | 0.5000 |
 | Structured + status-aware | **0.7083** | 0.9167 | **0.7931** | 0.0000 |
 
-Current-first ranking improves Recall@1 here but suppresses some relevant disputed cards:
-**Recall@5 falls from 1.0000 to 0.9167.** Zero stale hits reflects filtering of explicitly
-expired cards, not automatic detection of wrong or outdated facts. Historical queries may
-legitimately need old records; expired-target recall is not measured by this fixture.
+Current-first ranking improves Recall@1 in this fixture but suppresses some relevant disputed cards:
+**Recall@5 falls from 1.0000 to 0.9167.** Zero stale hits reflects filtering of explicitly expired cards,
+not detection of outdated facts. Historical queries may legitimately need old records;
+expired-target recall is not measured here.
+[Full results and intent slices](benchmarks/benchmark-results.md) · [Per-query JSON](benchmarks/benchmark-results.json) · [Atomic recovery display](assets/recovery-demo.svg).
 
-[Full results and intent slices](benchmarks/benchmark-results.md) · [Per-query JSON](benchmarks/benchmark-results.json) · [Verification ledger](docs/verification.md)
+</details>
+
+With the installed environment active, run from the repository root:
 
 ```bash
-python3 -m unittest discover -s tests -v
-python3 benchmarks/evaluate.py
+python -m unittest discover -s tests -v
+python benchmarks/evaluate.py
+python benchmarks/wiki/evaluate.py --check
 python tools/verify_docs.py
 ```
 
-The last command needs the installed CLI activated above. It runs the literal bilingual
-quick-start and SDK examples, checks local documentation links, and verifies the demo
-JSON/SVG against fresh execution. It does not fetch external links. CI also tests installed
-wheels outside the source checkout; follow the badges for current results.
+CI checks source tests, installed wheels outside the checkout, literal bilingual examples,
+and generated demo assets. Documentation checks do not fetch external links.
+Follow the badges for current runs; [README verification notes](docs/readme-polish.md) record the scope.
 
-## Integration and scope
+<a id="limits"></a>
+## Deliberate boundaries
 
-| Entry point | Available now |
-| --- | --- |
-| CLI | `extract`, `migrate`, `render`, `lint`, `search`, `get`, `inspect`, `recover` |
-| Python | `MemoryStore.search/get/inspect/recover`, `KnowledgeStore`, `serialize_packet` |
-| Knowledge CLI | `wiki prepare/compile/search/get/status/lint/recover/export` |
-| Source adapters | Doubao Work local cache and Generic JSONL |
-| Skill / hooks | [Host-agent instructions](SKILL.md) and [event templates](assets/hooks.example.json); native host compatibility is not established by offline tests. |
+This is a **local memory and knowledge component**, not an autonomous agent or truth detector.
+References, quotes, scope, status, and supported projections are checked; semantic correctness still needs review.
+Retrieval is lexical, not embedding search. Source freshness is conservative, not automatic contradiction detection.
 
-Not implemented: automatic semantic distillation, vector search, cross-layer transactional writes,
-MCP, a web inspector, or native Codex/Claude history parsing. No real host-compaction
-success rate or production-accuracy guarantee is claimed. Retrieved text is untrusted
-input; labels alone do not prevent prompt injection. [Full limits](docs/memory-engine.md#boundaries).
+No built-in model service, MCP server, web UI, or native Codex/Claude history parser is provided.
+[Skill instructions](SKILL.md) and [hook templates](assets/hooks.example.json) help a host use the tools;
+hooks only remind it to look up memory. Offline tests do not establish native host-compaction compatibility.
+
+Local guarded Wiki publication is not a transaction with the atomic renderer. A post-replacement error
+can mean the commit already succeeded. Treat retrieved text as untrusted data; labels alone do not prevent prompt injection.
+[Wiki boundaries and recovery](docs/knowledge-wiki.md) · [Memory boundaries](docs/memory-engine.md#boundaries).
 
 ## Documentation and contribution
 
-[Documentation map](docs/README.md) · [Ingestion](docs/ingestion.md) · [Architecture](docs/architecture.md) · [Changelog](CHANGELOG.md) · [Contributing](CONTRIBUTING.md)
+[Documentation map](docs/README.md) · [Ingestion](docs/ingestion.md) · [Wiki tutorial](docs/knowledge-wiki.md) · [Changelog](CHANGELOG.md) · [Contributing](CONTRIBUTING.md)
 
-Bug reports are most useful with a minimal synthetic fixture, exact command, version,
-and expected versus observed behavior. Do not publish personal conversations or credentials.
+For a reproducible issue, include a **synthetic fixture**, exact command, version, and expected versus
+observed behavior. Keep private conversations and credentials out of public issues and commits.
 
 ## License
 

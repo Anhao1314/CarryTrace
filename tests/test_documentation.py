@@ -25,7 +25,7 @@ class DocumentationTests(unittest.TestCase):
 
     def test_bilingual_examples_match(self):
         en, zh = [(ROOT / f).read_text(encoding="utf-8") for f in docs.README_FILES]
-        for name, language in (("quickstart", "bash"), ("sdk", "python"), ("expected", "json"), ("wiki", "bash")):
+        for name, language in (("quickstart", "bash"), ("sdk", "python"), ("expected", "json"), ("wiki", "bash"), ("lifecycle", "bash"), ("lifecycle-expected", "json")):
             self.assertEqual(docs.example(en, name, language), docs.example(zh, name, language))
 
     def test_headings_and_explicit_anchors(self):
@@ -85,3 +85,63 @@ class DocumentationTests(unittest.TestCase):
         self.assertEqual(projection["memory_count"], 1)
         self.assertEqual(projection["expired_count"], 0)
         self.assertEqual(packet, before)
+
+
+class WikiHomepageTests(unittest.TestCase):
+    def test_bilingual_lifecycle_assets_match_checked_receipt(self):
+        receipt = json.loads((ROOT / "examples/wiki/lifecycle.expected.json").read_text(encoding="utf-8"))
+        for language, filename in (("en", "wiki-lifecycle.svg"), ("zh-CN", "wiki-lifecycle.zh-CN.svg")):
+            svg = (ROOT / "assets" / filename).read_text(encoding="utf-8")
+            self.assertEqual(svg, docs.lifecycle_svg(receipt, language))
+            document = ET.fromstring(svg)
+            self.assertEqual(document.attrib["role"], "img")
+            self.assertEqual(document.attrib["lang"], language)
+            self.assertFalse(any(el.tag.endswith(("script", "image", "foreignObject")) for el in document.iter()))
+            self.assertNotIn("http:", svg.replace("http://www.w3.org/2000/svg", ""))
+
+    def test_lifecycle_illustration_escapes_data_and_does_not_mutate_receipt(self):
+        receipt = json.loads((ROOT / "examples/wiki/lifecycle.expected.json").read_text(encoding="utf-8"))
+        receipt["published"]["current_value"] = '<SQLite & "prototype">'
+        before = copy.deepcopy(receipt)
+        svg = docs.lifecycle_svg(receipt)
+        ET.fromstring(svg)
+        self.assertIn("&lt;SQLite &amp; &quot;prototype&quot;&gt;", svg)
+        self.assertEqual(receipt, before)
+
+    def test_unsupported_language_or_identity_claim_rejected(self):
+        receipt = json.loads((ROOT / "examples/wiki/lifecycle.expected.json").read_text(encoding="utf-8"))
+        with self.assertRaises(ValueError):
+            docs.lifecycle_svg(receipt, "invalid")
+        receipt["refreshed"]["identity_preserved"] = False
+        with self.assertRaises(ValueError):
+            docs.lifecycle_svg(receipt)
+
+    def test_homepage_metrics_match_reports(self):
+        self.assertEqual(docs.check_evidence_tables(ROOT), {"metric_tables_checked": 4})
+
+    def test_homepage_metric_drift_rejected(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            files = [*docs.README_FILES, "benchmarks/wiki/results.json", "benchmarks/benchmark-results.json"]
+            for name in files:
+                target = root / name
+                target.parent.mkdir(parents=True, exist_ok=True)
+                target.write_bytes((ROOT / name).read_bytes())
+            target = root / "README.md"
+            original = target.read_text(encoding="utf-8")
+            for old, new in (("16 / 16", "15 / 16"), ("0.7083", "0.9999")):
+                target.write_text(original.replace(old, new, 1), encoding="utf-8")
+                with self.assertRaises(AssertionError):
+                    docs.check_evidence_tables(root)
+
+    def test_wiki_preview_receipt_has_no_machine_specific_identifiers(self):
+        receipt = json.loads((ROOT / "examples/wiki/lifecycle.expected.json").read_text(encoding="utf-8"))
+        self.assertEqual(receipt["commands_executed"], 16)
+        self.assertEqual(receipt["checks_passed"], 12)
+        self.assertEqual(receipt["model_calls"], 0)
+        self.assertNotIn("output_directory", receipt)
+        self.assertNotIn("knowledge_id", receipt)
+        self.assertNotIn("source_sha256", receipt)
+        for name, digest in receipt["inputs_sha256"].items():
+            import hashlib
+            self.assertEqual(digest, hashlib.sha256((ROOT / name).read_bytes()).hexdigest())

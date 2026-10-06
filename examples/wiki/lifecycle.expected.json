@@ -1,0 +1,27 @@
+{
+  "scope": "synthetic CLI lifecycle; prewritten synthesis; extractive refresh; no model evaluation",
+  "inputs_sha256": {
+    "examples/recovery/distill.json": "59f65c99e1abe8a111130870ef150212f5248924219735ff2c972aba69b5a142",
+    "examples/wiki/synthesis.json": "10b461ba82c2c20444bed3c7ff00c0f020507fcb8222279b407e66f4416dc8a4"
+  },
+  "commands_executed": 16,
+  "checks_passed": 12,
+  "model_calls": 0,
+  "published": {
+    "revision": 1,
+    "current_value": "SQLite",
+    "dispute_retained": true
+  },
+  "source_changed": {
+    "stale_pages": 1
+  },
+  "fallback": {
+    "current_value": "PostgreSQL",
+    "stale_wiki_returned": 0
+  },
+  "refreshed": {
+    "revision": 2,
+    "identity_preserved": true,
+    "old_revision_retained": true
+  }
+}

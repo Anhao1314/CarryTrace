@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 680 440" role="img" aria-labelledby="title desc" lang="zh-CN">
+<title id="title">知识更新后，旧 Wiki 不再冒充当前结论。</title>
+<desc id="desc">实跑的合成生命周期：发布、标记失效、回退到最新记忆、重新编译。不是模型评测。</desc>
+<rect width="680" height="440" rx="18" fill="#101824"/>
+<g font-family="system-ui, -apple-system, 'Noto Sans CJK SC', sans-serif">
+<text x="28" y="38" fill="#a7b8cb" font-size="16" letter-spacing="1.5">CHAT-DISTILLER / KNOWLEDGE WIKI</text>
+<text x="28" y="78" fill="#ffffff" font-size="29" font-weight="600">知识会变化，来路不丢失。</text>
+<rect x="20" y="104" width="312" height="130" rx="12" fill="#192534" stroke="#334459"/>
+<text x="38" y="133" fill="#a7c8f0" font-size="16" font-weight="600">01 / 发布知识</text>
+<text x="38" y="174" fill="#ffffff" font-size="28" font-weight="600">SQLite · 版本 1</text>
+<text x="38" y="210" fill="#c1cedd" font-size="19">保留引用与未决争议</text>
+<rect x="348" y="104" width="312" height="130" rx="12" fill="#192534" stroke="#334459"/>
+<text x="366" y="133" fill="#a7c8f0" font-size="16" font-weight="600">02 / 来源更新</text>
+<text x="366" y="174" fill="#ffffff" font-size="28" font-weight="600">1 个旧页失效</text>
+<text x="366" y="210" fill="#c1cedd" font-size="19">复核之前不默认复用</text>
+<rect x="20" y="246" width="312" height="130" rx="12" fill="#192534" stroke="#334459"/>
+<text x="38" y="275" fill="#a7c8f0" font-size="16" font-weight="600">03 / 原子回退</text>
+<text x="38" y="316" fill="#ffffff" font-size="28" font-weight="600">PostgreSQL</text>
+<text x="38" y="352" fill="#c1cedd" font-size="19">返回 0 个过时 Wiki 页</text>
+<rect x="348" y="246" width="312" height="130" rx="12" fill="#192534" stroke="#334459"/>
+<text x="366" y="275" fill="#a7c8f0" font-size="16" font-weight="600">04 / 重新编译</text>
+<text x="366" y="316" fill="#ffffff" font-size="28" font-weight="600">版本 2 · 身份不变</text>
+<text x="366" y="352" fill="#c1cedd" font-size="19">旧版本仍可检查</text>
+<text x="28" y="412" fill="#a7b8cb" font-size="19">16 步 CLI · 12 项检查 · 合成数据</text>
+</g>
+</svg>
