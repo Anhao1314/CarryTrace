@@ -1,15 +1,15 @@
 # chat-distiller
 
-**记住决定，也保留来路。**
+**记住决定，也保留来路；开工时把正确上下文交还给 Agent。**
 
-面向长期任务 Agent 的本地对话记忆与版本化知识 Wiki。
-把已沉淀的决定整理成带引用的主题页，识别来源变化，并把相关知识与支持记录一起交还给 Agent。
+面向长期任务 Agent 的本地持久化上下文系统。豆包 Work 只需连接一次，之后增量同步变化的会话，
+直接恢复当前任务需要的上下文，不再要求普通用户手动走完底层流水线。
 
 [![测试](https://github.com/Anhao1314/chat-distiller/actions/workflows/tests.yml/badge.svg?branch=main)](https://github.com/Anhao1314/chat-distiller/actions/workflows/tests.yml)
 [![验证证据](https://github.com/Anhao1314/chat-distiller/actions/workflows/evidence.yml/badge.svg?branch=main)](https://github.com/Anhao1314/chat-distiller/actions/workflows/evidence.yml)
 
 [English](README.md) · **简体中文**  
-[运行演示](#demo) · [建立 Wiki](#quick-start) · [Python 接口](#python-api) · [实验证据](#evidence) · [能力边界](#limits)
+[开始：豆包上下文](#从这里开始三个命令) · [引擎演示](#demo) · [高级 Wiki](#quick-start) · [实验证据](#evidence) · [能力边界](#limits)
 
 ![实跑的 Wiki 生命周期：发布版本 1，来源更新后旧页失效，恢复时回退到最新原子记忆，再以同一身份发布版本 2。](assets/wiki-lifecycle.zh-CN.svg)
 
@@ -30,10 +30,33 @@
 > 宿主负责理解含义；代码检查引用、状态与发布过程。
 > **引用有效，不代表综合结论正确。**
 
+## 从这里开始：三个命令
+
+**Python 3.9+ · 包版本 0.4.0 · 无第三方运行时依赖。**
+
+```bash
+chat-distiller connect doubao
+chat-distiller sync
+chat-distiller context "继续上一次项目"
+```
+
+在 macOS 上，`connect` 会自动寻找当前豆包 Work 的会话缓存，并创建本地托管的 Context Home。
+`sync` 只处理新增或变化的会话，**不会写入豆包原始缓存**。
+`context` 优先使用经过校验的 Memory / Knowledge Wiki；还没有完成语义蒸馏时，也可以返回受字节预算
+约束、明确标记 `requires_review` 的原始会话摘录。
+
+用 `chat-distiller status` 查看健康状态；给 Agent 使用时加 `--json`。
+自动发现失败时，只需要在第一次 connect 时提供 `--sessions-root`。
+
+语义判断仍然不会被偷偷藏进 shell 命令。sync 会生成待复核 bundle，宿主 Agent 可以通过受保护的
+proposal 协议发布结构化记忆；来源变化后旧 proposal 会被拒绝。
+
+[Context Gateway 指南](docs/context-gateway.md) · [实跑 Gateway 实验](benchmarks/gateway/results.md)
+
 <a id="demo"></a>
 ## 先跑一次完整生命周期
 
-**Python 3.9+ · 包版本 0.3.0 · 无第三方运行时依赖。**
+**这是引擎演示，不读取真实用户数据。**
 以下使用 Bash，从源码仓库安装，不假设本项目已经发布 PyPI。
 安装时可能下载构建工具；安装后的运行时和演示都不需要模型密钥或服务。
 
