@@ -15,6 +15,9 @@ LEGACY = {
 
 def main(argv=None):
     argv = list(sys.argv[1:] if argv is None else argv)
+    if argv and argv[0] in {"connect", "sync", "context", "status"}:
+        from .gateway.cli import main as gateway_main
+        return gateway_main(argv)
     if argv and argv[0] == "wiki":
         from .wiki.cli import main as wiki_main
         return wiki_main(argv[1:])
@@ -27,7 +30,7 @@ def main(argv=None):
         finally:
             sys.argv = previous
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--version", action="version", version="chat-distiller 0.3.0")
+    parser.add_argument("--version", action="version", version="chat-distiller 0.4.0")
     commands = parser.add_subparsers(dest="command", required=True)
     for name in ("search", "get", "inspect", "recover"):
         sub = commands.add_parser(name)
