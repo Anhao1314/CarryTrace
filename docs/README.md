@@ -6,7 +6,7 @@ contracts live here and in `references/`, rather than being repeated on the home
 
 | I need to… / 我想… | Read / 阅读 |
 | --- | --- |
-| Try the CLI without touching real memory | [Quick start](../README.md#quick-start) / [快速体验](../README.zh-CN.md#quick-start) |
+| Connect Doubao Work and recover context | [Context Gateway](context-gateway.md) · [Gateway proposal](../references/gateway-proposal.md) |\n| Try the low-level engine without touching real memory | [Quick start](../README.md#quick-start) / [快速体验](../README.zh-CN.md#quick-start) |
 | Import conversations or upgrade existing data | [Ingestion and migration](ingestion.md) |
 | Integrate a Python agent or understand packet limits | [Memory Engine API](memory-engine.md) |
 | Understand authority and trust boundaries | [Architecture](architecture.md) |

@@ -3,6 +3,15 @@
 Package versions below describe the Python distribution, not a claim of a PyPI release
 or a corresponding Git tag.
 
+## Package 0.4.0: Context Gateway
+
+- Added the simple `connect`, `sync`, `context`, and `status` surface for Doubao Work.
+- Added automatic local session discovery, managed context home, content fingerprints, incremental extraction, and raw-session fallback context.
+- Added plan-bound host-agent publication with stale-plan rejection and explicit retirement guards.
+- Kept semantic distillation outside deterministic code; `sync` makes pending work visible rather than inventing memory.
+- Added synthetic Gateway integration tests and an executed CLI experiment for source read-only behavior, no-op idempotence, byte budget, degraded input, and stale proposals.
+- Kept legacy CLI, atomic memory schema 2, Knowledge Wiki, and frozen retrieval benchmarks compatible. No daemon, MCP, automatic LLM distillation, or PyPI publication is claimed.
+
 ## Package 0.3.0: Knowledge Wiki
 
 - Added optional `KnowledgeStore` and `wiki` commands without changing atomic memory schema 2.

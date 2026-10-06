@@ -25,6 +25,7 @@ jobs:
         run: |
           python3 benchmarks/evaluate.py --out "$RUNNER_TEMP/chat-distiller-benchmark"
           python3 benchmarks/wiki/evaluate.py --check
+          python3 benchmarks/gateway/evaluate.py --out "$RUNNER_TEMP/gateway-benchmark"
       - name: Build installable wheel
         run: |
           python3 -m pip install "setuptools>=61" wheel
@@ -37,4 +38,5 @@ jobs:
           cd "$RUNNER_TEMP"
           "$RUNNER_TEMP/installed/bin/python" "$GITHUB_WORKSPACE/tools/verify_install.py"
           "$RUNNER_TEMP/installed/bin/python" "$GITHUB_WORKSPACE/tools/verify_wiki.py"
+          "$RUNNER_TEMP/installed/bin/python" "$GITHUB_WORKSPACE/tools/verify_gateway.py"
           PATH="$RUNNER_TEMP/installed/bin:$PATH" "$RUNNER_TEMP/installed/bin/python" "$GITHUB_WORKSPACE/tools/verify_docs.py"
