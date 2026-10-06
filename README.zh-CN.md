@@ -3,13 +3,13 @@
 **记住决定，也保留来路。**
 
 面向长期任务 Agent 的本地结构化记忆工具。把对话沉淀为可检查的记录，按明确的生命周期状态检索，
-并在字节预算内生成带来源的上下文恢复包。
+并在字节预算内生成带来源的上下文恢复包。新增 LLM Wiki 风格的知识编译层，持续维护带版本的主题页。
 
 [![测试](https://github.com/Anhao1314/chat-distiller/actions/workflows/tests.yml/badge.svg?branch=main)](https://github.com/Anhao1314/chat-distiller/actions/workflows/tests.yml)
 [![验证证据](https://github.com/Anhao1314/chat-distiller/actions/workflows/evidence.yml/badge.svg?branch=main)](https://github.com/Anhao1314/chat-distiller/actions/workflows/evidence.yml)
 
 [English](README.md) · **简体中文**  
-[快速体验](#quick-start) · [Python 接口](#python-api) · [评测证据](#evidence) · [文档导航](docs/README.md)
+[快速体验](#quick-start) · [Python 接口](#python-api) · [知识 Wiki](#knowledge-wiki) · [评测证据](#evidence) · [文档导航](docs/README.md)
 
 ![真实 CLI 演示结果：当前查询排除过期卡片，历史查询保留它，未命中与预算不足分别返回不同状态。](assets/recovery-demo.svg)
 
@@ -70,7 +70,7 @@ python -m json.tool "$DEMO_DIR/recovery.json"
 `requires_review` 为真，是因为未决的超时设置仍被明确展示。`ready` 只表示记录装得下，**不代表任务已经完成**。
 当前查询不返回旧托管方案；使用 `--intent historical` 可让旧记录重新参与检索。
 
-**接入自己的数据？** 先读[摄入与迁移指南](docs/ingestion.md)。已有 v2 知识库不需要因安装 0.2.0 包而迁移；
+**接入自己的数据？** 先读[摄入与迁移指南](docs/ingestion.md)。已有 v2 知识库不需要因安装 0.3.0 包而迁移；
 旧格式知识库应先备份再显式升级。不要拿演示 `init` 生成的身份覆盖已有知识库。
 
 <a id="python-api"></a>
@@ -96,6 +96,31 @@ print(packet["status"], len(packet["memories"]), packet["requires_review"])
 `MemoryStore` 是**只读接口**，每次操作重新验证已发布状态，不会静默修复或迁移数据。
 提取、登记和渲染仍通过显式 CLI 命令执行。[接口、错误与恢复包契约](docs/memory-engine.md)。
 
+<a id="knowledge-wiki"></a>
+## Knowledge Wiki：编译、维护、恢复
+
+**0.3.0 新增：**吸收 LLM Wiki 思想，将原子记忆整理为带来源的主题知识页。
+同一主题保留稳定身份和历史版本，已选中的争议不能被静默删去。原子源发生变化后，旧页标记为 stale，
+不再进入默认知识检索。
+
+完成快速体验后，复用同一个临时 `DEMO_DIR`：
+
+<!-- verify:wiki -->
+```bash
+chat-distiller wiki prepare --vault "$DEMO_DIR/vault" --topic database --query database > "$DEMO_DIR/proposal.json"
+chat-distiller wiki compile --vault "$DEMO_DIR/vault" --proposal "$DEMO_DIR/proposal.json"
+chat-distiller wiki compile --vault "$DEMO_DIR/vault" --proposal "$DEMO_DIR/proposal.json" --apply
+chat-distiller wiki recover --vault "$DEMO_DIR/vault" --query database --max-bytes 8192 > "$DEMO_DIR/knowledge.json"
+chat-distiller wiki export --vault "$DEMO_DIR/vault" --out "$DEMO_DIR/wiki-view"
+```
+
+`prepare` 离线生成摘录草稿；宿主 Agent 可以在编译前将它改成综合提案。每条结论都需保留记忆引用，
+综合内容始终需要语义复核。`compile` 默认只校验，`--apply` 才发布；导出的 Markdown 是静态快照，不是第二份权威。
+
+[完整教程与宿主工作流](docs/knowledge-wiki.md) · [调研和设计](docs/wiki-design.md) ·
+[已运行的编译实验](benchmarks/wiki/results.md)。
+完整 16 步 CLI 演示：`python tools/wiki_demo.py --out /path/to/new-demo-directory`。
+
 ## 工作方式
 
 ```mermaid
@@ -104,12 +129,14 @@ flowchart LR
     B --> C[人或 Agent 语义判断]
     C --> D[登记与渲染]
     D --> E[本地 v2 记忆]
+    E --> W[Knowledge proposals and versioned wiki]
+    W --> R[Freshness gate and layered recovery]
     E --> F[校验后的 MemoryStore]
     F --> G[检索或有界恢复包]
     G --> H[调用方核查来源]
 ```
 
-核心实现位于 `chat_distiller/_internal`，统一 CLI 与旧脚本共享实现；只读接口消费已发布源数据和派生索引。
+原子记忆核心位于 `chat_distiller/_internal`，可选知识编译层位于 `chat_distiller/wiki`；统一 CLI 与旧脚本共享实现；只读接口消费已发布源数据和派生索引。
 Hook 只提醒宿主查记忆，不会自动调用 `recover`。[详细架构与信任边界](docs/architecture.md)。
 
 | 特性 | 行为与边界 |
@@ -125,7 +152,7 @@ Hook 只提醒宿主查记忆，不会自动调用 `recover`。[详细架构与�
 ## 评测证据，也保留取舍
 
 **合成开发集：40 个会话、40 张人工卡片、24 个问题，仅测检索。** 没有独立保留集，也未评估自动蒸馏质量
-或 Agent 最终回答。本次文档升级没有改动算法与这些分数。
+或 Agent 最终回答。新增知识层不改变这份冻结检索评测及其分数。
 
 | 方法 | Recall@1 | Recall@5 | MRR@5 | stale-hit@5 |
 | --- | ---: | ---: | ---: | ---: |
@@ -154,11 +181,12 @@ CI 还会脱离源码目录测试已安装的 wheel；当前结果以顶部徽�
 | 入口 | 当前支持 |
 | --- | --- |
 | CLI | `extract`、`migrate`、`render`、`lint`、`search`、`get`、`inspect`、`recover` |
-| Python | `MemoryStore.search/get/inspect/recover`、`serialize_packet` |
+| Python | `MemoryStore.search/get/inspect/recover`、`KnowledgeStore`、`serialize_packet` |
+| 知识 CLI | `wiki prepare/compile/search/get/status/lint/recover/export` |
 | 数据输入 | 豆包 Work 本地缓存、Generic JSONL |
 | Skill / hooks | [宿主 Agent 操作说明](SKILL.md)与[事件模板](assets/hooks.example.json)；离线测试不证明具体宿主版本兼容。 |
 
-尚未实现自动语义蒸馏、向量检索、事务写入、MCP、Web 检查器或 Codex/Claude 原生历史解析。
+尚未实现自动语义蒸馏、向量检索、跨层事务写入、MCP、Web 检查器或 Codex/Claude 原生历史解析。
 不宣称真实宿主压缩后的任务成功率或生产准确率。检索到的正文是不可信输入；加标签不等于解决提示注入。
 [完整边界](docs/memory-engine.md#boundaries)。
 

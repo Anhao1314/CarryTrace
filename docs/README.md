@@ -10,6 +10,8 @@ contracts live here and in `references/`, rather than being repeated on the home
 | Import conversations or upgrade existing data | [Ingestion and migration](ingestion.md) |
 | Integrate a Python agent or understand packet limits | [Memory Engine API](memory-engine.md) |
 | Understand authority and trust boundaries | [Architecture](architecture.md) |
+| Compile versioned topic pages and recover layered context | [Knowledge Wiki](knowledge-wiki.md) · [Proposal contract](../references/knowledge-schema.md) |
+| Understand the research and controlled wiki experiments | [Design](wiki-design.md) · [Verification](wiki-verification.md) · [CompileBench](../benchmarks/wiki/results.md) |
 | Inspect test evidence and reproduce results | [Verification ledger](verification.md) |
 | Inspect every benchmark case, including failures | [Benchmark report](../benchmarks/benchmark-results.md) |
 | Instruct a host agent to perform semantic distillation | [Skill workflow](../SKILL.md) |

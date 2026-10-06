@@ -4,13 +4,13 @@
 
 Local, inspectable memory for long-running agents. Turn conversations into structured
 records, retrieve them with explicit lifecycle states, and build source-linked recovery
-packets within a byte budget.
+packets within a byte budget. An optional LLM-Wiki-style compiler maintains versioned topic pages over that memory.
 
 [![Tests](https://github.com/Anhao1314/chat-distiller/actions/workflows/tests.yml/badge.svg?branch=main)](https://github.com/Anhao1314/chat-distiller/actions/workflows/tests.yml)
 [![Evidence](https://github.com/Anhao1314/chat-distiller/actions/workflows/evidence.yml/badge.svg?branch=main)](https://github.com/Anhao1314/chat-distiller/actions/workflows/evidence.yml)
 
 **English** · [简体中文](README.zh-CN.md)  
-[Try it](#quick-start) · [Python API](#python-api) · [Evidence](#evidence) · [Documentation](docs/README.md)
+[Try it](#quick-start) · [Python API](#python-api) · [Knowledge Wiki](#knowledge-wiki) · [Evidence](#evidence) · [Documentation](docs/README.md)
 
 ![Executed synthetic demo: current lookup excludes the expired card; historical lookup includes it; unknown queries and exhausted budgets are distinct.](assets/recovery-demo.svg)
 
@@ -78,7 +78,7 @@ records fit, **not** that a task has been completed. The old hosted-database car
 from current lookup; `--intent historical` makes it eligible again.
 
 **Using your own data?** Follow [ingestion and migration](docs/ingestion.md). Existing v2
-vaults need no schema migration for package 0.2.0. Back up legacy vaults before explicit
+vaults need no schema migration for package 0.3.0. Back up legacy vaults before explicit
 upgrade. Never use this demo's `init` output to replace an existing vault.
 
 <a id="python-api"></a>
@@ -105,6 +105,32 @@ print(packet["status"], len(packet["memories"]), packet["requires_review"])
 silently repair or migrate it. Use the explicit CLI commands for extraction, registration,
 and rendering. [API, errors, and packet contract](docs/memory-engine.md).
 
+<a id="knowledge-wiki"></a>
+## Knowledge Wiki: compile, maintain, recover
+
+**New in 0.3.0:** group atomic memories into source-linked topic pages inspired by the LLM Wiki pattern.
+Keep one stable knowledge identity across revisions; retain old versions and scoped disputes.
+Any change to the atomic source makes old pages stale, so they cannot silently serve as current knowledge.
+
+After the quick start, reuse the same temporary `DEMO_DIR`:
+
+<!-- verify:wiki -->
+```bash
+chat-distiller wiki prepare --vault "$DEMO_DIR/vault" --topic database --query database > "$DEMO_DIR/proposal.json"
+chat-distiller wiki compile --vault "$DEMO_DIR/vault" --proposal "$DEMO_DIR/proposal.json"
+chat-distiller wiki compile --vault "$DEMO_DIR/vault" --proposal "$DEMO_DIR/proposal.json" --apply
+chat-distiller wiki recover --vault "$DEMO_DIR/vault" --query database --max-bytes 8192 > "$DEMO_DIR/knowledge.json"
+chat-distiller wiki export --vault "$DEMO_DIR/vault" --out "$DEMO_DIR/wiki-view"
+```
+
+Preparation is extractive and offline. A host agent can rewrite the proposal into a synthesis before compilation;
+all claims need literal memory citations and semantic synthesis remains review-required. Compilation validates by
+default; only `--apply` publishes. The export is a static Markdown snapshot, not a live second authority.
+
+[Complete guide and host workflow](docs/knowledge-wiki.md) · [Research and design](docs/wiki-design.md) ·
+[Executed compiler experiments](benchmarks/wiki/results.md).
+To run the full 16-command lifecycle demonstration: `python tools/wiki_demo.py --out /path/to/new-demo-directory`.
+
 ## How it works
 
 ```mermaid
@@ -113,12 +139,14 @@ flowchart LR
     B --> C[Human or agent judgment]
     C --> D[Register and render]
     D --> E[Local v2 memory]
+    E --> W[Knowledge proposals and versioned wiki]
+    W --> R[Freshness gate and layered recovery]
     E --> F[Validated MemoryStore]
     F --> G[Search or bounded recovery]
     G --> H[Caller inspects sources]
 ```
 
-The implementation has one core under `chat_distiller/_internal`. The unified CLI and
+Atomic memory has one core under `chat_distiller/_internal`; the optional compiler lives under `chat_distiller/wiki`. The unified CLI and
 legacy scripts share it. The read-only API consumes the published source and its derived
 index. Hooks only remind a host to look up memory; they do not call `recover` automatically.
 [Detailed architecture and trust boundaries](docs/architecture.md).
@@ -137,7 +165,7 @@ index. Hooks only remind a host to look up memory; they do not call `recover` au
 
 **Synthetic development fixture: 40 sessions, 40 handwritten cards, 24 queries. Retrieval
 only.** No independent holdout, automatic-distillation assessment, or final-agent-answer
-assessment. This documentation refresh does not change the algorithm or these scores.
+assessment. The knowledge layer does not change this frozen retrieval benchmark or its scores.
 
 | Method | Recall@1 | Recall@5 | MRR@5 | stale-hit@5 |
 | --- | ---: | ---: | ---: | ---: |
@@ -168,11 +196,12 @@ wheels outside the source checkout; follow the badges for current results.
 | Entry point | Available now |
 | --- | --- |
 | CLI | `extract`, `migrate`, `render`, `lint`, `search`, `get`, `inspect`, `recover` |
-| Python | `MemoryStore.search/get/inspect/recover`, `serialize_packet` |
+| Python | `MemoryStore.search/get/inspect/recover`, `KnowledgeStore`, `serialize_packet` |
+| Knowledge CLI | `wiki prepare/compile/search/get/status/lint/recover/export` |
 | Source adapters | Doubao Work local cache and Generic JSONL |
 | Skill / hooks | [Host-agent instructions](SKILL.md) and [event templates](assets/hooks.example.json); native host compatibility is not established by offline tests. |
 
-Not implemented: automatic semantic distillation, vector search, transactional writes,
+Not implemented: automatic semantic distillation, vector search, cross-layer transactional writes,
 MCP, a web inspector, or native Codex/Claude history parsing. No real host-compaction
 success rate or production-accuracy guarantee is claimed. Retrieved text is untrusted
 input; labels alone do not prevent prompt injection. [Full limits](docs/memory-engine.md#boundaries).

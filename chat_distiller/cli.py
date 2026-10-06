@@ -15,6 +15,9 @@ LEGACY = {
 
 def main(argv=None):
     argv = list(sys.argv[1:] if argv is None else argv)
+    if argv and argv[0] == "wiki":
+        from .wiki.cli import main as wiki_main
+        return wiki_main(argv[1:])
     if argv and argv[0] in LEGACY:
         implementation = importlib.import_module("._internal." + LEGACY[argv[0]], "chat_distiller")
         previous = sys.argv
@@ -24,7 +27,7 @@ def main(argv=None):
         finally:
             sys.argv = previous
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--version", action="version", version="chat-distiller 0.2.0")
+    parser.add_argument("--version", action="version", version="chat-distiller 0.3.0")
     commands = parser.add_subparsers(dest="command", required=True)
     for name in ("search", "get", "inspect", "recover"):
         sub = commands.add_parser(name)
@@ -41,6 +44,7 @@ def main(argv=None):
             sub.add_argument("--max-bytes", type=int, default=8192)
         if name == "get":
             sub.add_argument("--id", required=True)
+    commands.add_parser("wiki", help="compile and query evidence-linked knowledge pages")
     for name in LEGACY:
         commands.add_parser(name, help="delegate to compatible " + LEGACY[name] + " command")
     args = parser.parse_args(argv)

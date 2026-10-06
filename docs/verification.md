@@ -76,3 +76,8 @@ native-host compaction test, or measured improvement in agent task success.
 
 Both CI workflows also run these installed documentation checks. The evidence workflow
 retains `docs-smoke.json` beside the source-test, benchmark, and wheel-install logs.
+
+## Knowledge Wiki 0.3.0
+
+The subsequent compiler delivery has its own [research and failure-testing ledger](wiki-verification.md).
+The original retrieval benchmark remains frozen; the new results concern structural compilation and lifecycle behavior.

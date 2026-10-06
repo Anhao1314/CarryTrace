@@ -1,0 +1,9 @@
+{
+  "provenance": "Curated synthetic engineering fixtures; not real user histories or model outputs.",
+  "cases": [
+    {"topic":"database","query":"database","old":"The database used hosted storage before the prototype changed.","current":"The database uses local SQLite and retains the existing API.","dispute":"The database timeout is unresolved.","updated":"The database now uses PostgreSQL and retains the existing API."},
+    {"topic":"deployment","query":"deployment","old":"Deployment previously ran on one virtual machine.","current":"Deployment uses two containers with manual promotion.","dispute":"Deployment rollback ownership remains disputed.","updated":"Deployment now uses three containers with manual promotion."},
+    {"topic":"scheduler","query":"scheduler","old":"The scheduler previously retried without a limit.","current":"The scheduler permits two retries and saves checkpoints.","dispute":"The scheduler timeout policy has not been agreed.","updated":"The scheduler permits one retry and saves checkpoints."},
+    {"topic":"retrieval","query":"检索","old":"检索以前返回所有记录，包括过期条目。","current":"检索目前排除明确过期条目，并保留来源。","dispute":"检索的争议排序仍未确定。","updated":"检索现在要求调用方明确选择当前或历史模式。"}
+  ]
+}
