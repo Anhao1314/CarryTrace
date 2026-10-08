@@ -49,6 +49,12 @@ can return byte-bounded raw excerpts marked `requires_review`.
 Use `chat-distiller status` for health and `--json` for Agent-readable output.
 If auto-discovery fails, pass `--sessions-root` once during connect.
 
+**Handoff result clarity:** matching sessions are no longer padded with unrelated
+sessions. Unmatched recent-session fallback is marked as orientation only; when there are
+no candidates, `no_match` is not misreported as a budget failure. This checks result
+integrity, not Agent task success.
+[Handoff recovery experiment](docs/experiments/handoff-recovery-2026-10-08.md).
+
 Semantic judgment is still explicit. Sync writes a pending review bundle; a host Agent can publish
 structured memory through the guarded proposal protocol. Source changes make an older proposal stale.
 

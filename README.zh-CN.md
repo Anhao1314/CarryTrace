@@ -48,6 +48,11 @@ chat-distiller context "继续上一次项目"
 用 `chat-distiller status` 查看健康状态；给 Agent 使用时加 `--json`。
 自动发现失败时，只需要在第一次 connect 时提供 `--sessions-root`。
 
+**恢复结果更透明：** 有词法匹配时不再混入无关会话；仅按最近会话回退时明确标记
+「没有词法匹配，只用于定位上下文」。真正没有候选时会返回 `no_match`，
+而不是误报预算不足。这是恢复结果契约验证，**不等于真实 Agent 任务成功率**。
+[任务接续恢复实验](docs/experiments/handoff-recovery-2026-10-08.md)。
+
 语义判断仍然不会被偷偷藏进 shell 命令。sync 会生成待复核 bundle，宿主 Agent 可以通过受保护的
 proposal 协议发布结构化记忆；来源变化后旧 proposal 会被拒绝。
 

@@ -12,7 +12,7 @@ contracts live here and in `references/`, rather than being repeated on the home
 | Understand authority and trust boundaries | [Architecture](architecture.md) |
 | Compile versioned topic pages and recover layered context | [Knowledge Wiki](knowledge-wiki.md) · [Proposal contract](../references/knowledge-schema.md) |
 | Understand the research and controlled wiki experiments | [Design](wiki-design.md) · [Verification](wiki-verification.md) · [CompileBench](../benchmarks/wiki/results.md) |
-| Inspect test evidence and reproduce results | [Verification ledger](verification.md) |
+| Inspect test evidence and reproduce results | [Verification ledger](verification.md) · [Handoff recovery experiment](experiments/handoff-recovery-2026-10-08.md) |
 | Inspect every benchmark case, including failures | [Benchmark report](../benchmarks/benchmark-results.md) |
 | Instruct a host agent to perform semantic distillation | [Skill workflow](../SKILL.md) |
 | Write valid cards and preserve stable identities | [Distillation schema](../references/distillation-schema.md) · [Identity and migration](../references/stable-memory.md) |
