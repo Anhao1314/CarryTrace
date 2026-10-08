@@ -189,6 +189,50 @@ class GatewayTests(unittest.TestCase):
         self.gateway.sync(apply=p); after = self.gateway.status()
         self.assertTrue(after["memory"]["available"]); self.assertTrue(after["memory"]["ok"]); self.assertEqual(after["pending_sessions"], 1)
 
+    def test_handoff_no_match_is_not_budget_exhausted(self):
+        # A published memory source can legitimately have no evidence for a query.
+        sync = self.connect_sync()
+        wrapper = {"gateway_schema_version": 1, "plan_sha256": sync["plan_sha256"],
+                   "covered_sessions": ["session-db"], "retire_memory_ids": [], "distill": distill_for("session-db")}
+        proposal = self.root / "handoff-source.json"
+        proposal.write_text(json.dumps(wrapper, ensure_ascii=False), encoding="utf-8")
+        self.gateway.sync(apply=proposal)
+        import shutil
+        shutil.rmtree(self.sessions / "session-db")
+        shutil.rmtree(self.sessions / "session-ui")
+        self.gateway.sync()
+        packet = self.gateway.context("galaxywalrusbutterknife", max_bytes=4096)
+        self.assertEqual(packet["structured"]["status"], "no_match")
+        self.assertEqual(packet["raw_sessions"], [])
+        self.assertEqual(packet["status"], "no_match")
+
+    def test_handoff_matching_raw_excludes_unrelated_sessions(self):
+        # A lexical hit should not be padded with zero-score sessions.
+        self.connect_sync()
+        packet = self.gateway.context("PostgreSQL", max_bytes=8192, top_k=5)
+        self.assertEqual(packet["status"], "ready")
+        self.assertEqual([s["session_id"] for s in packet["raw_sessions"]], ["session-db"])
+        self.assertEqual(packet["raw_sessions"][0]["selection_basis"], "lexical_match")
+
+    def test_handoff_unmatched_recent_fallback_is_disclosed(self):
+        # Backwards-compatible recent fallback must not masquerade as query relevance.
+        self.connect_sync()
+        packet = self.gateway.context("galaxywalrusbutterknife", max_bytes=4096, top_k=1)
+        self.assertEqual(packet["status"], "ready")
+        self.assertTrue(packet["requires_review"])
+        self.assertEqual(packet["raw_sessions"][0]["score"], 0)
+        self.assertEqual(packet["raw_sessions"][0]["selection_basis"], "recent_fallback")
+        self.assertTrue(any("no lexical match" in note for note in packet["notes"]))
+
+    def test_handoff_oversized_relevant_raw_must_not_fall_back_to_irrelevant(self):
+        self.connect_sync()
+        make_session(self.sessions, "session-large",
+                     "uniquehandoffneedle " + "X" * 5000, "Some long source details " + "Y" * 5000)
+        self.gateway.sync()
+        packet = self.gateway.context("uniquehandoffneedle", max_bytes=1024, top_k=1)
+        self.assertEqual(packet["raw_sessions"], [])
+        self.assertEqual(packet["status"], "budget_exhausted")
+
     def test_context_budget_validation(self):
         self.connect_sync()
         for bad in (0, 1023, True, 1.2):
