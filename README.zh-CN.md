@@ -30,6 +30,32 @@
 > 宿主负责理解含义；代码检查引用、状态与发布过程。
 > **引用有效，不代表综合结论正确。**
 
+## Skill 优先：安装一次，以后直接告诉 Agent
+
+**新增可移植 Agent Skill（试验版）**，适用于具有本地 Shell 权限的 Codex 和 Claude Code。
+它负责引导 Agent 恢复历史决策、约束和证据，普通用户不必反复手动复制恢复包。
+先在仓库目录安装 Python 包，再安装 Skill：
+
+```bash
+python -m pip install .
+chat-distiller skill install --host both --scope user
+```
+
+之后直接在本地 Agent 中说：
+
+> 继续上次的机器人项目，先恢复之前的决策、约束和未完成任务。
+
+首次使用仍需要授权一个已有的本地上下文来源（目前 Gateway 自动发现仅支持豆包 Work），
+或指定已有知识库。**Skill 不会自动读取 Codex / Claude / ChatGPT 的历史聊天记录，
+不会在后台监听，也不会自行发布语义记忆。**
+查询安装情况：`chat-distiller skill status --host both --scope user --json`。
+其他兼容宿主可先用 `chat-distiller skill export --out chat-distiller-skill.zip` 导出标准 Skill 压缩包，
+但是否支持导入和实际调用仍需宿主验证。
+项目级安装、更新与边界见 [Skill 优先使用指南](docs/skill-first.md) 和
+[Skill 源文件](chat_distiller/skills/chat-distiller/SKILL.md)。
+
+---
+
 ## 从这里开始：三个命令
 
 **Python 3.9+ · 包版本 0.4.0 · 无第三方运行时依赖。**

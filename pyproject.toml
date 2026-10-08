@@ -19,3 +19,4 @@ include = ["chat_distiller*"]
 
 [tool.setuptools.package-data]
 "chat_distiller._internal" = ["taxonomy.template.md"]
+"chat_distiller" = ["skills/chat-distiller/SKILL.md", "skills/chat-distiller/references/*.md"]
