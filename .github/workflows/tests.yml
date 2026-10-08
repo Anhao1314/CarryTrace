@@ -26,6 +26,7 @@ jobs:
           python3 benchmarks/evaluate.py --out "$RUNNER_TEMP/chat-distiller-benchmark"
           python3 benchmarks/wiki/evaluate.py --check
           python3 benchmarks/gateway/evaluate.py --out "$RUNNER_TEMP/gateway-benchmark"
+          python3 tools/verify_gateway_delta.py --baseline benchmarks/gateway/results.json --candidate "$RUNNER_TEMP/gateway-benchmark/results.json"
       - name: Build installable wheel
         run: |
           python3 -m pip install "setuptools>=61" wheel

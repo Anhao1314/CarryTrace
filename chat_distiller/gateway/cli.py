@@ -20,6 +20,10 @@ def _print(result, machine=False):
         if result["knowledge"].get("available"): print("  knowledge: %s fresh / %s stale" % (result["knowledge"].get("fresh", 0), result["knowledge"].get("stale", 0)))
         return
     print("Context")
+    if result.get("status") == "no_match":
+        print("  No matching context found.")
+    elif result.get("status") == "budget_exhausted":
+        print("  Available context did not fit the byte budget.")
     structured = result.get("structured") or {}
     for page in structured.get("knowledge", []):
         print("\nKnowledge · " + page.get("title", page.get("topic", "")))
@@ -27,7 +31,9 @@ def _print(result, machine=False):
     for memory in structured.get("memories", []):
         print("\nMemory · %s · %s" % (memory.get("status"), memory.get("title"))); print("  " + str(memory.get("body", "")).replace("\n", " "))
     for session in result.get("raw_sessions", []):
-        print("\nRaw session · %s%s" % (session["session_id"], " · pending review" if session["status"] == "pending" else ""))
+        basis = " · recent fallback (no lexical match)" if session.get("selection_basis") == "recent_fallback" else ""
+        print("\nRaw session · %s%s%s" % (session["session_id"],
+              " · pending review" if session["status"] == "pending" else "", basis))
         print("  " + str(session.get("first_request") or ""))
         for excerpt in session.get("excerpts", []): print("  > " + " ".join(excerpt.split())[:500])
     if result.get("requires_review"): print("\nReview required: raw/disputed/uncompiled context is present.")

@@ -51,7 +51,7 @@ jobs:
           python3 benchmarks/gateway/evaluate.py --out "$RUNNER_TEMP/evidence/gateway-benchmark"
           python3 benchmarks/gateway/evaluate.py --out "$RUNNER_TEMP/evidence/gateway-repeat"
           diff -r "$RUNNER_TEMP/evidence/gateway-benchmark" "$RUNNER_TEMP/evidence/gateway-repeat"
-          cmp benchmarks/gateway/results.json "$RUNNER_TEMP/evidence/gateway-benchmark/results.json"
+          python3 tools/verify_gateway_delta.py --baseline benchmarks/gateway/results.json --candidate "$RUNNER_TEMP/evidence/gateway-benchmark/results.json" --out "$RUNNER_TEMP/evidence/gateway-contract-delta.json"
       - name: Verify wheel outside source checkout
         shell: bash
         run: |
