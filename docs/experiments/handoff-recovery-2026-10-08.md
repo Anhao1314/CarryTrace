@@ -48,9 +48,13 @@ python benchmarks/gateway/evaluate.py
 python tools/verify_docs.py
 ```
 
-Compare the CI checks on the PR and on the final commit; keep existing benchmark
-fixtures fixed. Candidate observations are recorded in GitHub Actions rather than
-silently substituting a new expected benchmark.
+Keep the historical Gateway benchmark JSON untouched. The new candidate correctly drops an
+unrelated raw session, changing the measured 4 KiB response from **1,241 to 892 bytes**.
+The previous exact historical snapshot comparison therefore fails, as recorded in
+[the first candidate evidence run](https://github.com/Anhao1314/chat-distiller/actions/runs/37742267282).
+The new deterministic delta verifier permits **only** `context_used_bytes` to decrease,
+requires every other recorded field to match, and writes the delta as a separate CI artifact.
+The existing baseline JSON, benchmark inputs, thresholds and labels are not rewritten.
 
 ## Claim boundary
 
