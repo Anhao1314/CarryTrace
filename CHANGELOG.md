@@ -8,6 +8,8 @@ or a corresponding Git tag.
 - Added a portable Agent Skills-compatible bundle that guides source-linked context recovery,
   historical decision audits, cross-host handoff and authorized Generic JSONL extraction.
 - Added local CLI skill install/status for Codex and Claude Code, user and project scopes.
+- Added deterministic portable ZIP export for other clients that accept Agent Skills bundles; no
+  claim of universal host activation or local CLI access from cloud environments.
   The managed installer is idempotent and refuses to overwrite foreign or modified skills.
 - Added source and installed-wheel packaging checks; no new runtime dependencies.
 - Existing Memory Engine, Knowledge Wiki, source adapters, benchmarks and publication

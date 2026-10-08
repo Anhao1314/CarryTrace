@@ -6,11 +6,12 @@ from pathlib import Path
 import re
 import tempfile
 import unittest
+import zipfile
 from unittest.mock import patch
 
 from chat_distiller import cli
 from chat_distiller.skill_installer import (
-    BUNDLE, MANAGED_BY, MARKER, SkillInstallError, bundle_files, manage,
+    BUNDLE, MANAGED_BY, MARKER, SkillInstallError, bundle_files, manage, export_bundle,
 )
 
 
@@ -148,6 +149,43 @@ class SkillInstallerTests(unittest.TestCase):
     def test_explicit_project_dir_not_allowed_with_user_scope(self):
         with self.assertRaisesRegex(SkillInstallError, "only valid"):
             manage("install", host="codex", scope="user", project_dir=self.project)
+
+    def test_export_zip_is_deterministic_and_portable(self):
+        first = self.root / "skill-a.zip"
+        second = self.root / "skill-b.zip"
+        a = export_bundle(first)
+        b = export_bundle(second)
+        self.assertEqual(a["sha256"], b["sha256"])
+        self.assertEqual(first.read_bytes(), second.read_bytes())
+        with zipfile.ZipFile(first, "r") as archive:
+            self.assertEqual(set(archive.namelist()),
+                             {"chat-distiller/" + key for key in BUNDLE})
+            for key, data in bundle_files().items():
+                self.assertEqual(archive.read("chat-distiller/" + key), data)
+            self.assertTrue(all(info.date_time == (1980, 1, 1, 0, 0, 0)
+                                for info in archive.infolist()))
+
+    def test_export_refuses_overwrites_and_invalid_paths(self):
+        existing = self.root / "existing.zip"
+        existing.write_bytes(b"user data")
+        with self.assertRaisesRegex(SkillInstallError, "overwrite"):
+            export_bundle(existing)
+        self.assertEqual(existing.read_bytes(), b"user data")
+        with self.assertRaisesRegex(SkillInstallError, "must end in"):
+            export_bundle(self.root / "wrong.txt")
+        with self.assertRaisesRegex(SkillInstallError, "must exist"):
+            export_bundle(self.root / "nonexistent" / "skill.zip")
+
+    def test_cli_export_zip_json(self):
+        out = io.StringIO()
+        destination = self.root / "portable.zip"
+        with contextlib.redirect_stdout(out):
+            self.assertEqual(cli.main(["skill", "export", "--out", str(destination),
+                                       "--json"]), 0)
+        result = json.loads(out.getvalue())
+        self.assertTrue(result["ok"])
+        self.assertEqual(result["included_files"], 3)
+        self.assertTrue(destination.is_file())
 
     def test_cli_json_status_install_and_error_are_machine_readable(self):
         out = io.StringIO()

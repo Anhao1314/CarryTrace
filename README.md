@@ -50,6 +50,8 @@ On first use, the Agent guides authorization for the already supported Doubao Wo
 source, or uses an explicitly provided existing vault. This does **not** auto-import Codex,
 Claude Code or ChatGPT history, run a background listener, or publish semantic memory.
 Use `chat-distiller skill status --host both --scope user --json` to inspect installation.
+A portable, instruction-only archive for other compatible hosts can be created with
+`chat-distiller skill export --out chat-distiller-skill.zip` (host support not assumed).
 For project-scoped use and safe updates, see [Skill-first setup](docs/skill-first.md) and
 the [portable Skill](chat_distiller/skills/chat-distiller/SKILL.md).
 

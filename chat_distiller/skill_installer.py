@@ -5,12 +5,14 @@ connect to a provider or publish memory.
 """
 import argparse
 import hashlib
+import io
 from importlib import resources
 import json
 import os
 from pathlib import Path
 import shutil
 import tempfile
+import zipfile
 
 
 SKILL_NAME = "chat-distiller"
@@ -173,11 +175,37 @@ def manage(action, *, host, scope="user", project_dir=None, dry_run=False, force
             "bundled_files": len(BUNDLE), "installations": outcome}
 
 
+def export_bundle(output):
+    """Create a deterministic Agent Skills upload archive, without runtime data."""
+    dest = Path(output).expanduser()
+    if dest.suffix.lower() != ".zip":
+        raise SkillInstallError("Skill export path must end in .zip")
+    if dest.exists() or dest.is_symlink():
+        raise SkillInstallError("refusing to overwrite an existing export")
+    if not dest.parent.is_dir():
+        raise SkillInstallError("export parent directory must exist")
+    bundle = bundle_files()
+    output_bytes = io.BytesIO()
+    with zipfile.ZipFile(output_bytes, "w") as archive:
+        for name, data in sorted(bundle.items()):
+            entry = zipfile.ZipInfo(SKILL_NAME + "/" + name, date_time=(1980, 1, 1, 0, 0, 0))
+            entry.compress_type = zipfile.ZIP_DEFLATED
+            entry.external_attr = 0o644 << 16
+            archive.writestr(entry, data)
+    body = output_bytes.getvalue()
+    with dest.open("xb") as destination:
+        destination.write(body)
+    return {"ok": True, "action": "export", "archive": str(dest.resolve()),
+            "sha256": _hash(body), "bytes": len(body), "included_files": len(bundle),
+            "note": "portable instructions only; no host runtime, conversations or keys"}
+
+
 def main(argv=None):
     parser = argparse.ArgumentParser(
         prog="chat-distiller skill", description="Install a portable Agent Skill for a local shell-capable host.")
-    parser.add_argument("action", choices=("install", "status"))
-    parser.add_argument("--host", choices=("codex", "claude", "both"), required=True)
+    parser.add_argument("action", choices=("install", "status", "export"))
+    parser.add_argument("--host", choices=("codex", "claude", "both"))
+    parser.add_argument("--out", help="output .zip path for an instruction-only Skill export")
     parser.add_argument("--scope", choices=("user", "project"), default="user")
     parser.add_argument("--project-dir")
     parser.add_argument("--dry-run", action="store_true")
@@ -185,18 +213,32 @@ def main(argv=None):
     parser.add_argument("--json", action="store_true")
     args = parser.parse_args(argv)
     try:
-        result = manage(args.action, host=args.host, scope=args.scope,
-                        project_dir=args.project_dir, dry_run=args.dry_run, force=args.force)
+        if args.action == "export":
+            if not args.out:
+                raise SkillInstallError("export requires --out <filename>.zip")
+            if args.host or args.project_dir or args.force or args.dry_run or args.scope != "user":
+                raise SkillInstallError("export accepts --out and --json only; no host install options")
+            result = export_bundle(args.out)
+        else:
+            if not args.host:
+                raise SkillInstallError("install/status require --host codex|claude|both")
+            if args.out:
+                raise SkillInstallError("--out is only valid for export")
+            result = manage(args.action, host=args.host, scope=args.scope,
+                            project_dir=args.project_dir, dry_run=args.dry_run, force=args.force)
     except (SkillInstallError, OSError, ValueError) as exc:
         print(json.dumps({"ok": False, "error": str(exc)}, ensure_ascii=False))
         return 1
     if args.json:
         print(json.dumps(result, ensure_ascii=False, indent=2))
     else:
-        for item in result["installations"]:
-            print("{}: {} ({})".format(item["host"], item["state"], item["destination"]))
-        if args.action == "install" and not args.dry_run:
-            print("Skill instructions installed; CLI runtime must be on the host PATH.")
+        if args.action == "export":
+            print("Skill archive created: {} ({} bytes)".format(result["archive"], result["bytes"]))
+        else:
+            for item in result["installations"]:
+                print("{}: {} ({})".format(item["host"], item["state"], item["destination"]))
+            if args.action == "install" and not args.dry_run:
+                print("Skill instructions installed; CLI runtime must be on the host PATH.")
     return 0
 
 

@@ -62,6 +62,18 @@ version can be updated with explicit `--force`; unmanaged installations, symlink
 and user-modified files are never overwritten. The installer does not change
 host settings, run background processes or touch personal conversation files.
 
+## Export a portable Skill archive for other compatible hosts
+
+```bash
+chat-distiller skill export --out ./chat-distiller-skill.zip
+```
+
+The archive contains a single top-level `chat-distiller/` directory and just three
+Markdown instruction/reference files. It has deterministic contents and is safe from
+silent overwrites. Some other Agent Skills-capable clients accept such archives,
+but **host upload, activation and tool execution have not been validated here**.
+Uploading a Skill does not upload your memory or grant the host access to a local CLI.
+
 ## What can actually work
 
 | Use case | Supported path | Boundary |

@@ -49,6 +49,8 @@ chat-distiller skill install --host both --scope user
 或指定已有知识库。**Skill 不会自动读取 Codex / Claude / ChatGPT 的历史聊天记录，
 不会在后台监听，也不会自行发布语义记忆。**
 查询安装情况：`chat-distiller skill status --host both --scope user --json`。
+其他兼容宿主可先用 `chat-distiller skill export --out chat-distiller-skill.zip` 导出标准 Skill 压缩包，
+但是否支持导入和实际调用仍需宿主验证。
 项目级安装、更新与边界见 [Skill 优先使用指南](docs/skill-first.md) 和
 [Skill 源文件](chat_distiller/skills/chat-distiller/SKILL.md)。
 

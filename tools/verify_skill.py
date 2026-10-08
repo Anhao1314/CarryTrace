@@ -3,6 +3,7 @@
 import json
 import subprocess
 import sys
+import zipfile
 import tempfile
 from pathlib import Path
 
@@ -48,6 +49,19 @@ with tempfile.TemporaryDirectory(prefix="chat-distiller-skill-installed-") as tm
     require(all(x["state"] == "up_to_date" for x in again["installations"]), "repeat install is no-op")
     status = run("status")
     require(all(x["state"] == "current" for x in status["installations"]), "status after install")
+    archived = project.parent / "portable.zip"
+    proc = subprocess.run([sys.executable, "-m", "chat_distiller", "skill",
+                           "export", "--out", str(archived), "--json"],
+                          cwd=str(project), capture_output=True, text=True, timeout=45)
+    require(proc.returncode == 0, "installed export command")
+    receipt = json.loads(proc.stdout)
+    require(receipt["included_files"] == 3 and archived.is_file(), "installed ZIP receipt")
+    with zipfile.ZipFile(archived) as skill_zip:
+        require(set(skill_zip.namelist()) == {"chat-distiller/" + key for key in contents},
+                "portable ZIP skill folder layout")
+        require(all(skill_zip.read("chat-distiller/" + key) == data
+                    for key, data in contents.items()), "portable ZIP bundle content")
+
     edited = project / ".agents/skills/chat-distiller/SKILL.md"
     edited.write_bytes(edited.read_bytes() + b"\nchanged by local user\n")
     denied = run("install", "--force", expected=1)
