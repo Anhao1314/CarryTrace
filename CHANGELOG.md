@@ -3,6 +3,14 @@
 Package versions below describe the Python distribution, not a claim of a PyPI release
 or a corresponding Git tag.
 
+## Unreleased: CarryTrace brand migration (runtime 0.4.0)
+
+- New CarryTrace identity, theme-aware vector artwork, bilingual Skill-first homepage and canonical repository links.
+- Added `carrytrace` CLI; preserved `chat-distiller`, `chat_distiller`, existing environment names and data homes.
+- New `carrytrace` Skill bundle and deterministic ZIP; legacy bundle remains available for compatibility.
+- Explicit preview-first legacy migration keeps original instruction files outside host discovery, rejects edits/symlinks/duplicates and retains failed rollback evidence.
+- Scope is branding and installation, not a new memory model or evidence of live host activation. No PyPI rename or v0.5 stable release.
+
 ## Unreleased: Skill-first pilot on package 0.4.0
 
 - Added a portable Agent Skills-compatible bundle that guides source-linked context recovery,

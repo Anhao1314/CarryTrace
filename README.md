@@ -1,116 +1,88 @@
-# chat-distiller
+<picture>
+  <source media="(prefers-color-scheme: dark) and (prefers-reduced-motion: no-preference)" srcset="assets/brand/hero-dark.svg">
+  <source media="(prefers-reduced-motion: no-preference)" srcset="assets/brand/hero-light.svg">
+  <source media="(prefers-color-scheme: dark)" srcset="assets/brand/hero-dark-static.svg">
+  <img src="assets/brand/hero-light-static.svg" alt="CarryTrace. Your work continues. The continuity skill for AI agents." width="100%">
+</picture>
 
-**Keep the decision. Keep the trail. Bring back the right context.**
+# CarryTrace
 
-Local persistent context for long-running agents. Connect Doubao Work once, incrementally stage
-changed conversations, and recover task context without walking through the low-level pipeline.
+**The continuity skill for AI agents.** Recover earlier decisions, constraints and source-linked context before continuing the next task.
 
-[![Tests](https://github.com/Anhao1314/chat-distiller/actions/workflows/tests.yml/badge.svg?branch=main)](https://github.com/Anhao1314/chat-distiller/actions/workflows/tests.yml)
-[![Evidence](https://github.com/Anhao1314/chat-distiller/actions/workflows/evidence.yml/badge.svg?branch=main)](https://github.com/Anhao1314/chat-distiller/actions/workflows/evidence.yml)
+Previously **chat-distiller**. Same local memory engine; a new Skill-first identity. No new account, hosted database or model key is required by the runtime.
 
-**English** · [简体中文](README.zh-CN.md)  
-[Start: Doubao context](#start-here-three-commands) · [Engine demo](#demo) · [Advanced Wiki](#quick-start) · [Evidence](#evidence) · [Limits](#limits)
+[![Tests](https://github.com/Anhao1314/CarryTrace/actions/workflows/tests.yml/badge.svg?branch=main)](https://github.com/Anhao1314/CarryTrace/actions/workflows/tests.yml)
+[![Evidence](https://github.com/Anhao1314/CarryTrace/actions/workflows/evidence.yml/badge.svg?branch=main)](https://github.com/Anhao1314/CarryTrace/actions/workflows/evidence.yml)
 
-![Executed Wiki lifecycle: publish revision 1, invalidate it after a source update, recover updated atomic memory, and recompile revision 2 with the same identity.](assets/wiki-lifecycle.svg)
+[Install](#install) · [Upgrade safely](docs/brand-migration.md) · [How it works](#how-it-works) · [Evidence](#evidence) · [简体中文](README.zh-CN.md)
 
-*Generated from the [16-step CLI demo](tools/wiki_demo.py) and its [checked receipt](examples/wiki/lifecycle.expected.json).
-Synthetic data, a prewritten synthesis, and an extractive refresh. No model calls or live host-compaction test.*
+<a id="install"></a>
+## Install once. Continue with context.
 
-## Built for work that spans conversations
-
-| When you need to… | Use chat-distiller to… |
-| --- | --- |
-| Resume development after a handoff | Retrieve prior decisions, constraints, and their source records. |
-| Keep a project knowledge base current | Maintain a topic page with stable identity, revisions, and explicit stale detection. |
-| Give another agent focused context | Produce byte-bounded recovery packets; inspect the same knowledge as Markdown. |
-
-Inspired by the **LLM Wiki** maintenance pattern, not a fork or a bundled third-party Wiki.
-The additional layer is optional: existing v2 memory and `MemoryStore` still work without it.
-[Design and attribution](docs/wiki-design.md).
-
-> The host decides what information means. Code checks references, state, and publication.
-> **A valid citation does not prove a synthesis is true.**
-
-## Skill-first: install once, then talk to your Agent
-
-**Portable Agent Skill pilot** for local Codex and Claude Code. It teaches the host when and how
-to recover existing, source-linked context rather than asking users to copy long chat history.
-Install the Python package from this checkout as below, then install the Skill instructions:
+**New installation:** use a local shell-capable Agent and Python 3.9+. Install from this repository, not an assumed PyPI package named `carrytrace`.
 
 ```bash
+git clone https://github.com/Anhao1314/CarryTrace.git
+cd CarryTrace
+python3 -m venv .venv
+. .venv/bin/activate
 python -m pip install .
-chat-distiller skill install --host both --scope user
+carrytrace skill install --host codex --scope user
 ```
 
-Open a local shell-capable Codex or Claude Code session and ask:
+Use `--host claude` for Claude Code or `--host both` for both local hosts. The host must be able to execute the installed CLI from this environment.
 
-> Continue the previous project. Restore earlier decisions, constraints and unresolved issues first.
+**Already installed chat-distiller?** Update the same Python environment, then follow the [preview-first migration guide](docs/brand-migration.md). Do not install two active Skill names in the same host/scope.
 
-On first use, the Agent guides authorization for the already supported Doubao Work local
-source, or uses an explicitly provided existing vault. This does **not** auto-import Codex,
-Claude Code or ChatGPT history, run a background listener, or publish semantic memory.
-Use `chat-distiller skill status --host both --scope user --json` to inspect installation.
-A portable, instruction-only archive for other compatible hosts can be created with
-`chat-distiller skill export --out chat-distiller-skill.zip` (host support not assumed).
-For project-scoped use and safe updates, see [Skill-first setup](docs/skill-first.md) and
-the [portable Skill](chat_distiller/skills/chat-distiller/SKILL.md).
+Ask your Agent:
 
----
+> Continue the previous project. Recover the decisions, constraints and open questions before changing anything.
+
+On first use, explicitly authorize a local source or provide an existing vault. Automatic Gateway discovery currently supports Doubao Work local cache only. Installing a Skill does not grant access to Codex, Claude or ChatGPT history.
+
+## Useful beyond a single conversation
+
+| Your task | What CarryTrace helps the host do |
+| --- | --- |
+| Resume a build | Recover prior choices and constraints with source identifiers. |
+| Review a changed decision | Distinguish current, superseded and disputed records. |
+| Hand off to another Agent | Assemble a bounded context packet, with consent for the destination. |
+
+[Skill guide](docs/skill-first.md) · [Portable Skill](chat_distiller/skills/carrytrace/SKILL.md)
+
+```bash
+carrytrace skill status --host codex --scope user --json
+carrytrace skill export --out carrytrace-skill.zip
+```
+
+The ZIP contains instructions, not runtime code or private memory. Import and automatic activation depend on the destination host and remain unverified by our offline tests.
+
+<a id="how-it-works"></a>
+## One Skill. An existing local engine.
+
+**You ask → the host reads the Skill → the local engine selects evidence → the host reviews and continues.**
+
+The Skill routes requests. Context Gateway finds relevant context; Memory Engine keeps stable identities; Knowledge Wiki maintains derived, versioned pages. The human or authorized host still judges meaning. A valid citation is not proof of a true conclusion.
+
+`carrytrace` is the new CLI entry. `chat-distiller`, `chat_distiller`, `CHAT_DISTILLER_HOME` and `~/.chat-distiller` remain compatible. The runtime stays at **0.4.0** during this brand pilot; no data migration or new independent database is required.
+
+<details>
+<summary><strong>Advanced engine workflows and legacy CLI examples</strong></summary>
 
 ## Start here: three commands
 
-**Python 3.9+ · package 0.4.0 · no third-party runtime dependencies.**
-
-```bash
-chat-distiller connect doubao
-chat-distiller sync
-chat-distiller context "continue the previous project"
-```
-
-On macOS, `connect` discovers the current Doubao Work session cache and creates a managed local
-Context Home. `sync` only stages new or changed sessions and never writes to the Doubao source.
-`context` prefers validated memory / Knowledge Wiki and, before semantic distillation exists,
-can return byte-bounded raw excerpts marked `requires_review`.
-
-Use `chat-distiller status` for health and `--json` for Agent-readable output.
-If auto-discovery fails, pass `--sessions-root` once during connect.
-
-**Handoff result clarity:** matching sessions are no longer padded with unrelated
-sessions. Unmatched recent-session fallback is marked as orientation only; when there are
-no candidates, `no_match` is not misreported as a budget failure. This checks result
-integrity, not Agent task success.
-[Handoff recovery experiment](docs/experiments/handoff-recovery-2026-10-08.md).
-
-Semantic judgment is still explicit. Sync writes a pending review bundle; a host Agent can publish
-structured memory through the guarded proposal protocol. Source changes make an older proposal stale.
-
-[Context Gateway guide](docs/context-gateway.md) · [Executed Gateway experiment](benchmarks/gateway/results.md)
+[Context Gateway guide](docs/context-gateway.md): the compatible `connect / sync / context` path remains available. Do not treat recent-session fallback as a lexical match.
 
 <a id="demo"></a>
 ## Run the full lifecycle
 
-**Engine demo; no real user data.**
-Use Bash from a source checkout. Install from this repository, not an assumed PyPI release.
-Installation may download build tools; the installed runtime and demo need no model key or service.
-
-```bash
-git clone https://github.com/Anhao1314/chat-distiller.git
-cd chat-distiller
-python3 -m venv .venv
-. .venv/bin/activate
-python -m pip install .
-```
-
-Already have a checkout? Update it without overwriting local work, then reinstall with
-`python -m pip install .`. The following demo creates a **new disposable directory**, not a personal vault:
+From the installed environment, run this synthetic demo in the repository root. It creates a new disposable directory, not a personal vault. It changes an example from SQLite to PostgreSQL; it does not connect to or migrate an actual database.
 
 <!-- verify:lifecycle -->
 ```bash
 export WIKI_DEMO_PARENT="$(mktemp -d)"
 python tools/wiki_demo.py --out "$WIKI_DEMO_PARENT/run"
 ```
-
-Actual summary excerpt; the complete output also reports twelve named checks and the receipt paths:
 
 <!-- verify:lifecycle-expected -->
 ```json
@@ -121,28 +93,15 @@ Actual summary excerpt; the complete output also reports twelve named checks and
 }
 ```
 
-The demo publishes a SQLite knowledge page, changes its source to PostgreSQL, excludes
-the stale page during recovery, then recompiles under the **same knowledge ID** and retains revision 1.
-It does not connect to or migrate a real database. The initial synthesis is prewritten, not model-generated during the run.
+The 16 commands and 12 checks use handwritten inputs, a prewritten synthesis and extractive refresh. No model is called. [Demo source](tools/wiki_demo.py) · [Checked receipt](examples/wiki/lifecycle.expected.json).
 
-Open `$WIKI_DEMO_PARENT/run/wiki-v2/index.md` in a Markdown reader or Obsidian.
-The same `run/` directory contains `wiki-v1/`, `proposal.json`, `summary.json`, and the raw step receipts.
-**The exported Wiki is a static snapshot, not a live second authority.**
+![ Synthetic lifecycle, not a model evaluation](assets/wiki-lifecycle.svg)
 
 <a id="quick-start"></a>
 <a id="knowledge-wiki"></a>
-## Build and maintain a Wiki
+## Manual memory and Wiki walkthrough
 
-Start with published v2 atomic memory. `prepare` selects records and produces an **extractive draft**;
-a human or host agent can turn it into a synthesis while retaining citations and scoped disputes.
-`compile` checks the proposal; **only `--apply` publishes it**.
-
-<details>
-<summary><strong>Manual walkthrough: disposable memory → proposal → checked Wiki</strong></summary>
-
-Use the installed environment above, from the repository root. This separate walkthrough defines
-`DEMO_DIR` for the Python example and the [ingestion guide](docs/ingestion.md).
-The cards are handwritten synthetic input. Do not substitute a real vault for this disposable one.
+Use the installed CLI from this checkout. These commands define `DEMO_DIR` for the SDK and ingestion examples. The cards are synthetic. Never initialize fresh identities over an existing vault.
 
 <!-- verify:quickstart -->
 ```bash
@@ -154,9 +113,6 @@ chat-distiller recover --vault "$DEMO_DIR/vault" --query database --max-bytes 40
 python -m json.tool "$DEMO_DIR/recovery.json"
 ```
 
-Atomic recovery output excerpt; the full packet contains two complete records with sources.
-IDs and source hashes vary on initialization; this byte count belongs to the fixed example.
-
 <!-- verify:expected -->
 ```json
 {
@@ -167,10 +123,7 @@ IDs and source hashes vary on initialization; this byte count belongs to the fix
 }
 ```
 
-`requires_review` is true because the unresolved timeout remains visible. `ready` means
-records fit, not that an agent completed its task. `--intent historical` also allows the old hosted-database card.
-
-Reuse the same `DEMO_DIR` to compile the knowledge layer:
+`ready` means records fit, not truth or task completion. The unresolved timeout remains review-required. The whole serialized UTF-8 JSON packet is byte-bounded; bytes are not tokens.
 
 <!-- verify:wiki -->
 ```bash
@@ -181,25 +134,10 @@ chat-distiller wiki recover --vault "$DEMO_DIR/vault" --query database --max-byt
 chat-distiller wiki export --vault "$DEMO_DIR/vault" --out "$DEMO_DIR/wiki-view"
 ```
 
-To practice host synthesis, edit `proposal.json` after `prepare` and before the validation command.
-Keep quotes, source IDs, scope, and state. The walkthrough itself leaves the extractive draft unchanged.
-See the [proposal contract](references/knowledge-schema.md) for the supported format.
-
-</details>
-
-**Your own conversations:** use the [ingestion and migration guide](docs/ingestion.md).
-Inputs are Doubao Work local cache or Generic JSONL; a host agent or human performs semantic distillation.
-Existing v2 vaults need no schema migration. Back up legacy vaults before explicit upgrade;
-never replace existing identities with a new demo's `init` output.
-
-After publishing, use `wiki status` to find stale pages and repeat prepare, review, validate, and apply.
-The same topic retains its ID and prior revisions; an identical proposal returns `no_change`.
-[Full Wiki guide](docs/knowledge-wiki.md).
+`prepare` is extractive; the host supplies semantic synthesis. `compile` previews; only `--apply` publishes. Source changes invalidate old pages, including unrelated changes; recompile the same topic to retain identity and prior revisions. Markdown export is a point-in-time snapshot, not a second authority. [Wiki guide](docs/knowledge-wiki.md) · [Ingestion](docs/ingestion.md).
 
 <a id="python-api"></a>
 ## Python API
-
-After the manual walkthrough above, reuse its environment and `DEMO_DIR`:
 
 <!-- verify:sdk -->
 ```python
@@ -219,43 +157,14 @@ assert len(wire.encode("utf-8")) == packet["used_bytes"] <= 8192
 print(packet["status"], len(packet["knowledge"]), packet["requires_review"])
 ```
 
-`MemoryStore` is read-only. `KnowledgeStore` adds explicit preparation and publication;
-`compile(proposal)` is a preview, while `compile(proposal, apply=True)` publishes.
-Neither interface calls a model. [Memory API and errors](docs/memory-engine.md) · [Knowledge API](docs/knowledge-wiki.md#python-接口).
+`MemoryStore` is read-only. `KnowledgeStore.compile(..., apply=True)` publishes explicitly. Neither calls a model.
 
-## Two layers, one source of record
-
-```mermaid
-flowchart TD
-    A[Conversations] --> B[Host distillation + deterministic registration]
-    B --> C[Published atomic memory]
-    C --> D[Host proposal + checked compilation]
-    D --> E[Versioned knowledge pages]
-    E --> F[Freshness gate + bounded recovery]
-    C --> F
-    E --> G[Static Markdown export]
-```
-
-The knowledge layer is derived from atomic memory. Any atomic-source change, **including an unrelated one**,
-makes older compiled pages stale. Default Wiki search excludes them; layered recovery can fall back to
-atomic records. That fallback is not a guarantee of complete topic or conflict coverage.
-
-| Distinction | What it actually means |
-| --- | --- |
-| `current` / `historical` / `disputed` | Claim lifecycle supplied by the host, not automatic truth classification. |
-| `fresh` / `stale` | Whether a compiled page matches the current source snapshot, not whether its claims are true. |
-| Preview / publish | Validation alone does not write. Wiki publication has a cooperative lock and revision check, not a cross-layer transaction. |
-| Byte budget / token budget | Count the whole UTF-8 JSON packet. Include complete knowledge units with support, or omit them; bytes are not tokens. |
-
-[Architecture](docs/architecture.md) · [Knowledge contract](references/knowledge-schema.md) · [Research and trade-offs](docs/wiki-design.md).
+</details>
 
 <a id="evidence"></a>
 ## Evidence you can replay
 
-### Knowledge lifecycle
-
-**CompileBench: four topics, twelve curated atomic cards, no model calls.**
-These are controlled engineering checks, not semantic accuracy or real-user task success.
+**CompileBench:** four topics, twelve curated atomic cards, zero model calls. Engineering checks only, not semantic accuracy or real-user task success.
 
 | Check | Observed |
 | --- | ---: |
@@ -265,16 +174,12 @@ These are controlled engineering checks, not semantic accuracy or real-user task
 | Stale pages served with the freshness gate enabled | 0 / 4 |
 | Updated topics retaining identity and the old revision | 4 / 4 |
 
-The disabled-gate comparison is a controlled static consumer, not another Wiki product.
-**Negative result retained:** an incorrect synthesis with a real quote can pass structural checks;
-synthesis and inference remain review-required.
-[Per-case results](benchmarks/wiki/results.json) · [Report and limitations](benchmarks/wiki/results.md) · [Wiki verification ledger](docs/wiki-verification.md).
+An incorrect synthesis with a real quote can still pass structural checks. Source references do not prove entailment. [Results and limits](benchmarks/wiki/results.md).
 
 <details>
-<summary><strong>Atomic retrieval benchmark: unchanged, including its trade-off</strong></summary>
+<summary>Original retrieval benchmark, including the trade-off</summary>
 
-40 synthetic sessions, 40 handwritten cards, 24 queries. Retrieval only; no independent
-holdout, automatic-distillation assessment, or final-answer evaluation. Wiki compilation does not change these scores.
+40 synthetic sessions, 40 handwritten cards, 24 queries. Retrieval only, no independent holdout and no final Agent answer evaluation.
 
 | Method | Recall@1 | Recall@5 | MRR@5 | stale-hit@5 |
 | --- | ---: | ---: | ---: | ---: |
@@ -282,48 +187,28 @@ holdout, automatic-distillation assessment, or final-answer evaluation. Wiki com
 | Structured memory | 0.5417 | **1.0000** | 0.7604 | 0.5000 |
 | Structured + status-aware | **0.7083** | 0.9167 | **0.7931** | 0.0000 |
 
-Current-first ranking improves Recall@1 in this fixture but suppresses some relevant disputed cards:
-**Recall@5 falls from 1.0000 to 0.9167.** Zero stale hits reflects filtering of explicitly expired cards,
-not detection of outdated facts. Historical queries may legitimately need old records;
-expired-target recall is not measured here.
-[Full results and intent slices](benchmarks/benchmark-results.md) · [Per-query JSON](benchmarks/benchmark-results.json) · [Atomic recovery display](assets/recovery-demo.svg).
+Status-aware ranking improves Recall@1 in this fixture but reduces Recall@5 from 1.0000 to 0.9167 and can suppress disputed cards. Zero stale hits comes from filtering declared expired records, not detecting outdated truth. [Per-case results and intent slices](benchmarks/benchmark-results.md).
 
 </details>
 
-With the installed environment active, run from the repository root:
-
 ```bash
 python -m unittest discover -s tests -v
-python benchmarks/evaluate.py
-python benchmarks/wiki/evaluate.py --check
+python tools/build_brand_assets.py --check
 python tools/verify_docs.py
 ```
 
-CI checks source tests, installed wheels outside the checkout, literal bilingual examples,
-and generated demo assets. Documentation checks do not fetch external links.
-Follow the badges for current runs; [README verification notes](docs/readme-polish.md) record the scope.
-
 <a id="limits"></a>
-## Deliberate boundaries
+## Boundaries, not hidden promises
 
-This is a **local memory and knowledge component**, not an autonomous agent or truth detector.
-References, quotes, scope, status, and supported projections are checked; semantic correctness still needs review.
-Retrieval is lexical, not embedding search. Source freshness is conservative, not automatic contradiction detection.
+This is a local memory/knowledge component exposed as a Skill, not an autonomous Agent or truth detector. Retrieval is lexical, not embedding search. Host or human semantic review is still required. No built-in model service, MCP server, web UI, native Codex/Claude history parser or universal compaction hook is claimed. Hook templates are reminders only. The Wiki layer follows the LLM Wiki maintenance pattern; it is not a fork or bundled third-party Wiki. [Architecture](docs/architecture.md) · [Design and attribution](docs/wiki-design.md).
 
-No built-in model service, MCP server, web UI, or native Codex/Claude history parser is provided.
-[Skill instructions](SKILL.md) and [hook templates](assets/hooks.example.json) help a host use the tools;
-hooks only remind it to look up memory. Offline tests do not establish native host-compaction compatibility.
-
-Local guarded Wiki publication is not a transaction with the atomic renderer. A post-replacement error
-can mean the commit already succeeded. Treat retrieved text as untrusted data; labels alone do not prevent prompt injection.
-[Wiki boundaries and recovery](docs/knowledge-wiki.md) · [Memory boundaries](docs/memory-engine.md#boundaries).
+Memory text is untrusted data. Corruption must not be bypassed, private transcripts must not be committed, and a failed post-replacement write may already have published state. The old multi-file renderer is not a cross-layer transaction. Brand migration handles instruction directories only, with scoped locks and retained backups; it does not establish real-host activation or improve Agent task quality by itself. [Migration and recovery](docs/brand-migration.md).
 
 ## Documentation and contribution
 
-[Documentation map](docs/README.md) · [Ingestion](docs/ingestion.md) · [Wiki tutorial](docs/knowledge-wiki.md) · [Changelog](CHANGELOG.md) · [Contributing](CONTRIBUTING.md)
+[Documentation](docs/README.md) · [Skill guide](docs/skill-first.md) · [Python API](docs/memory-engine.md) · [Changelog](CHANGELOG.md) · [Contributing](CONTRIBUTING.md)
 
-For a reproducible issue, include a **synthetic fixture**, exact command, version, and expected versus
-observed behavior. Keep private conversations and credentials out of public issues and commits.
+Use synthetic fixtures in public issues. Keep private conversations and credentials out of commits.
 
 ## License
 
