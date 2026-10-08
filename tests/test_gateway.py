@@ -233,6 +233,33 @@ class GatewayTests(unittest.TestCase):
         self.assertEqual(packet["raw_sessions"], [])
         self.assertEqual(packet["status"], "budget_exhausted")
 
+    def test_handoff_cli_labels_recent_fallback(self):
+        import contextlib
+        import io
+        from chat_distiller.gateway.cli import _print
+        self.connect_sync()
+        packet = self.gateway.context("galaxywalrusbutterknife", max_bytes=4096, top_k=1)
+        stdout = io.StringIO()
+        with contextlib.redirect_stdout(stdout):
+            _print(packet)
+        self.assertIn("recent fallback (no lexical match)", stdout.getvalue())
+
+    def test_handoff_cli_reports_no_match(self):
+        import contextlib
+        import io
+        import shutil
+        from chat_distiller.gateway.cli import _print
+        self.gateway.connect("doubao", sessions_root=self.sessions)
+        for path in list(self.sessions.iterdir()):
+            shutil.rmtree(path)
+        self.gateway.sync()
+        packet = self.gateway.context("galaxywalrusbutterknife", max_bytes=4096)
+        self.assertEqual(packet["status"], "no_match")
+        stdout = io.StringIO()
+        with contextlib.redirect_stdout(stdout):
+            _print(packet)
+        self.assertIn("No matching context found.", stdout.getvalue())
+
     def test_context_budget_validation(self):
         self.connect_sync()
         for bad in (0, 1023, True, 1.2):

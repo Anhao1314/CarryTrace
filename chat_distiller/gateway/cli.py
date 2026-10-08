@@ -20,6 +20,10 @@ def _print(result, machine=False):
         if result["knowledge"].get("available"): print("  knowledge: %s fresh / %s stale" % (result["knowledge"].get("fresh", 0), result["knowledge"].get("stale", 0)))
         return
     print("Context")
+    if result.get("status") == "no_match":
+        print("  No matching context found.")
+    elif result.get("status") == "budget_exhausted":
+        print("  Available context did not fit the byte budget.")
     structured = result.get("structured") or {}
     for page in structured.get("knowledge", []):
         print("\nKnowledge · " + page.get("title", page.get("topic", "")))

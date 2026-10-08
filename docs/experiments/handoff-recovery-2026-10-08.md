@@ -56,6 +56,21 @@ The new deterministic delta verifier permits **only** `context_used_bytes` to de
 requires every other recorded field to match, and writes the delta as a separate CI artifact.
 The existing baseline JSON, benchmark inputs, thresholds and labels are not rewritten.
 
+## Candidate outcome and CI evidence
+
+- Candidate `5d0aec20450f855a44520b9df69d9f9daced7a1c` passed **243/243** source
+  tests on both Python 3.9 and 3.12:
+  [tests run](https://github.com/Anhao1314/chat-distiller/actions/runs/37742591258).
+- [Verified evidence run](https://github.com/Anhao1314/chat-distiller/actions/runs/37742591222)
+  passed frozen pre-upgrade replay, deterministic benchmark comparisons, installed wheel checks,
+  bilingual README examples and the new Gateway delta gate.
+- Under the fixed synthetic Gateway fixture, the response shrank **1,241 B → 892 B**
+  (349 fewer bytes); the remaining **19 recorded fields were unchanged**.
+- Two additional text-CLI status regressions ensure that people can tell a genuine
+  `no_match` from an unverified recent-session fallback.
+- Test logs still show legacy `ResourceWarning` notices about unclosed source-adapter
+  file handles. These were **not** silently fixed or counted as this experiment's result.
+
 ## Claim boundary
 
 The regression tests establish **result selection, status and byte-budget semantics**
