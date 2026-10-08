@@ -21,6 +21,9 @@ def main(argv=None):
     if argv and argv[0] == "wiki":
         from .wiki.cli import main as wiki_main
         return wiki_main(argv[1:])
+    if argv and argv[0] == "skill":
+        from .skill_installer import main as skill_main
+        return skill_main(argv[1:])
     if argv and argv[0] in LEGACY:
         implementation = importlib.import_module("._internal." + LEGACY[argv[0]], "chat_distiller")
         previous = sys.argv
@@ -48,6 +51,7 @@ def main(argv=None):
         if name == "get":
             sub.add_argument("--id", required=True)
     commands.add_parser("wiki", help="compile and query evidence-linked knowledge pages")
+    commands.add_parser("skill", help="install or inspect the portable Agent Skill")
     for name in LEGACY:
         commands.add_parser(name, help="delegate to compatible " + LEGACY[name] + " command")
     args = parser.parse_args(argv)

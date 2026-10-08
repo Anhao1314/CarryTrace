@@ -8,6 +8,12 @@ description: >-
 
 # Structured Agent Memory & Context Recovery
 
+> **Portable installation:** This root file documents the advanced host distillation protocol.
+> For the smaller end-user Skill that installs into Codex/Claude Code, see
+> [chat_distiller/skills/chat-distiller/SKILL.md](chat_distiller/skills/chat-distiller/SKILL.md)
+> and [docs/skill-first.md](docs/skill-first.md). The installer ships those
+> self-contained instructions; it does not copy this root-level advanced file.
+
 **Judgment belongs to the Agent; structure and integrity belong to deterministic code.**
 
 ## 0.4 宿主优先工作流

@@ -14,7 +14,8 @@ contracts live here and in `references/`, rather than being repeated on the home
 | Understand the research and controlled wiki experiments | [Design](wiki-design.md) · [Verification](wiki-verification.md) · [CompileBench](../benchmarks/wiki/results.md) |
 | Inspect test evidence and reproduce results | [Verification ledger](verification.md) · [Handoff recovery experiment](experiments/handoff-recovery-2026-10-08.md) |
 | Inspect every benchmark case, including failures | [Benchmark report](../benchmarks/benchmark-results.md) |
-| Instruct a host agent to perform semantic distillation | [Skill workflow](../SKILL.md) |
+| Install a portable Agent Skill for Codex / Claude Code | [Skill-first guide](skill-first.md) · [Skill source](../chat_distiller/skills/chat-distiller/SKILL.md) |
+| Instruct a host agent to perform semantic distillation | [Advanced host workflow](../SKILL.md) |
 | Write valid cards and preserve stable identities | [Distillation schema](../references/distillation-schema.md) · [Identity and migration](../references/stable-memory.md) |
 | Understand lexical ranking and T1/T2/T3 validation | [Retrieval](../references/retrieval.md) · [Validation rules](../references/lint-rules.md) |
 | Report a bug or propose a contribution | [Contributing](../CONTRIBUTING.md) · [Changelog](../CHANGELOG.md) |

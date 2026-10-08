@@ -3,6 +3,17 @@
 Package versions below describe the Python distribution, not a claim of a PyPI release
 or a corresponding Git tag.
 
+## Unreleased: Skill-first pilot on package 0.4.0
+
+- Added a portable Agent Skills-compatible bundle that guides source-linked context recovery,
+  historical decision audits, cross-host handoff and authorized Generic JSONL extraction.
+- Added local CLI skill install/status for Codex and Claude Code, user and project scopes.
+  The managed installer is idempotent and refuses to overwrite foreign or modified skills.
+- Added source and installed-wheel packaging checks; no new runtime dependencies.
+- Existing Memory Engine, Knowledge Wiki, source adapters, benchmarks and publication
+  authority are unchanged. No real host-agent activation, model-quality or auto-import
+  improvement is claimed.
+
 ## Package 0.4.0: Context Gateway
 
 - Added the simple `connect`, `sync`, `context`, and `status` surface for Doubao Work.

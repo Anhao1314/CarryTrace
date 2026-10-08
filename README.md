@@ -31,6 +31,30 @@ The additional layer is optional: existing v2 memory and `MemoryStore` still wor
 > The host decides what information means. Code checks references, state, and publication.
 > **A valid citation does not prove a synthesis is true.**
 
+## Skill-first: install once, then talk to your Agent
+
+**Portable Agent Skill pilot** for local Codex and Claude Code. It teaches the host when and how
+to recover existing, source-linked context rather than asking users to copy long chat history.
+Install the Python package from this checkout as below, then install the Skill instructions:
+
+```bash
+python -m pip install .
+chat-distiller skill install --host both --scope user
+```
+
+Open a local shell-capable Codex or Claude Code session and ask:
+
+> Continue the previous project. Restore earlier decisions, constraints and unresolved issues first.
+
+On first use, the Agent guides authorization for the already supported Doubao Work local
+source, or uses an explicitly provided existing vault. This does **not** auto-import Codex,
+Claude Code or ChatGPT history, run a background listener, or publish semantic memory.
+Use `chat-distiller skill status --host both --scope user --json` to inspect installation.
+For project-scoped use and safe updates, see [Skill-first setup](docs/skill-first.md) and
+the [portable Skill](chat_distiller/skills/chat-distiller/SKILL.md).
+
+---
+
 ## Start here: three commands
 
 **Python 3.9+ · package 0.4.0 · no third-party runtime dependencies.**
