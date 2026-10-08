@@ -149,6 +149,13 @@ def manage(action, *, host, scope="user", project_dir=None, dry_run=False, force
     targets = [(_host, _target(_host, scope, project_dir)) for _host in hosts]
     planned = [(h, dest, _current_state(dest, wanted)) for h, dest in targets]
     if action == "install":
+        # Never resurrect a second active alias in a migrated host/scope.
+        for _, dest, _ in planned:
+            if (dest.parents[2] / ".carrytrace-skill-lock").exists():
+                raise SkillInstallError("CarryTrace Skill operation lock exists; inspect before retrying")
+            new = dest.with_name("carrytrace")
+            if new.exists() or new.is_symlink():
+                raise SkillInstallError("CarryTrace Skill already exists; use carrytrace skill status")
         # Validate the entire batch before writing either destination.
         for h, dest, status in planned:
             if status in ("unsafe_symlink", "modified", "unmanaged"):

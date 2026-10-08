@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "chat-distiller"
 version = "0.4.0"
-description = "Local persistent context, memory and knowledge for long-running agents"
+description = "CarryTrace: a continuity skill for AI agents (chat-distiller compatibility runtime)"
 readme = "README.md"
 requires-python = ">=3.9"
 license = {file = "LICENSE"}
@@ -13,10 +13,11 @@ dependencies = []
 
 [project.scripts]
 chat-distiller = "chat_distiller.cli:main"
+carrytrace = "chat_distiller.brand_cli:main"
 
 [tool.setuptools.packages.find]
 include = ["chat_distiller*"]
 
 [tool.setuptools.package-data]
 "chat_distiller._internal" = ["taxonomy.template.md"]
-"chat_distiller" = ["skills/chat-distiller/SKILL.md", "skills/chat-distiller/references/*.md"]
+"chat_distiller" = ["skills/chat-distiller/SKILL.md", "skills/chat-distiller/references/*.md", "skills/carrytrace/SKILL.md", "skills/carrytrace/references/*.md"]

@@ -1,16 +1,8 @@
----
-name: chat-distiller
-description: >-
-  为豆包 Work 等长期 Agent 提供持久化上下文。普通路径使用 connect / sync / context / status；
-  底层仍保留结构化记忆、Knowledge Wiki、稳定身份与证据链。确定性代码负责发现、增量提取、
-  状态校验和上下文预算；语义浓缩、真伪、重复与过期判断仍由 Agent 完成。
----
-
-# Structured Agent Memory & Context Recovery
+# CarryTrace: advanced authoring protocol
 
 > **Portable installation:** This root file documents the advanced host distillation protocol.
 > For the smaller end-user Skill that installs into Codex/Claude Code, see
-> [chat_distiller/skills/chat-distiller/SKILL.md](chat_distiller/skills/chat-distiller/SKILL.md)
+> [chat_distiller/skills/carrytrace/SKILL.md](chat_distiller/skills/carrytrace/SKILL.md)
 > and [docs/skill-first.md](docs/skill-first.md). The installer ships those
 > self-contained instructions; it does not copy this root-level advanced file.
 
