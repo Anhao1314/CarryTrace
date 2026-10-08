@@ -27,7 +27,9 @@ def _print(result, machine=False):
     for memory in structured.get("memories", []):
         print("\nMemory · %s · %s" % (memory.get("status"), memory.get("title"))); print("  " + str(memory.get("body", "")).replace("\n", " "))
     for session in result.get("raw_sessions", []):
-        print("\nRaw session · %s%s" % (session["session_id"], " · pending review" if session["status"] == "pending" else ""))
+        basis = " · recent fallback (no lexical match)" if session.get("selection_basis") == "recent_fallback" else ""
+        print("\nRaw session · %s%s%s" % (session["session_id"],
+              " · pending review" if session["status"] == "pending" else "", basis))
         print("  " + str(session.get("first_request") or ""))
         for excerpt in session.get("excerpts", []): print("  > " + " ".join(excerpt.split())[:500])
     if result.get("requires_review"): print("\nReview required: raw/disputed/uncompiled context is present.")

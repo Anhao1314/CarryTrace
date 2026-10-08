@@ -315,10 +315,16 @@ class ContextGateway:
                          "status": item["status"], "degraded": bool(item["record"].get("degraded")),
                          "score": session_score, "excerpts": excerpts,
                          "source": str(path)})
-        if any(r["score"] > 0 for r in rows):
-            rows.sort(key=lambda r: (-r["score"], str(r["session_id"])))
-        else:
-            rows.sort(key=lambda r: (str(r.get("updated") or r.get("created") or ""), r["session_id"]), reverse=True)
+        # A lexical hit must not be padded with unrelated recent sessions.
+        matched = [r for r in rows if r["score"] > 0]
+        if matched:
+            matched.sort(key=lambda r: (-r["score"], str(r["session_id"])))
+            for item in matched:
+                item["selection_basis"] = "lexical_match"
+            return matched
+        rows.sort(key=lambda r: (str(r.get("updated") or r.get("created") or ""), r["session_id"]), reverse=True)
+        for item in rows:
+            item["selection_basis"] = "recent_fallback"
         return rows
 
     @staticmethod
@@ -362,6 +368,8 @@ class ContextGateway:
         raw = self._raw_candidates(query, state, only_pending=structured_ready)
         if structured_ready:
             raw = [item for item in raw if item["score"] > 0]
+        elif raw and raw[0]["selection_basis"] == "recent_fallback":
+            packet["notes"].append("no lexical match: recent sessions are orientation only, not matching evidence")
         for candidate in raw:
             if len(packet["raw_sessions"]) >= top_k:
                 break
@@ -376,7 +384,9 @@ class ContextGateway:
         self._measure(packet)
         if packet["used_bytes"] > max_bytes:
             raise GatewayError("budget cannot fit context packet metadata")
-        if packet["status"] != "ready" and (raw or packet["structured"]):
+        structured_exhausted = bool(packet["structured"] and
+                                    packet["structured"].get("status") == "budget_exhausted")
+        if packet["status"] != "ready" and (raw or structured_exhausted):
             packet["status"] = "budget_exhausted"
             self._measure(packet)
         return packet
