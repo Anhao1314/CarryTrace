@@ -3,6 +3,18 @@
 Package versions below describe the Python distribution, not a claim of a PyPI release
 or a corresponding Git tag.
 
+## Package 0.9.0: Kimi-inspired light redesign of the demo UI (runtime 0.9.0)
+
+- The demo interface was redesigned from the dark terminal aesthetic to a light,
+  calm system in the spirit of Moonshot Kimi: white cards on a soft gray canvas,
+  hairline borders, large radii, generous whitespace and one blue-violet accent
+  gradient for primary actions.
+- Status colors were re-tuned for light surfaces (green current, amber disputed,
+  gray superseded) while keeping the exact semantics; wire JSON stays a dark code
+  block for contrast.
+- All screenshots, the eight-frame GIF and the product-page assets were
+  recaptured from the redesigned UI; no behavior changed anywhere.
+
 ## Package 0.8.0: general transcript import — any chat source feeds the gateway (runtime 0.8.0)
 
 - `claim connect` now accepts three sources: `doubao` (unchanged), `generic` (the documented

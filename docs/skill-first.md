@@ -1,6 +1,6 @@
 # ClaimLedger Skill | 本地 Agent 上下文连续性
 
-**Status:** instruction-only portable Skill over the existing package 0.8.0. This does not
+**Status:** instruction-only portable Skill over the existing package 0.9.0. This does not
 imply that real host activation, compaction recovery or downstream Agent utility was measured.
 
 **Upgrading from chat-distiller?** Follow the [preview-first brand migration](brand-migration.md). Python distribution/import and `~/.chat-distiller` remain unchanged; never create a second memory store.
