@@ -18,7 +18,9 @@ def main(argv=None):
     if argv and argv[0] == "mcp":
         from .mcp_server import main as mcp_main
         return mcp_main(argv[1:])
-    if argv and argv[0] in {"record", "brief", "claims", "recall", "suggest", "index"}:
+    if argv and argv[0] in {
+            "record", "brief", "claims", "recall", "suggest", "index",
+            "backup", "restore", "redact", "delete"}:
         from .claims import main as claims_main
         return claims_main(argv)
     if argv and argv[0] in {"connect", "sync", "context", "status"}:
@@ -42,7 +44,7 @@ def main(argv=None):
         finally:
             sys.argv = previous
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--version", action="version", version="chat-distiller 0.4.0")
+    parser.add_argument("--version", action="version", version="chat-distiller 0.5.0")
     commands = parser.add_subparsers(dest="command", required=True)
     for name in ("search", "get", "inspect", "recover"):
         sub = commands.add_parser(name)
@@ -67,6 +69,10 @@ def main(argv=None):
     commands.add_parser("recall", help="brief plus optional status-filtered RAG evidence")
     commands.add_parser("suggest", help="propose a claim for review without writing")
     commands.add_parser("index", help="seal or inspect a RAG evidence index")
+    commands.add_parser("backup", help="write a verified claim-store snapshot")
+    commands.add_parser("restore", help="verify and restore a claim-store snapshot")
+    commands.add_parser("redact", help="remove claim content while preserving identity")
+    commands.add_parser("delete", help="permanently delete a claim or its chain")
     commands.add_parser("mcp", help="serve the claim store over MCP stdio")
     commands.add_parser("demo", help="run the local browser demo (zero dependencies)")
     for name in LEGACY:

@@ -37,7 +37,7 @@ AI Agent 会失忆，更糟的是会自信地重复你已经废弃的决策。Cl
 去省略了多少条。所有内容放在一个本地 JSONL 文件里，通过 CLI、MCP 服务和可安装的
 Agent Skill 暴露。
 
-## 90-second demo script
+## Demo script
 
 Start the demo before the call:
 
@@ -56,7 +56,9 @@ Then narrate while clicking. Timings assume the synthetic Atlas store.
 | 0:52 | Brief | Drag the budget to **1 KB** | “781 of 1,024 bytes. Six entries omitted — and the packet says six, instead of pretending it showed everything.” |
 | 1:08 | Search | Search `use sqlite`, toggle **Include superseded** | “With the status filter off, the dead SQLite decision is the top lexical match. That is the failure mode.” |
 | 1:22 | Search | Toggle it back off | “With the filter on, it cannot appear. The disputed claims still surface.” |
-| 1:30 | Evidence | Show the benchmark table | “54.2% stale hits go to zero, at a stated Recall@5 cost. Synthetic fixtures, zero model calls.” |
+| 1:30 | Context | Build `use sqlite`, point at `1 filtered` | “RAG retrieved the stale passage and excluded it. Only evidence joined to a claim remains.” |
+| 1:44 | Record | Type the SQLite decision, click **Preview proposal** | “This is a proposal, not a write. It shows the conflict and linked evidence.” |
+| 1:56 | Evidence | Show the benchmark table | “54.2% stale hits go to zero, at a stated Recall@5 cost. Synthetic fixtures, zero model calls.” |
 
 Close with the run command:
 
@@ -74,7 +76,10 @@ python -m pip install -e . && claim demo
    service.
 3. **The write path** — `find_conflicts` is lexical and deterministic. It
    surfaces overlap; it never adjudicates semantics. `record` refuses an
-   unresolved overlap, and requires `--supersedes` or `--dispute`.
+   unresolved overlap, and requires `--supersedes` or `--dispute`. Mutations also
+   take a cross-process writer lock. `backup`/`restore` use checksummed manifests,
+   and `redact`/`delete` write audit entries plus a pre-change backup (disable
+   with `--no-backup` for true erasure); see [data safety](docs/data-safety.md).
 4. **The read paths** — `brief` renders a byte-bounded packet with explicit
    `omitted`; `claims` lists or searches; `recall` combines the brief with an
    optional status-filtered RAG/evidence layer (every hit must resolve to a
@@ -82,7 +87,7 @@ python -m pip install -e . && claim demo
    seals the evidence index to a store digest; `suggest` proposes a claim
    without writing it; the Wiki and recovery views remain available under their
    original contracts.
-5. **The proof** — `python -m unittest discover -s tests` (357 tests on this
+5. **The proof** — `python -m unittest discover -s tests` (373 tests on this
    checkout), `python tools/verify_docs.py` (executes README commands),
    `benchmarks/` (retrieval and CompileBench reports). Quote the trade-off, not
    only the win.
@@ -122,7 +127,7 @@ conflict-refusing memory with a one-command interactive demo.
 
 - Built a zero-dependency local decision ledger (Python + JSONL) with a
   status state machine (`current` / `superseded` / `disputed`), byte-budgeted
-  briefs and lexical retrieval; 357 tests.
+  briefs and lexical retrieval; 373 tests.
 - Designed and shipped an interactive demo and bilingual product site over the
   real engine (stdlib HTTP, vanilla JS), plus a reproducible screenshot/GIF
   asset pipeline.
@@ -132,7 +137,7 @@ conflict-refusing memory with a one-command interactive demo.
 **Resume bullets (ZH):**
 
 - 从零实现零依赖的本地决策台账（Python + JSONL），包含现行/已过期/有争议状态机、
-  字节预算简报与词法检索，357 项测试。
+  字节预算简报与词法检索，373 项测试。
 - 基于真实引擎设计与交付交互式演示站和中英双语产品页（标准库 HTTP + 原生 JS），
   并建立可复现的截图/GIF 素材流水线。
 - 用可复现基准量化核心价值：过期命中率@5 从 54.2% 降至 0，同时如实披露 Recall@5 代价。

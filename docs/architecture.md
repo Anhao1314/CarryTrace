@@ -71,6 +71,16 @@ The source hash identifies bytes; it is not an authenticity signature. Supported
 checks cover identity/status/type projections, not every Markdown body byte. Returned
 bodies come from the source-derived index, not unchecked edits to generated Markdown.
 
+The claim store serializes read-modify-write mutations with an in-process lock plus
+an OS advisory byte lock. Contention past the timeout is an explicit `ClaimStoreBusy`
+failure, not a last-writer-wins overwrite. `claim backup` writes a canonical snapshot
+with a checksummed manifest; `claim restore` verifies it and preserves the current
+store before replacement. `claim redact` removes content while keeping a content-free
+tombstone and chain, and `claim delete` removes rows; both write a pre-change backup
+(unless explicitly disabled) and an append-only audit entry. Redacted claims are
+excluded from briefs, conflict detection and RAG evidence. See
+[Data safety](data-safety.md).
+
 ## Storage layout
 
 ```text
@@ -87,6 +97,18 @@ bodies come from the source-derived index, not unchecked edits to generated Mark
     └── pending/                  # hook markers, not distilled memories
 ```
 
+The claim store lives separately, next to the project that owns it:
+
+```text
+<project>/.claim-ledger/
+├── claims.jsonl                  # only authority
+├── claims.jsonl.lock             # OS advisory lock target; left in place
+├── claims.audit.jsonl            # redact / delete / restore entries, no content
+└── backups/
+    ├── claims-<utc>.jsonl        # canonical snapshot
+    └── claims-<utc>.manifest.json
+```
+
 Core code lives under `chat_distiller/_internal`; `scripts/` contains compatible entry
 points, not a second implementation. The original standalone compaction hook remains
 separate. Templates are packaged for installed use; an existing vault's vocabulary is
@@ -95,9 +117,10 @@ not reset by an upgrade.
 ## Failure boundaries
 
 Reads reject detected inconsistency instead of returning apparently valid results.
-This is local single-writer storage: source-before/source-after checks are not a lock,
-transaction, hostile-filesystem defense, or crash-recovery journal. Repair from a
-consistent source or backup; do not bypass a failed check to obtain a result.
+The claim store adds an advisory writer lock and pre-change backups, but this is not a
+database transaction, hostile-filesystem defense, or crash-recovery journal; the
+multi-file vault renderer remains single-writer. Repair from a consistent source or
+backup; do not bypass a failed check to obtain a result.
 
 Recovery can return `ready`, `no_match`, or `budget_exhausted`. Whole records retain
 sources and states; oversized records are skipped rather than truncated. The serialized

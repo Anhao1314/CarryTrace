@@ -22,7 +22,7 @@ from pathlib import Path
 from urllib.parse import parse_qs, unquote, urlparse
 
 from .. import __version__
-from ..claims import ClaimStore, ClaimStoreError, DEFAULT_MAX_BYTES, find_conflicts
+from ..claims import ClaimStore, ClaimStoreBusy, ClaimStoreError, DEFAULT_MAX_BYTES, find_conflicts
 from ..context import ContextError, JsonlEvidenceIndex, build_context, serialize_context, suggest_claim
 from ..recovery import serialize_packet
 from .._internal.query_memory import features
@@ -128,7 +128,7 @@ class DemoApp:
             "mode": self.mode,
             "store": {
                 "bytes": self.store_path.stat().st_size if self.store_path.exists() else 0,
-                "sha256": self.store.digest(rows),
+                "sha256": self.store.digest(),
                 "path_label": "disposable demo store" if self.mode == "demo" else str(self.store_path),
             },
             "counts": _counts(rows),
@@ -500,6 +500,8 @@ class DemoHandler(BaseHTTPRequestHandler):
             return self._error(409, str(exc), "Duplicate", conflicts=conflicts)
         except DemoReadOnly as exc:
             return self._error(403, str(exc), "ReadOnly")
+        except ClaimStoreBusy as exc:
+            return self._error(423, str(exc), "Busy")
         except ClaimStoreError as exc:
             return self._error(400, str(exc), type(exc).__name__)
         except (OSError, ValueError) as exc:

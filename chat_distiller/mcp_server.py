@@ -108,7 +108,7 @@ def _tool_definitions():
             "name": "claim_suggest",
             "description": (
                 "Propose a claim for review WITHOUT writing it. Returns detected conflicts, "
-                "suggested resolution actions, and status-filtered supporting evidence. A human "
+                "suggested resolution actions, and status-filtered claim-linked evidence. A human "
                 "or host agent must still call claim_record with supersedes (all conflict ids) "
                 "or dispute. Never treat a proposal as a recorded decision."
             ),

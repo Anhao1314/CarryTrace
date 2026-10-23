@@ -152,7 +152,8 @@ screenshot or a shared link.
 
 ## Boundaries
 
-- Single user, single writer, no authentication; keep it on localhost.
+- Single local user, no authentication. Concurrent writes are serialized by the
+  claim-store writer lock, but the HTTP surface is not a multi-tenant server.
 - `--store` opens a real ledger read-only by default. `--write` is an explicit
   opt-in; there is no undo beyond the underlying file and no automatic backup.
 - The demo does not install the Skill, run MCP, call a model or import

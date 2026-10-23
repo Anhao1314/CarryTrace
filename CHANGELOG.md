@@ -3,7 +3,7 @@
 Package versions below describe the Python distribution, not a claim of a PyPI release
 or a corresponding Git tag.
 
-## Unreleased: local interactive demo and product page (runtime 0.4.0)
+## Package 0.5.0: demo, RAG and data safety (runtime 0.5.0)
 
 - Added `claim recall` and the MCP `claim_recall` tool: a byte-bounded composite
   packet containing the deterministic claim brief plus optional evidence from a
@@ -18,6 +18,17 @@ or a corresponding Git tag.
   different store. Added retriever timeout with brief-only fallback, per-claim
   evidence quota, and adaptive candidate-window widening; counters expose every
   exclusion/omission.
+- Added cross-process claim-store locking: an in-process re-entrant lock plus an
+  OS advisory byte lock (`flock` / `msvcrt.locking`) around every mutation. A
+  timeout raises `ClaimStoreBusy` instead of a last-writer-wins overwrite; the
+  lock file is left in place and the OS releases the lock on process exit.
+- Added `claim backup` and `claim restore` with canonical snapshots, checksummed
+  manifests, byte/digest verification, graph validation and an automatic backup
+  of the current store before replacement. Added `claim redact` (content-free
+  tombstone, optional chain cascade, excluded from briefs and RAG evidence) and
+  `claim delete` (hard removal, explicit cascade when referenced). Both write an
+  append-only audit entry and a plaintext pre-change backup by default, with
+  `--no-backup` for true erasure. Added `docs/data-safety.md`.
 - Added `claim suggest` and the MCP `claim_suggest` tool: a review-only proposal
   with detected conflicts, resolution guidance and status-filtered evidence. It
   never writes; `claim_record` still requires every conflict id in `supersedes`
@@ -36,7 +47,7 @@ or a corresponding Git tag.
   `--seed` with `--write` explicitly seeds an empty bound store). Added a **Context**
   view that builds the same brief + evidence packet over HTTP, toggles `current` /
   `historical` intent, exposes every exclusion counter and the exact wire JSON, and a
-  review-only **Preview proposal** panel that reveals conflicts and supporting
+  review-only **Preview proposal** panel that reveals conflicts and linked
   evidence without writing. The synthetic evidence index now ships in both the
   checkout and the installed package.
 - A write that overlaps several current claims can supersede all detected conflicts
@@ -57,7 +68,7 @@ or a corresponding Git tag.
   platform so manifest and packet byte counts match; the Skill installer retries
   transient Windows directory-sharing errors; MCP tests use a reader thread instead
   of `select()` on pipes; README verification translates Git Bash temp paths. The
-  suite is 357 tests, green on this Windows checkout (2 platform-specific skips), and
+  suite is 373 tests, green on this Windows checkout (2 platform-specific skips), and
   `tools/verify_docs.py` passes against a clean wheel install.
 
 ## Unreleased: renamed to ClaimLedger (runtime 0.4.0)

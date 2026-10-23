@@ -61,7 +61,7 @@ This is a staleness guard, not a semantic truth detector.
 
 ## Current limits
 
-- Doubao Work is the only Gateway connector in 0.4.0.
+- Doubao Work is the only Gateway connector in 0.5.0.
 - `sync` does not call an LLM or infer importance, truth, expiry, or conflicts.
 - Raw fallback is lexical/recent evidence selection, not semantic retrieval.
 - No daemon, filesystem watcher, MCP server, or native Doubao lifecycle hook is claimed.

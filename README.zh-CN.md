@@ -91,7 +91,7 @@ ClaimLedger 把一切知识统一为**声明（claim）**：一段独立可懂�
 
 带有真实摘录的错误综合仍可能通过结构校验，引用不证明结论被来源支持。[结果与局限](benchmarks/wiki/results.md)。
 
-**工程效果**：357 个测试；CI 在 macOS 与 Linux 上运行，Windows 检出通过（2 个平台相关跳过）。下面"使用指南"中的每条命令都被 CI 实际执行并核对输出；六个 `verify_*` 工具在隔离安装环境验证发行完整性；零第三方依赖。那里的每个示例都是 CI 实跑的，不是装饰。
+**工程效果**：373 个测试；CI 在 macOS 与 Linux 上运行，Windows 检出通过（2 个平台相关跳过）。下面"使用指南"中的每条命令都被 CI 实际执行并核对输出；六个 `verify_*` 工具在隔离安装环境验证发行完整性；零第三方依赖。那里的每个示例都是 CI 实跑的，不是装饰。
 
 同一次实跑中，同一个问题的四种结局——命中现行、放行历史、诚实未命中、预算不足（实际 CLI 输出的投影，非模型评测）：
 
@@ -252,6 +252,19 @@ print(packet["status"], len(packet["knowledge"]), packet["requires_review"])
 
 `MemoryStore` 只读；`KnowledgeStore.compile(..., apply=True)` 才显式发布；`ClaimStore` 是新声明库（`record` / `brief` / `claims`）。三者都不调用模型。
 
+### 7. 多 Agent 并发、备份与删除
+
+写入会获取跨进程写锁；超过超时时间会明确返回 `ClaimStoreBusy`，不会静默覆盖较新的版本。
+
+```bash
+claim backup --store /path/to/claims.jsonl
+claim restore --from /path/to/backups/claims-....jsonl --store /path/to/claims.jsonl --yes
+claim redact clm_... --store /path/to/claims.jsonl --yes
+claim delete clm_... --store /path/to/claims.jsonl --cascade --yes
+```
+
+备份是可校验的规范快照与 manifest。脱敏会保留不含正文的墓碑和取代链；删除会移除记录，被引用时必须加 `--cascade`。两者默认写入审计记录和改动前的明文备份，可用 `--no-backup` 关闭；脱敏后的 Claim 不再进入简报和 RAG 证据。[数据安全](docs/data-safety.md)。
+
 <a id="limits"></a>
 ## 六、能力边界，不藏在口号里
 
@@ -264,6 +277,7 @@ print(packet["status"], len(packet["knowledge"]), packet["requires_review"])
 | 看完整文档地图 | [Documentation](docs/README.md) |
 | 运行交互式演示 | [演示指南](docs/demo.md) · [产品落地页](https://anhao1314.github.io/ClaimLedger/) |
 | 融合 RAG 或向量检索 | [RAG 证据适配](docs/rag.md) · [状态过滤基准](benchmarks/rag/results.md) · [演示证据索引](examples/rag/evidence.jsonl) |
+| 多 Agent 并发写入、备份、脱敏或删除 | [数据安全](docs/data-safety.md) |
 | 接入一个数据来源 | [Context Gateway](docs/context-gateway.md) · [摄入与迁移](docs/ingestion.md) |
 | 在宿主 Agent 中执行蒸馏 | [高级宿主工作流](SKILL.md) · [蒸馏规则](references/distillation-schema.md) |
 | 复核设计、验证与迁移 | [重构设计](docs/refactor-design.md) · [验证台账](docs/verification.md) · [Skill 指南](docs/skill-first.md) · [Changelog](CHANGELOG.md) |

@@ -458,7 +458,7 @@ function renderProposal() {
   const evidenceCount = (proposal.evidence || []).length;
   const filtered = proposal.stale_excluded + proposal.unlinked_excluded + proposal.unresolved_excluded;
   if (proposal.evidence_provider && proposal.evidence_provider !== 'none') {
-    parts.push(`<p class="suggest-evidence">${evidenceCount} supporting passage${evidenceCount === 1 ? '' : 's'} · ${filtered} filtered by status or identity${proposal.evidence_error ? ' · retriever error: ' + esc(proposal.evidence_error) : ''}</p>`);
+    parts.push(`<p class="suggest-evidence">${evidenceCount} linked passage${evidenceCount === 1 ? '' : 's'} · ${filtered} filtered by status or identity${proposal.evidence_error ? ' · retriever error: ' + esc(proposal.evidence_error) : ''}</p>`);
   }
   $('#suggestDetail').innerHTML = parts.join('');
   panel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });

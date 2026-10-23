@@ -2,7 +2,7 @@
 from .store import MemoryStore, MemoryIntegrityError, MemoryNotFoundError
 from .recovery import serialize_packet
 
-__version__ = "0.4.0"
+__version__ = "0.5.0"
 __all__ = ["MemoryStore", "MemoryIntegrityError", "MemoryNotFoundError", "serialize_packet"]
 
 from .wiki import KnowledgeStore, WikiIntegrityError, StaleProposalError, WikiBusyError, CommitUncertainError
@@ -11,8 +11,8 @@ __all__ += ["KnowledgeStore", "WikiIntegrityError", "StaleProposalError", "WikiB
 from .gateway import ContextGateway, GatewayError
 __all__ += ["ContextGateway", "GatewayError"]
 
-from .claims import ClaimStore, ClaimStoreError
-__all__ += ["ClaimStore", "ClaimStoreError"]
+from .claims import ClaimStore, ClaimStoreBusy, ClaimStoreError
+__all__ += ["ClaimStore", "ClaimStoreBusy", "ClaimStoreError"]
 
 from .context import (
     ContextError, EvidenceHit, EvidenceRetriever, JsonlEvidenceIndex,

@@ -8,6 +8,7 @@ contracts live here and in `references/`, rather than being repeated on the home
 | --- | --- |
 | Run the interactive demo and see the product page | [Demo guide](demo.md) · [Showcase kit](../SHOWCASE.md) · [Landing page](https://anhao1314.github.io/ClaimLedger/) |
 | Integrate a RAG or vector retriever as an evidence layer | [RAG evidence adapter](rag.md) · [Status-filter benchmark](../benchmarks/rag/results.md) · [Demo evidence index](../examples/rag/evidence.jsonl) |
+| Run concurrent agents safely, back up, redact or delete claims | [Data safety](data-safety.md) |
 | Connect Doubao Work and recover context | [Context Gateway](context-gateway.md) · [Gateway proposal](../references/gateway-proposal.md) |
 | Try the low-level engine without touching real memory | [Quick start](../README.md#quick-start) / [快速体验](../README.zh-CN.md#quick-start) |
 | Import conversations or upgrade existing data | [Ingestion and migration](ingestion.md) |

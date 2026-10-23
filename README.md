@@ -91,7 +91,7 @@ Status filtering pushes stale hits in retrieved results from **54% to 0** — th
 
 An incorrect synthesis with a real quote can still pass structural checks; citations do not prove entailment. [Results and limits](benchmarks/wiki/results.md).
 
-**Engineering results**: 357 tests; CI runs them on macOS and Linux, and a Windows checkout passes with two platform-specific skips. Every command in the usage section below is executed and output-checked by CI; six `verify_*` tools validate the installed distribution in isolation; zero third-party dependencies. Every example there actually runs in CI — none are decorative.
+**Engineering results**: 373 tests; CI runs them on macOS and Linux, and a Windows checkout passes with two platform-specific skips. Every command in the usage section below is executed and output-checked by CI; six `verify_*` tools validate the installed distribution in isolation; zero third-party dependencies. Every example there actually runs in CI — none are decorative.
 
 One executed run, four honest outcomes for the same question — current hit, historical intent, honest no-match, exhausted budget (a projection of actual CLI output, not a model evaluation):
 
@@ -252,6 +252,24 @@ print(packet["status"], len(packet["knowledge"]), packet["requires_review"])
 
 `MemoryStore` is read-only; `KnowledgeStore.compile(..., apply=True)` publishes explicitly; `ClaimStore` is the new claim store (`record` / `brief` / `claims`). None of them call a model.
 
+### 7. Concurrent agents, backups and removal
+
+Mutations take a cross-process writer lock. If another process holds it past the
+timeout, the write fails as `ClaimStoreBusy` instead of overwriting a newer version.
+
+```bash
+claim backup --store /path/to/claims.jsonl
+claim restore --from /path/to/backups/claims-....jsonl --store /path/to/claims.jsonl --yes
+claim redact clm_... --store /path/to/claims.jsonl --yes
+claim delete clm_... --store /path/to/claims.jsonl --cascade --yes
+```
+
+Backups are canonical snapshots with a checksummed manifest. Redaction keeps a
+content-free tombstone and the supersession chain; deletion removes rows and
+requires `--cascade` when the claim is referenced. Both write an audit entry and a
+plaintext pre-change backup by default; `--no-backup` opts out. Redacted claims are
+excluded from briefs and RAG evidence. [Data safety](docs/data-safety.md).
+
 <a id="limits"></a>
 ## 6. Boundaries, not hidden promises
 
@@ -264,6 +282,7 @@ This is a local memory/knowledge component exposed as a Skill and MCP tools, not
 | See the full documentation map | [Documentation](docs/README.md) |
 | Run the interactive demo | [Demo guide](docs/demo.md) · [Landing page](https://anhao1314.github.io/ClaimLedger/) |
 | Integrate RAG or a vector retriever | [RAG evidence adapter](docs/rag.md) · [Status-filter benchmark](benchmarks/rag/results.md) · [Demo evidence index](examples/rag/evidence.jsonl) |
+| Run concurrent writers, back up, redact or delete claims | [Data safety](docs/data-safety.md) |
 | Connect a source | [Context Gateway](docs/context-gateway.md) · [Ingestion](docs/ingestion.md) |
 | Run semantic distillation in a host Agent | [Advanced host workflow](SKILL.md) · [Distillation schema](references/distillation-schema.md) |
 | Review design, verification and migration | [Refactor design](docs/refactor-design.md) · [Verification ledger](docs/verification.md) · [Skill guide](docs/skill-first.md) · [Changelog](CHANGELOG.md) |

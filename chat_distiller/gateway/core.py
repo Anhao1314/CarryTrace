@@ -93,7 +93,7 @@ class ContextGateway:
 
     def connect(self, connector="doubao", *, sessions_root=None, vault=None, force=False):
         if connector != "doubao":
-            raise GatewayError("only the doubao connector is supported in 0.4.0")
+            raise GatewayError("only the doubao connector is supported")
         root = DoubaoConnector.discover(sessions_root)
         self.paths.ensure()
         managed_vault = Path(vault).expanduser().resolve() if vault else self.paths.vault
