@@ -30,7 +30,7 @@ jobs:
         shell: bash
         run: |
           mkdir -p "$RUNNER_TEMP/baseline"
-          git archive 3b12860e0be50472fde8808f36fe5f85639a16c7 | tar -x -C "$RUNNER_TEMP/baseline"
+          git archive v0.4.0 | tar -x -C "$RUNNER_TEMP/baseline"
           cd "$RUNNER_TEMP/baseline"
           python3 -m unittest discover -s tests -v 2>&1 | tee "$RUNNER_TEMP/evidence/baseline-tests.txt"
           python3 benchmarks/evaluate.py --out "$RUNNER_TEMP/evidence/baseline-benchmark"
