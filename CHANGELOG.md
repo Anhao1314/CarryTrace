@@ -3,6 +3,24 @@
 Package versions below describe the Python distribution, not a claim of a PyPI release
 or a corresponding Git tag.
 
+## Package 0.7.0: scope and expiry — decisions that apply somewhere and for a while (runtime 0.7.0)
+
+- Added an optional `scope` to every claim (`claim record --scope production`,
+  MCP `claim_record`, demo form). `scope: "all"` applies everywhere; decisions in
+  disjoint scopes can coexist without superseding each other, and conflict
+  detection only fires when scopes overlap. Briefs and listings accept `--scope`
+  and include `all`-scoped claims.
+- Added an optional `expires_at` UTC timestamp (`claim record --expires-at`).
+  Expiry is a read-time policy: past the deadline a claim stops counting as
+  current and the brief reports it in `counts.time_expired`, but the stored row
+  keeps its status and supersession chain untouched. Recording is refused for
+  timestamps in the past.
+- The duplicate guard now protects only the live view: identical text in a
+  disjoint scope is a different decision, and re-recording an expired claim is
+  the natural renewal path.
+- Older stores stay valid: rows written before 0.7.0 read as `scope: "all"`,
+  `expires_at: null`; no migration is required.
+
 ## Package 0.6.0: adoption path — init, PyPI readiness and a Safety view (runtime 0.6.0)
 
 - Added `claim init`: creates an empty claim store, refuses to touch one that
@@ -89,7 +107,7 @@ or a corresponding Git tag.
   platform so manifest and packet byte counts match; the Skill installer retries
   transient Windows directory-sharing errors; MCP tests use a reader thread instead
   of `select()` on pipes; README verification translates Git Bash temp paths. The
-  suite is 382 tests, green on this Windows checkout (2 platform-specific skips), and
+  suite is 388 tests, green on this Windows checkout (2 platform-specific skips), and
   `tools/verify_docs.py` passes against a clean wheel install.
 
 ## Unreleased: renamed to ClaimLedger (runtime 0.4.0)

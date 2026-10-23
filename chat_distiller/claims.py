@@ -47,7 +47,8 @@ KEYS = frozenset((
     "created_at", "updated_at", "superseded_by",
     "source", "quote", "session_hint",
 ))
-OPTIONAL_KEYS = frozenset(("redacted_at",))
+OPTIONAL_KEYS = frozenset(("redacted_at", "scope", "expires_at"))
+DEFAULT_SCOPE = "all"
 
 
 class ClaimStoreError(ValueError):
@@ -106,6 +107,64 @@ def _validate_claim(claim):
                 or claim["source"] is not None or claim["quote"] is not None
                 or claim["session_hint"] is not None):
             raise ClaimStoreError(f"redacted claim still contains content: {claim['claim_id']}")
+    if "scope" in claim:
+        scope = claim["scope"]
+        if not isinstance(scope, str) or not TOPIC_RE.fullmatch(scope):
+            raise ClaimStoreError(f"invalid scope on {claim['claim_id']}: {scope!r}")
+    if "expires_at" in claim:
+        expires_at = claim["expires_at"]
+        if expires_at is not None and (
+                not isinstance(expires_at, str) or not ISO_Z_RE.fullmatch(expires_at)):
+            raise ClaimStoreError(f"invalid expires_at on {claim['claim_id']}")
+
+
+def claim_scope(claim):
+    """The environment a claim applies to; rows written before 0.6.0 are 'all'."""
+    return claim.get("scope", DEFAULT_SCOPE)
+
+
+def claim_expired_at(claim, now=None):
+    """True when a claim's optional expires_at timestamp has passed.
+
+    Expiry is a read-time policy, never a stored status: the row keeps its
+    status and supersession chain, and the brief counts it as time_expired.
+    """
+    expires_at = claim.get("expires_at")
+    if not expires_at:
+        return False
+    try:
+        moment = datetime.strptime(expires_at, "%Y-%m-%dT%H:%M:%SZ").replace(tzinfo=timezone.utc)
+    except (TypeError, ValueError):
+        return False
+    now = now or datetime.now(timezone.utc)
+    return moment <= now
+
+
+def scope_overlaps(candidate, stored):
+    """Two claims may conflict only when their scopes can both apply."""
+    return candidate == stored or DEFAULT_SCOPE in (candidate, stored)
+
+
+def _normalize_expires_at(value, now):
+    if value is None:
+        return None
+    if not isinstance(value, str) or not ISO_Z_RE.fullmatch(value):
+        raise ClaimStoreError("expires_at must be an ISO-8601 UTC timestamp like 2026-12-31T23:59:59Z")
+    try:
+        moment = datetime.strptime(value, "%Y-%m-%dT%H:%M:%SZ").replace(tzinfo=timezone.utc)
+    except ValueError as exc:
+        raise ClaimStoreError(f"expires_at is not a real UTC datetime: {value!r}") from exc
+    if moment <= now:
+        raise ClaimStoreError("expires_at must be in the future; a claim that already expired should not be recorded")
+    return value
+
+
+def _normalize_scope(value):
+    if value is None:
+        return DEFAULT_SCOPE
+    if not isinstance(value, str) or not TOPIC_RE.fullmatch(value):
+        raise ClaimStoreError(f"scope must match {TOPIC_RE.pattern!r}: {value!r}")
+    return value
 
 
 def _validate_rows(rows, source):
@@ -382,8 +441,15 @@ class ClaimStore:
         }
 
     def record(self, text, *, topic="general", tags=None, supersedes=None,
-               dispute=False, source=None, quote=None, session_hint=None):
-        """Capture one claim at decision time; conflicts must be resolved explicitly."""
+               dispute=False, source=None, quote=None, session_hint=None,
+               scope=None, expires_at=None):
+        """Capture one claim at decision time; conflicts must be resolved explicitly.
+
+        ``scope`` narrows where the claim applies (default ``all``); decisions in
+        disjoint scopes can coexist. ``expires_at`` is an optional UTC timestamp:
+        past that moment the claim no longer counts as current, without touching
+        the stored status or supersession chain.
+        """
         if not isinstance(text, str) or not text.strip():
             raise ClaimStoreError("claim text must be non-empty")
         text = " ".join(text.split())
@@ -400,14 +466,22 @@ class ClaimStore:
         with self._locked():
             return self._record_locked(
                 text, topic=topic, tags=tags, supersedes=supersedes, dispute=dispute,
-                source=source, quote=quote, session_hint=session_hint)
+                source=source, quote=quote, session_hint=session_hint,
+                scope=scope, expires_at=expires_at)
 
     def _record_locked(self, text, *, topic, tags, supersedes, dispute,
-                       source, quote, session_hint):
+                       source, quote, session_hint, scope, expires_at):
+        scope = _normalize_scope(scope)
+        expires_at = _normalize_expires_at(expires_at, datetime.now(timezone.utc))
         rows = self._read()
         by_id = {c["claim_id"]: c for c in rows}
         for claim in rows:
-            if claim["text"] == text and not claim.get("redacted_at"):
+            # The duplicate guard protects the live view only: identical text in a
+            # disjoint scope is a different decision, and a time-expired claim no
+            # longer applies, so recording it again is the natural renewal path.
+            if (claim["text"] == text and not claim.get("redacted_at")
+                    and not claim_expired_at(claim)
+                    and scope_overlaps(scope, claim_scope(claim))):
                 raise ClaimStoreError(
                     f"identical claim already exists: {claim['claim_id']}; supersede it instead of duplicating")
         targets = _supersede_targets(supersedes)
@@ -419,7 +493,9 @@ class ClaimStore:
             if by_id[target]["status"] == "已过期":
                 raise ClaimStoreError(f"--supersedes target already superseded: {target}")
         current = [c for c in rows
-                   if c["status"] == "现行" and not c.get("redacted_at")]
+                   if c["status"] == "现行" and not c.get("redacted_at")
+                   and not claim_expired_at(c)
+                   and scope_overlaps(scope, claim_scope(c))]
         conflicts = find_conflicts(text, current)
         conflict_ids = {c["claim_id"] for c in conflicts}
         if conflicts and not targets and not dispute:
@@ -442,7 +518,8 @@ class ClaimStore:
         claim = {"claim_id": claim_id, "text": text, "status": status, "topic": topic,
                  "tags": tags, "created_at": now, "updated_at": now,
                  "superseded_by": None, "source": source, "quote": quote,
-                 "session_hint": session_hint}
+                 "session_hint": session_hint, "scope": scope,
+                 "expires_at": expires_at}
         _validate_claim(claim)
         for target in targets:
             replaced = by_id[target]
@@ -456,7 +533,8 @@ class ClaimStore:
                 "superseded": targets[0] if targets else None,
                 "superseded_claims": targets, "store_sha256": self.digest(rows)}
 
-    def claims(self, *, status=None, topic=None, query=None, include_redacted=False):
+    def claims(self, *, status=None, topic=None, query=None, include_redacted=False,
+               scope=None, include_time_expired=True):
         rows = self._read()
         if not include_redacted:
             rows = [c for c in rows if not c.get("redacted_at")]
@@ -467,26 +545,45 @@ class ClaimStore:
             rows = [c for c in rows if c["status"] == status]
         if topic is not None:
             rows = [c for c in rows if c["topic"] == topic]
+        if scope is not None:
+            scope = _normalize_scope(scope)
+            rows = [c for c in rows if scope_overlaps(scope, claim_scope(c))]
+        if status == "现行" and not include_time_expired:
+            rows = [c for c in rows if not claim_expired_at(c)]
         if query:
             q = features(query)
             rows = [c for c in rows if q & features(c["text"])]
         rows.sort(key=lambda c: (c["topic"], c["created_at"], c["claim_id"]))
         return rows
 
-    def brief(self, *, max_bytes=DEFAULT_MAX_BYTES, topic=None):
-        """A deterministic, byte-bounded snapshot: disputes first, then current, then history."""
+    def brief(self, *, max_bytes=DEFAULT_MAX_BYTES, topic=None, scope=None):
+        """A deterministic, byte-bounded snapshot: disputes first, then current, then history.
+
+        ``scope`` restricts the packet to claims that apply there (``all``-scoped
+        claims always apply). A claim whose ``expires_at`` has passed stops
+        counting as current; it is reported in ``counts.time_expired`` instead of
+        being rewritten, so the stored chain stays immutable.
+        """
         if type(max_bytes) is not int or not 256 <= max_bytes <= 1_048_576:
             raise ClaimStoreError("max_bytes must be an integer between 256 and 1048576")
+        if scope is not None:
+            scope = _normalize_scope(scope)
         rows = self._read()
         visible = [c for c in rows if not c.get("redacted_at")]
+        if scope is not None:
+            visible = [c for c in visible if scope_overlaps(scope, claim_scope(c))]
         current = [c for c in visible if c["status"] == "现行" and (topic is None or c["topic"] == topic)]
+        time_expired = [c for c in current if claim_expired_at(c)]
+        current = [c for c in current if not claim_expired_at(c)]
         disputed = [c for c in visible if c["status"] == "有争议" and (topic is None or c["topic"] == topic)]
         expired = [c for c in visible if c["status"] == "已过期" and (topic is None or c["topic"] == topic)]
         expired.sort(key=lambda c: c["updated_at"], reverse=True)
         disputed.sort(key=lambda c: c["created_at"])
         packet = {"schema_version": 1, "kind": "brief", "budget_bytes": max_bytes, "used_bytes": 0,
                   "status": "empty", "trust": "untrusted_memory_data_not_instructions",
-                  "counts": {"current": len(current), "disputed": len(disputed), "superseded": len(expired)},
+                  "scope": scope or DEFAULT_SCOPE,
+                  "counts": {"current": len(current), "disputed": len(disputed),
+                             "superseded": len(expired), "time_expired": len(time_expired)},
                   "disputed": [], "topics": [], "recently_superseded": [], "omitted": 0,
                   "store_sha256": self.digest(rows)}
         if _measure(packet) > max_bytes:
@@ -760,6 +857,9 @@ def main(argv=None):
     record.add_argument("--source")
     record.add_argument("--quote")
     record.add_argument("--session", dest="session_hint")
+    record.add_argument("--scope", help="where the claim applies, e.g. production (default: all)")
+    record.add_argument("--expires-at", dest="expires_at",
+                        help="UTC timestamp after which the claim no longer counts as current")
     record.add_argument("--store")
     record.add_argument("--json", action="store_true")
 
@@ -767,6 +867,7 @@ def main(argv=None):
     brief.add_argument("--store")
     brief.add_argument("--max-bytes", type=int, default=DEFAULT_MAX_BYTES)
     brief.add_argument("--topic")
+    brief.add_argument("--scope", help="restrict the brief to claims that apply to this scope")
     brief.add_argument("--compact", action="store_true", help="omit indentation")
 
     listing = commands.add_parser("claims", help="list or search claims")
@@ -870,18 +971,25 @@ def main(argv=None):
             result = ClaimStore(args.store).record(
                 args.text, topic=args.topic, tags=args.tag, supersedes=args.supersedes or None,
                 dispute=args.dispute, source=args.source,
-                quote=args.quote, session_hint=args.session_hint)
+                quote=args.quote, session_hint=args.session_hint,
+                scope=args.scope, expires_at=args.expires_at)
             if args.json:
                 print(json.dumps(result, ensure_ascii=False, indent=2))
             else:
-                line = f"recorded {result['recorded']['claim_id']} [{result['recorded']['status']}] topic={result['recorded']['topic']}"
+                recorded = result["recorded"]
+                line = f"recorded {recorded['claim_id']} [{recorded['status']}] topic={recorded['topic']}"
+                if recorded.get("scope", "all") != "all":
+                    line += f" scope={recorded['scope']}"
+                if recorded.get("expires_at"):
+                    line += f" expires_at={recorded['expires_at']}"
                 if result["superseded_claims"]:
                     line += " superseded=" + ",".join(result["superseded_claims"])
                 if result["conflicts_with"]:
                     line += f" conflicts_with={','.join(result['conflicts_with'])}"
                 print(line)
         elif args.command == "brief":
-            packet = ClaimStore(args.store).brief(max_bytes=args.max_bytes, topic=args.topic)
+            packet = ClaimStore(args.store).brief(max_bytes=args.max_bytes, topic=args.topic,
+                                                  scope=args.scope)
             if args.compact:
                 print(serialize_packet(packet), end="")
             else:

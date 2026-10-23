@@ -96,6 +96,36 @@ class McpServerTests(unittest.TestCase):
         self.assertEqual(tools["claim_recall"]["inputSchema"]["required"], ["query"])
         self.assertEqual(tools["claim_suggest"]["inputSchema"]["required"], ["text"])
 
+    def test_record_with_scope_and_brief_scope_filter(self):
+        from datetime import datetime, timedelta, timezone
+        self._initialize()
+        first = self._result_text(self._call(
+            "claim_record",
+            {"text": "数据库统一使用 SQLite", "topic": "database", "scope": "production"},
+            msg_id=20))
+        self.assertTrue(first["ok"])
+        self.assertEqual(first["recorded"]["scope"], "production")
+        expires = (datetime.now(timezone.utc) + timedelta(hours=1)).strftime("%Y-%m-%dT%H:%M:%SZ")
+        second = self._result_text(self._call(
+            "claim_record",
+            {"text": "构建仍走旧流水线", "topic": "build", "expires_at": expires},
+            msg_id=21))
+        self.assertTrue(second["ok"])
+        self.assertEqual(second["recorded"]["expires_at"], expires)
+        rejected = self._call("claim_record",
+                              {"text": "时间倒流的声明", "expires_at": "2020-01-01T00:00:00Z"},
+                              msg_id=22)
+        self.assertTrue(rejected["result"]["isError"])
+        self.assertIn("future", rejected["result"]["content"][0]["text"])
+        brief = self._result_text(self._call("claim_brief", {"scope": "staging"}, msg_id=23))
+        self.assertEqual(brief["scope"], "staging")
+        # Only the all-scope build claim applies to staging.
+        self.assertEqual(brief["counts"]["current"], 1)
+        production = self._result_text(self._call("claim_brief", {"scope": "production"}, msg_id=24))
+        self.assertEqual(production["counts"]["current"], 2)
+        everything = self._result_text(self._call("claim_brief", {}, msg_id=25))
+        self.assertEqual(everything["counts"]["current"], 2)
+
     def test_record_conflict_and_resolve_round_trip(self):
         self._initialize()
         first = self._result_text(self._call(

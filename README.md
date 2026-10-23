@@ -91,7 +91,7 @@ Status filtering pushes stale hits in retrieved results from **54% to 0** — th
 
 An incorrect synthesis with a real quote can still pass structural checks; citations do not prove entailment. [Results and limits](benchmarks/wiki/results.md).
 
-**Engineering results**: 382 tests; CI runs them on macOS and Linux, and a Windows checkout passes with two platform-specific skips. Every command in the usage section below is executed and output-checked by CI; six `verify_*` tools validate the installed distribution in isolation; zero third-party dependencies. Every example there actually runs in CI — none are decorative.
+**Engineering results**: 388 tests; CI runs them on macOS and Linux, and a Windows checkout passes with two platform-specific skips. Every command in the usage section below is executed and output-checked by CI; six `verify_*` tools validate the installed distribution in isolation; zero third-party dependencies. Every example there actually runs in CI — none are decorative.
 
 One executed run, four honest outcomes for the same question — current hit, historical intent, honest no-match, exhausted budget (a projection of actual CLI output, not a model evaluation):
 
@@ -160,12 +160,16 @@ claim skill install --host claude --scope user    # use --host codex for Codex, 
 ```bash
 claim init                                                       # create .claim-ledger/claims.jsonl here
 claim record "Use PostgreSQL for all storage" --topic database   # capture a decision
+claim record "Freeze the migration window" --topic ops --scope production   # scope it
 claim brief                                                      # the current-state brief
 claim claims --status all                                        # read the ledger
 ```
 
 `claim init` is idempotent: it refuses to touch a store that already has data and
-prints the exact commands to register the store with your agent.
+prints the exact commands to register the store with your agent. Claims may also
+carry `--scope` (where a decision applies — disjoint scopes can coexist) and
+`--expires-at` (an optional UTC deadline; past it, the claim stops counting as
+current and the brief reports it as time-expired instead of rewriting history).
 
 **Handling conflicts**: if `record` reports `possible conflict with current claim(s): clm_xxx`, pick one —
 
@@ -277,7 +281,7 @@ excluded from briefs and RAG evidence. [Data safety](docs/data-safety.md).
 <a id="limits"></a>
 ## 6. Boundaries, not hidden promises
 
-This is a local memory/knowledge component exposed as a Skill and MCP tools, not an autonomous agent or a truth detector. The ledger's own retrieval is lexical, not embedding search; an optional RAG evidence adapter may supply passages, but every hit must resolve to a claim and passes the same status policy. Semantic review stays with the host or the human; conflict matching surfaces suspicions but cannot adjudicate semantics. No hosted web UI is claimed: the local `claim demo` is a disposable single-user view over the same store. No built-in model service, universal compaction hook or cross-machine sync is claimed. Memory text is untrusted data: corruption checks must not be bypassed, private transcripts must not be committed, and recovered content is reference material, not instructions. The old multi-file renderer is not a cross-layer transaction. [Architecture](docs/architecture.md) · [Design and attribution](docs/wiki-design.md).
+This is a local memory/knowledge component exposed as a Skill and MCP tools, not an autonomous agent or a truth detector. The ledger's own retrieval is lexical, not embedding search; an optional RAG evidence adapter may supply passages, but every hit must resolve to a claim and passes the same status policy. Semantic review stays with the host or the human; conflict matching surfaces suspicions but cannot adjudicate semantics. Scopes are structural labels, not enforced environments, and expiry is a read-time policy over an optional timestamp, not automatic deletion. No hosted web UI is claimed: the local `claim demo` is a disposable single-user view over the same store. No built-in model service, universal compaction hook or cross-machine sync is claimed. Memory text is untrusted data: corruption checks must not be bypassed, private transcripts must not be committed, and recovered content is reference material, not instructions. The old multi-file renderer is not a cross-layer transaction. [Architecture](docs/architecture.md) · [Design and attribution](docs/wiki-design.md).
 
 ## 7. Documentation and contribution
 

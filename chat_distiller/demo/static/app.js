@@ -213,6 +213,12 @@ function claimCard(claim) {
   const tags = claim.tags.length
     ? `<span class="claim__tags">${claim.tags.map((t) => `<span class="tag">${esc(t)}</span>`).join('')}</span>`
     : '';
+  const scopeTag = !redacted && claim.scope && claim.scope !== 'all'
+    ? `<span class="tag tag--scope" title="applies to this scope">scope: ${esc(claim.scope)}</span>`
+    : '';
+  const expiryTag = !redacted && claim.expires_at
+    ? `<span class="tag tag--scope" title="stops counting as current after this moment">until ${esc(claim.expires_at)}</span>`
+    : '';
   const provenance = claim.quote || claim.session_hint
     ? `<details class="prov"><summary>Provenance${claim.quote ? ' &amp; quote' : ''}</summary>
          ${claim.quote ? `<blockquote>“${esc(claim.quote)}”</blockquote>` : ''}
@@ -238,6 +244,8 @@ function claimCard(claim) {
           ${claim.redacted_at ? `<span>redacted ${esc(formatWhen(claim.redacted_at))}</span>` : ''}
           ${claim.source ? `<span class="claim__source">${esc(claim.source)}</span>` : ''}
           ${tags}
+          ${scopeTag}
+          ${expiryTag}
         </div>
         ${chain}
         ${provenance}
@@ -270,6 +278,7 @@ function formPayload() {
   return {
     text: $('#fText').value.trim(),
     topic: $('#fTopic').value.trim() || 'general',
+    scope: $('#fScope').value.trim() || 'all',
     tags,
     source: $('#fSource').value.trim() || null,
     quote: $('#fQuote').value.trim() || null,
@@ -286,6 +295,7 @@ function fillExample(key) {
   if (!example) return;
   $('#fText').value = example.text;
   $('#fTopic').value = example.topic;
+  $('#fScope').value = 'all';
   $('#fTags').value = (example.tags || []).join(', ');
   $('#fSource').value = example.source || '';
   $('#fQuote').value = example.quote || '';
@@ -335,6 +345,7 @@ async function submitRecord(payload, { supersedes = null, dispute = false, sourc
     toast('Claim recorded. The store digest changed — this was a real write.');
     $('#recordForm').reset();
     $('#fTopic').value = 'general';
+    $('#fScope').value = 'all';
     $('#fDispute').checked = false;
     $('#suggestPanel').hidden = true;
     S.proposal = null;

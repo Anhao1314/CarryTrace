@@ -67,6 +67,16 @@ claim; superseded evidence is excluded for `current` and labelled historical for
 `historical`. The evidence index is rebuildable, and the packet records how many
 candidates were stale, unlinked, unresolved or omitted rather than hiding them.
 
+Claims carry an optional `scope` label (default `all`) and an optional
+`expires_at` UTC timestamp. Scopes narrow where a decision applies: conflict
+detection only fires between claims whose scopes overlap, so disjoint
+environments can hold different conclusions without superseding each other.
+Expiry is a read-time policy, not a status transition — a claim past its
+deadline is excluded from the current brief, counted under
+`counts.time_expired`, and kept in the JSONL with its chain intact. Neither
+field is an enforcement mechanism: scope is a structural label the caller must
+honor, and expired claims are excluded by query time, never rewritten.
+
 The source hash identifies bytes; it is not an authenticity signature. Supported note
 checks cover identity/status/type projections, not every Markdown body byte. Returned
 bodies come from the source-derived index, not unchecked edits to generated Markdown.

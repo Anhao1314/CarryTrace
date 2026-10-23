@@ -91,7 +91,7 @@ ClaimLedger 把一切知识统一为**声明（claim）**：一段独立可懂�
 
 带有真实摘录的错误综合仍可能通过结构校验，引用不证明结论被来源支持。[结果与局限](benchmarks/wiki/results.md)。
 
-**工程效果**：382 个测试；CI 在 macOS 与 Linux 上运行，Windows 检出通过（2 个平台相关跳过）。下面"使用指南"中的每条命令都被 CI 实际执行并核对输出；六个 `verify_*` 工具在隔离安装环境验证发行完整性；零第三方依赖。那里的每个示例都是 CI 实跑的，不是装饰。
+**工程效果**：388 个测试；CI 在 macOS 与 Linux 上运行，Windows 检出通过（2 个平台相关跳过）。下面"使用指南"中的每条命令都被 CI 实际执行并核对输出；六个 `verify_*` 工具在隔离安装环境验证发行完整性；零第三方依赖。那里的每个示例都是 CI 实跑的，不是装饰。
 
 同一次实跑中，同一个问题的四种结局——命中现行、放行历史、诚实未命中、预算不足（实际 CLI 输出的投影，非模型评测）：
 
@@ -160,11 +160,12 @@ claim skill install --host claude --scope user    # Codex 用 --host codex，两
 ```bash
 claim init                                                  # 在当前目录创建 .claim-ledger/claims.jsonl
 claim record "数据库统一使用 PostgreSQL" --topic database   # 决策当场记一条
+claim record "冻结迁移窗口" --topic ops --scope production  # 限定生效范围
 claim brief                                                  # 开工前的现状简报
 claim claims --status all                                    # 翻台账
 ```
 
-`claim init` 是幂等的：已有数据的账本会被拒绝，并把接入 Agent 的确切命令打印出来。
+`claim init` 是幂等的：已有数据的账本会被拒绝，并把接入 Agent 的确切命令打印出来。Claim 还可带 `--scope`（决策适用的范围，互不相交的范围可共存）和 `--expires-at`（可选 UTC 截止时间；过期后不再算作现行，简报如实计入 time_expired，不改写历史）。
 
 **冲突怎么处理**：如果 `record` 报 `possible conflict with current claim(s): clm_xxx`，二选一——
 
@@ -271,7 +272,7 @@ claim delete clm_... --store /path/to/claims.jsonl --cascade --yes
 <a id="limits"></a>
 ## 六、能力边界，不藏在口号里
 
-这是以 Skill 与 MCP 暴露的本地记忆与知识组件，不是自主 Agent 或真伪检测器。台账自身的检索是词法检索，不是向量搜索；可选的 RAG evidence adapter 可以提供原文片段，但每条证据都必须解析到 claim，并接受同一套状态策略。语义复核仍由宿主或人完成；冲突检测只能摊开疑似，不能判定语义矛盾。不宣称提供托管 Web UI：本地 `claim demo` 只是同一存储上的一次性单用户视图。也不宣称内置模型服务、通用压缩钩子或跨机同步。记忆正文是不可信数据：不能绕过损坏检查，不可提交私人会话，恢复包里的内容是资料不是指令。旧多文件渲染器不是跨层事务。[架构](docs/architecture.md) · [设计与致谢](docs/wiki-design.md)。
+这是以 Skill 与 MCP 暴露的本地记忆与知识组件，不是自主 Agent 或真伪检测器。台账自身的检索是词法检索，不是向量搜索；可选的 RAG evidence adapter 可以提供原文片段，但每条证据都必须解析到 claim，并接受同一套状态策略。语义复核仍由宿主或人完成；冲突检测只能摊开疑似，不能判定语义矛盾。scope 是结构性标签而非强制的环境隔离；expires_at 是对可选时间戳的读取期策略，不是自动删除。不宣称提供托管 Web UI：本地 `claim demo` 只是同一存储上的一次性单用户视图。也不宣称内置模型服务、通用压缩钩子或跨机同步。记忆正文是不可信数据：不能绕过损坏检查，不可提交私人会话，恢复包里的内容是资料不是指令。旧多文件渲染器不是跨层事务。[架构](docs/architecture.md) · [设计与致谢](docs/wiki-design.md)。
 
 ## 七、文档与贡献
 

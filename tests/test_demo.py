@@ -68,6 +68,18 @@ class DemoTests(unittest.TestCase):
         self.assertIn("/api/context", script)
         self.assertIn("/api/suggest", script)
 
+    def test_record_accepts_scope_and_claims_expose_it(self):
+        status, body = self._request("POST", "/api/record", {
+            "text": "Use PostgreSQL 17 for all Atlas production storage",
+            "topic": "database", "scope": "production", "supersedes": "clm_9f2a6c1d4e8b73a0",
+        })
+        self.assertEqual(status, 200)
+        self.assertEqual(body["receipt"]["scope"], "production")
+        _, state = self._request("GET", "/api/state")
+        successor = next(c for c in state["claims"] if c["scope"] == "production")
+        self.assertEqual(successor["text"], "Use PostgreSQL 17 for all Atlas production storage")
+        self.assertIn("expires_at", successor)
+
     def test_conflict_is_refused_then_can_be_superseded(self):
         payload = {
             "text": "Use SQLite for all Atlas production storage",

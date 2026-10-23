@@ -238,6 +238,7 @@ h1 { margin: 0; max-width: 900px; font-size: clamp(30px, 3.2vw, 44px); line-heig
   display: inline-block; padding: 1px 7px; border: 1px solid var(--line); border-radius: 999px;
   color: var(--muted); font-size: 10px; background: rgba(255, 255, 255, .02);
 }
+.tag--scope { border-color: rgba(103, 207, 231, .3); color: var(--evidence); background: rgba(103, 207, 231, .06); }
 .chain { display: inline-flex; align-items: center; gap: 6px; margin-top: 9px; color: var(--dim); font-size: 11px; }
 .chain svg { width: 13px; height: 13px; color: var(--superseded); }
 .chain code { color: var(--muted); font-size: 10.5px; }

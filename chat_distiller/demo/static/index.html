@@ -179,10 +179,16 @@
             </label>
           </div>
 
-          <label class="field">
-            <span class="field__label">Source</span>
-            <input id="fSource" name="source" maxlength="300" placeholder="Architecture review · 2026-10-23">
-          </label>
+          <div class="field-row">
+            <label class="field">
+              <span class="field__label">Scope <em>where it applies</em></span>
+              <input id="fScope" name="scope" maxlength="40" value="all" pattern="[a-z0-9][a-z0-9-]{0,39}" title="all, production, staging, mobile-ios…">
+            </label>
+            <label class="field">
+              <span class="field__label">Source</span>
+              <input id="fSource" name="source" maxlength="300" placeholder="Architecture review · 2026-10-23">
+            </label>
+          </div>
 
           <label class="field">
             <span class="field__label">Quote <em>optional evidence</em></span>
@@ -522,7 +528,7 @@
     </section>
 
     <footer class="foot">
-      <span>ClaimLedger v<span id="version">0.6.0</span> · MIT</span>
+      <span>ClaimLedger v<span id="version">0.7.0</span> · MIT</span>
       <span>Local-first · single JSONL authority · formerly chat-distiller / CarryTrace</span>
     </footer>
   </main>

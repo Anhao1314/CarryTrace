@@ -87,7 +87,7 @@ python -m pip install -e . && claim demo
    seals the evidence index to a store digest; `suggest` proposes a claim
    without writing it; the Wiki and recovery views remain available under their
    original contracts.
-5. **The proof** — `python -m unittest discover -s tests` (382 tests on this
+5. **The proof** — `python -m unittest discover -s tests` (388 tests on this
    checkout), `python tools/verify_docs.py` (executes README commands),
    `benchmarks/` (retrieval and CompileBench reports). Quote the trade-off, not
    only the win.
@@ -127,7 +127,7 @@ conflict-refusing memory with a one-command interactive demo.
 
 - Built a zero-dependency local decision ledger (Python + JSONL) with a
   status state machine (`current` / `superseded` / `disputed`), byte-budgeted
-  briefs and lexical retrieval; 382 tests.
+  briefs and lexical retrieval; 388 tests.
 - Designed and shipped an interactive demo and bilingual product site over the
   real engine (stdlib HTTP, vanilla JS), plus a reproducible screenshot/GIF
   asset pipeline.
@@ -137,7 +137,7 @@ conflict-refusing memory with a one-command interactive demo.
 **Resume bullets (ZH):**
 
 - 从零实现零依赖的本地决策台账（Python + JSONL），包含现行/已过期/有争议状态机、
-  字节预算简报与词法检索，382 项测试。
+  字节预算简报与词法检索，388 项测试。
 - 基于真实引擎设计与交付交互式演示站和中英双语产品页（标准库 HTTP + 原生 JS），
   并建立可复现的截图/GIF 素材流水线。
 - 用可复现基准量化核心价值：过期命中率@5 从 54.2% 降至 0，同时如实披露 Recall@5 代价。

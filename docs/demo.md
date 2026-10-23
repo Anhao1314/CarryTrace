@@ -87,6 +87,7 @@ python -m chat_distiller.demo --no-open
 | Part | Status |
 | --- | --- |
 | `ClaimStore.record` / `brief` / `claims`, validation, conflict matching, byte accounting | Real code paths, the same as CLI and MCP |
+| Scope labels and expiry timestamps on new claims | Real read-time policy; the seeded scenario itself is `all`-scoped with no deadline |
 | HTTP API and browser UI | Real, but deliberately single-user and local |
 | Atlas API claims, sources and quotes | Synthetic, handwritten demo data |
 | RAG evidence chunks | Synthetic passages, joined to the seeded claim ids; status filtering is the real engine |
@@ -105,7 +106,7 @@ to script a tour or a screenshot capture:
 | Route | Purpose |
 | --- | --- |
 | `GET /api/state` | Claims, counts, topics, store digest, examples |
-| `POST /api/record` | Record/supersede/dispute; `409` with conflict details, `403` when read-only |
+| `POST /api/record` | Record/supersede/dispute with optional `scope`; `409` with conflict details, `403` when read-only |
 | `GET /api/brief?max_bytes=N` | Byte-bounded packet, wire form, omitted claims |
 | `GET /api/search?q=...&include_superseded=0\|1` | Status-aware or status-blind ranking |
 | `GET /api/context?q=...&intent=current\|historical` | Brief + status-filtered evidence packet; `max_bytes` defaults to 4096 |

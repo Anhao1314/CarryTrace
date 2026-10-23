@@ -229,6 +229,62 @@ class ClaimStoreTests(unittest.TestCase):
         self.assertEqual([c["claim_id"] for c in self.store.claims(status="all", query="前端")][0],
                          [c for c in self.store.claims(status="all") if c["topic"] == "frontend"][0]["claim_id"])
 
+    def test_scope_narrows_conflicts_and_filters_briefs(self):
+        prod = self.store.record("数据库统一使用 SQLite", topic="database",
+                                 scope="production")["recorded"]
+        # Same words in a disjoint scope: no conflict, both current.
+        staging_result = self.store.record("数据库统一使用 PostgreSQL", topic="database",
+                                           scope="staging")
+        staging = staging_result["recorded"]
+        self.assertEqual(staging_result["conflicts_with"], [])
+        # An all-scope decision overlaps every scope, so this is refused.
+        with self.assertRaisesRegex(ClaimStoreError, "possible conflict"):
+            self.store.record("数据库统一改用 SQLite", topic="database")
+        packet = self.store.brief(scope="production")
+        self.assertEqual(packet["scope"], "production")
+        self.assertEqual([c["claim_id"] for b in packet["topics"] for c in b["claims"]],
+                         [prod["claim_id"]])
+        everything = self.store.brief()
+        self.assertEqual(everything["counts"]["current"], 2)
+        rows = self.store.claims(scope="staging")
+        self.assertEqual([r["claim_id"] for r in rows], [staging["claim_id"]])
+
+    def test_time_expiry_keeps_the_chain_and_counts_honestly(self):
+        from datetime import datetime, timedelta, timezone
+        soon = (datetime.now(timezone.utc) + timedelta(seconds=2)).strftime("%Y-%m-%dT%H:%M:%SZ")
+        later = (datetime.now(timezone.utc) + timedelta(hours=1)).strftime("%Y-%m-%dT%H:%M:%SZ")
+        self.store.record("会过期的决定", expires_at=soon)
+        kept = self.store.record("仍有效的决定", expires_at=later)["recorded"]
+        packet = self.store.brief()
+        self.assertEqual(packet["counts"]["time_expired"], 0)
+        # Before the deadline both are current; claims() mirrors that by default.
+        self.assertEqual(len(self.store.claims(status="现行")), 2)
+        with self.assertRaisesRegex(ClaimStoreError, "future"):
+            self.store.record("回写过去的决定", expires_at="2020-01-01T00:00:00Z")
+        with self.assertRaisesRegex(ClaimStoreError, "expires_at"):
+            self.store.record("格式错误的决定", expires_at="tomorrow")
+        import time as time_module
+        time_module.sleep(2.2)
+        packet = self.store.brief()
+        self.assertEqual(packet["counts"]["time_expired"], 1)
+        self.assertEqual(packet["counts"]["current"], 1)
+        rows = self.store.claims(status="现行", include_time_expired=False)
+        self.assertEqual([r["claim_id"] for r in rows], [kept["claim_id"]])
+        # Expiry is a read-time policy: the row keeps its stored status.
+        stored = {r["claim_id"]: r for r in self.store._read()}
+        expired = [r for r in stored.values() if r["text"] == "会过期的决定"][0]
+        self.assertEqual(expired["status"], "现行")
+        self.assertIsNone(expired["superseded_by"])
+        self.assertIn("expires_at", expired)
+        # Time-expired claims no longer trigger conflicts or the duplicate guard.
+        renewed = self.store.record("会过期的决定", topic="general")
+        self.assertEqual(renewed["conflicts_with"], [])
+
+    def test_scope_and_expiry_validation(self):
+        with self.assertRaisesRegex(ClaimStoreError, "scope"):
+            self.store.record("范围非法", scope="Production")
+        self.assertEqual(self.store.record("默认范围")["recorded"]["scope"], "all")
+
     def test_default_store_path_and_missing_parent(self):
         store = ClaimStore(Path(self.tmp.name) / "deep" / "nested" / "claims.jsonl")
         store.record("嵌套目录也会创建")
@@ -242,6 +298,30 @@ class ClaimStoreTests(unittest.TestCase):
         self.assertEqual(rc, 0)
         rc = claims_module.main(["record", "CLI 端到端声明", "--store", str(self.store_path)])
         self.assertEqual(rc, 1)
+
+    def test_cli_scope_and_expiry_flags(self):
+        import io
+        import contextlib
+        from chat_distiller import claims as claims_module
+        buffer = io.StringIO()
+        with contextlib.redirect_stdout(buffer):
+            rc = claims_module.main([
+                "record", "生产库统一 PostgreSQL", "--store", str(self.store_path),
+                "--scope", "production", "--json"])
+        self.assertEqual(rc, 0)
+        receipt = json.loads(buffer.getvalue())
+        self.assertEqual(receipt["recorded"]["scope"], "production")
+        rows = self.store.claims(scope="production")
+        self.assertEqual(rows[0]["text"], "生产库统一 PostgreSQL")
+        rows = self.store.claims(scope="staging")
+        self.assertEqual(rows, [])
+        buffer = io.StringIO()
+        with contextlib.redirect_stdout(buffer):
+            rc = claims_module.main(["brief", "--store", str(self.store_path), "--scope", "staging"])
+        self.assertEqual(rc, 0)
+        packet = json.loads(buffer.getvalue())
+        self.assertEqual(packet["scope"], "staging")
+        self.assertEqual(packet["counts"]["current"], 0)
 
 
 if __name__ == "__main__":

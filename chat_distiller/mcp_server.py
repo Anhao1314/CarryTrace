@@ -43,6 +43,8 @@ def _tool_definitions():
                 "type": "object",
                 "properties": {
                     "topic": {"type": "string", "description": "restrict the brief to one topic slug"},
+                    "scope": {"type": "string",
+                              "description": "restrict the brief to claims applying to this scope (all-scope claims always apply)"},
                     "max_bytes": {"type": "integer", "description": "byte budget, 256..1048576, default 8192"},
                 },
             },
@@ -73,6 +75,10 @@ def _tool_definitions():
                     "source": {"type": "string", "description": "optional provenance pointer"},
                     "quote": {"type": "string", "description": "optional literal excerpt"},
                     "session_hint": {"type": "string", "description": "optional session identifier"},
+                    "scope": {"type": "string",
+                              "description": "where the claim applies, e.g. production; default 'all'. Decisions in disjoint scopes do not conflict"},
+                    "expires_at": {"type": "string",
+                                   "description": "optional UTC timestamp (YYYY-MM-DDTHH:MM:SSZ) after which the claim stops counting as current"},
                 },
                 "required": ["text"],
             },
@@ -201,7 +207,8 @@ class McpServer:
         try:
             if name == "claim_brief":
                 packet = self.store.brief(max_bytes=arguments.get("max_bytes", DEFAULT_MAX_BYTES),
-                                          topic=arguments.get("topic"))
+                                          topic=arguments.get("topic"),
+                                          scope=arguments.get("scope"))
                 from .recovery import serialize_packet
                 # Ship the canonical wire so the agent-visible byte count equals used_bytes.
                 return _text_result(serialize_packet(packet))
@@ -235,7 +242,9 @@ class McpServer:
                     dispute=bool(arguments.get("dispute")),
                     source=arguments.get("source"),
                     quote=arguments.get("quote"),
-                    session_hint=arguments.get("session_hint"))
+                    session_hint=arguments.get("session_hint"),
+                    scope=arguments.get("scope"),
+                    expires_at=arguments.get("expires_at"))
                 return _text_result(receipt)
             rows = self.store.claims(status=arguments.get("status", "current"),
                                      topic=arguments.get("topic"),

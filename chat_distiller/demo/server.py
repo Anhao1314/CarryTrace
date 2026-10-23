@@ -90,6 +90,8 @@ def _public_claim(row):
         "quote": row["quote"],
         "session_hint": row["session_hint"],
         "redacted_at": row.get("redacted_at"),
+        "scope": row.get("scope", "all"),
+        "expires_at": row.get("expires_at"),
     }
 
 
@@ -173,13 +175,15 @@ class DemoApp:
         source = payload.get("source") or None
         quote = payload.get("quote") or None
         session_hint = payload.get("session_hint") or None
+        scope = payload.get("scope") or None
 
-        current = self.store.claims(status=STATUS_CURRENT)
+        current = self.store.claims(status=STATUS_CURRENT, include_time_expired=False)
         conflicts = find_conflicts(text, current)
         try:
             result = self.store.record(
                 text, topic=topic, tags=tags, supersedes=supersedes, dispute=dispute,
-                source=source, quote=quote, session_hint=session_hint)
+                source=source, quote=quote, session_hint=session_hint,
+                scope=scope)
         except ClaimStoreError as exc:
             message = str(exc)
             if "identical claim already exists" in message:
@@ -196,6 +200,7 @@ class DemoApp:
                 "claim_id": result["recorded"]["claim_id"],
                 "status": result["recorded"]["status"],
                 "topic": result["recorded"]["topic"],
+                "scope": result["recorded"].get("scope", "all"),
                 "superseded": result["superseded"],
                 "superseded_claims": result.get("superseded_claims", []),
                 "conflicts_with": result["conflicts_with"],
