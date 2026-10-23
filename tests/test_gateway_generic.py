@@ -185,7 +185,9 @@ class ClaudeCodeConnectorTests(unittest.TestCase):
     def test_transcript_excludes_thinking_tool_output_and_sidechains(self):
         connect = self.gateway.connect("claude-code", input=self.projects)
         self.assertEqual(connect["discovered_sessions"], 1)
-        self.assertEqual(connect["input"], str(self.projects))
+        # The source records the resolved path; on macOS /var is a symlink to
+        # /private/var, so compare resolved paths on both sides.
+        self.assertEqual(connect["input"], str(self.projects.resolve()))
         self.connect_sync()
         plan = json.loads((self.home / "pending" / "sync-plan.json").read_text(encoding="utf-8"))
         self.assertEqual(len(plan["pending_sessions"]), 1)
