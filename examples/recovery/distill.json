@@ -1,0 +1,50 @@
+{
+  "_note": "Handwritten synthetic cards for the README demo. Not a model distillation result or real user history.",
+  "conversations": [
+    {
+      "session_id": "demo-before",
+      "date": "2026-01-01",
+      "title": "Initial database plan",
+      "topic": "Development",
+      "categories": ["技术开发/开发环境"],
+      "tags": ["database"],
+      "value": "中",
+      "summary": "The prototype initially planned to use a hosted database.",
+      "key_points": ["Hosted storage was the original database plan."],
+      "cards": [
+        {
+          "kind": "decision",
+          "title": "Previous database deployment",
+          "body": "The prototype originally used a hosted database. This plan is no longer current.",
+          "status": "已过期",
+          "superseded_by": "C02 - Database deployment"
+        }
+      ]
+    },
+    {
+      "session_id": "demo-after",
+      "date": "2026-01-02",
+      "title": "Local database decision",
+      "topic": "Development",
+      "categories": ["技术开发/开发环境"],
+      "tags": ["database"],
+      "value": "高",
+      "summary": "The prototype now uses local SQLite while retaining the existing API. The timeout remains unresolved.",
+      "key_points": ["Use local SQLite and preserve the existing API.", "Do not treat the database timeout as settled."],
+      "cards": [
+        {
+          "kind": "decision",
+          "title": "Database deployment",
+          "body": "Use local SQLite for the prototype and preserve the existing API.",
+          "status": "现行"
+        },
+        {
+          "kind": "decision",
+          "title": "Database timeout",
+          "body": "The database timeout is unresolved; inspect the source before choosing a value.",
+          "status": "有争议"
+        }
+      ]
+    }
+  ]
+}

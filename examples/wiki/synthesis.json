@@ -1,0 +1,9 @@
+{
+  "notice": "Host-agent-authored synthetic demonstration, authored during development. Not a blind or automated LLM evaluation. support_roles are demo-only aliases; the production proposal requires actual memory IDs and literal quotes.",
+  "title": "Database architecture and unresolved constraints",
+  "claims": [
+    {"text":"The prototype uses local SQLite while retaining its existing API.","status":"current","origin":"synthesis","support_roles":["current"]},
+    {"text":"The local SQLite decision replaces the earlier hosted-database plan.","status":"historical","origin":"synthesis","support_roles":["historical","current"]},
+    {"text":"The database timeout remains unsettled; the source must be reviewed before choosing a value.","status":"disputed","origin":"synthesis","support_roles":["disputed"]}
+  ]
+}

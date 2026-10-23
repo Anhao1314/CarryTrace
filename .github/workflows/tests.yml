@@ -1,0 +1,46 @@
+name: tests
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  unittest:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+        python-version: ["3.9", "3.12"]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+      # 零第三方依赖：脚本只用标准库，所以不需要 pip install 任何东西
+      - name: 跑回归测试
+        run: python3 -m unittest discover -s tests -v
+      - name: Offline synthetic benchmark
+        run: |
+          python3 benchmarks/evaluate.py --out "$RUNNER_TEMP/chat-distiller-benchmark"
+          python3 benchmarks/wiki/evaluate.py --check
+          python3 benchmarks/gateway/evaluate.py --out "$RUNNER_TEMP/gateway-benchmark"
+          python3 tools/verify_gateway_delta.py --baseline benchmarks/gateway/results.json --candidate "$RUNNER_TEMP/gateway-benchmark/results.json"
+      - name: Build installable wheel
+        run: |
+          python3 -m pip install "setuptools>=61" wheel
+          python3 -m pip wheel . --no-deps --no-build-isolation --wheel-dir "$RUNNER_TEMP/wheels"
+      - name: Verify isolated installed package
+        shell: bash
+        run: |
+          python3 -m venv "$RUNNER_TEMP/installed"
+          "$RUNNER_TEMP/installed/bin/python" -m pip install --no-index --no-deps "$RUNNER_TEMP/wheels/"*.whl
+          cd "$RUNNER_TEMP"
+          "$RUNNER_TEMP/installed/bin/python" "$GITHUB_WORKSPACE/tools/verify_install.py"
+          "$RUNNER_TEMP/installed/bin/python" "$GITHUB_WORKSPACE/tools/verify_wiki.py"
+          "$RUNNER_TEMP/installed/bin/python" "$GITHUB_WORKSPACE/tools/verify_gateway.py"
+          "$RUNNER_TEMP/installed/bin/python" "$GITHUB_WORKSPACE/tools/verify_skill.py"
+          "$RUNNER_TEMP/installed/bin/python" "$GITHUB_WORKSPACE/tools/verify_brand.py"
+          PATH="$RUNNER_TEMP/installed/bin:$PATH" "$RUNNER_TEMP/installed/bin/python" "$GITHUB_WORKSPACE/tools/verify_docs.py"

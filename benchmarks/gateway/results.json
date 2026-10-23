@@ -1,0 +1,22 @@
+{
+  "schema_version": 1,
+  "fixture": "synthetic Doubao Work layout; zero model calls",
+  "commands_to_first_context": 3,
+  "connect_exit_zero": true,
+  "first_sync_exit_zero": true,
+  "context_exit_zero": true,
+  "first_sync_changed_sessions": 2,
+  "first_sync_pending_sessions": 2,
+  "second_sync_changed_sessions": 0,
+  "noop_sync_state_identical": true,
+  "source_cache_unchanged": true,
+  "context_status": "ready",
+  "context_top_session": "db",
+  "context_used_bytes": 1241,
+  "context_budget_bytes": 4096,
+  "context_within_budget": true,
+  "degraded_fallback_visible": true,
+  "stale_plan_rejected": true,
+  "stale_plan_created_memory": false,
+  "model_calls": 0
+}

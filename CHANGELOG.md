@@ -1,0 +1,167 @@
+# Changelog
+
+Package versions below describe the Python distribution, not a claim of a PyPI release
+or a corresponding Git tag.
+
+## Unreleased: local interactive demo and product page (runtime 0.4.0)
+
+- Added `claim recall` and the MCP `claim_recall` tool: a byte-bounded composite
+  packet containing the deterministic claim brief plus optional evidence from a
+  host-supplied RAG index. Every evidence hit must resolve to a stored claim and
+  passes the same status policy (superseded excluded for `current`, labelled
+  historical for `historical`); unlinked/unknown/stale/omitted evidence is counted,
+  never silently admitted. Added `JsonlEvidenceIndex`, the `EvidenceRetriever`
+  protocol, a documented custom-vector-retriever seam and `docs/rag.md`. Core
+  runtime dependencies remain zero; the index is derived and rebuildable.
+- Added `claim index build/status`: sealing writes a header with the claim-store
+  digest and a rows digest; `claim recall` refuses an index built against a
+  different store. Added retriever timeout with brief-only fallback, per-claim
+  evidence quota, and adaptive candidate-window widening; counters expose every
+  exclusion/omission.
+- Added `claim suggest` and the MCP `claim_suggest` tool: a review-only proposal
+  with detected conflicts, resolution guidance and status-filtered evidence. It
+  never writes; `claim_record` still requires every conflict id in `supersedes`
+  or an explicit dispute. MCP now exposes five tools.
+- Added `benchmarks/rag/` with five structural queries over the synthetic
+  scenario: status-blind evidence 2 stale hits / 75% current ratio vs
+  status-aware 0 stale hits / 100% current ratio at 100% expected coverage. It
+  is explicitly labelled structural, not semantic entailment or answer quality.
+- Added `claim demo`: a zero-dependency stdlib HTTP server and a static browser UI over
+  the real `ClaimStore`. The demo renders the ledger, refuses conflicting writes with
+  the real lexical matcher, resolves them through explicit supersession or dispute,
+  renders byte-budgeted briefs, compares status-aware with status-blind search, and
+  reads the checked-in benchmark reports. It seeds a synthetic Atlas API scenario into
+  a disposable temp store; `--store` binds an existing ledger read-only by default,
+  never seeds it implicitly, and keeps Reset disabled (`--write` opts into recording;
+  `--seed` with `--write` explicitly seeds an empty bound store). Added a **Context**
+  view that builds the same brief + evidence packet over HTTP, toggles `current` /
+  `historical` intent, exposes every exclusion counter and the exact wire JSON, and a
+  review-only **Preview proposal** panel that reveals conflicts and supporting
+  evidence without writing. The synthetic evidence index now ships in both the
+  checkout and the installed package.
+- A write that overlaps several current claims can supersede all detected conflicts
+  together (`supersedes` accepts a string or a list). Partial resolution is refused
+  instead of leaving the new current claim in silent coexistence. Status filters also
+  accept the English aliases `current` / `superseded` / `disputed`.
+- The demo's status-blind comparison now orders equal scores newest-first; the stale
+  result is demonstrated with `use sqlite`, where it is the genuine top lexical match
+  rather than a tie-break artifact. The record view is read-only and explains how to
+  opt into writes when a real store is bound.
+- Added `chat_distiller.demo` with `python -m chat_distiller.demo`; package data now
+  includes the static UI and the synthetic evidence index. No runtime dependency was
+  added.
+- Added a bilingual static product page in `site/` with a GitHub Pages workflow, a
+  20-second seven-frame GIF and social preview built by `tools/build_demo_gif.py`, and
+  a presenter script in `SHOWCASE.md` / `docs/demo.md`.
+- Portability: Wiki exports and captured CLI receipts now write LF bytes on every
+  platform so manifest and packet byte counts match; the Skill installer retries
+  transient Windows directory-sharing errors; MCP tests use a reader thread instead
+  of `select()` on pipes; README verification translates Git Bash temp paths. The
+  suite is 357 tests, green on this Windows checkout (2 platform-specific skips), and
+  `tools/verify_docs.py` passes against a clean wheel install.
+
+## Unreleased: renamed to ClaimLedger (runtime 0.4.0)
+
+- Repository, distribution and Skill are now ClaimLedger (`claim-ledger`); the CLI gains `claim`
+  as the primary entry while `carrytrace` and `chat-distiller` remain permanent aliases with
+  unchanged semantics. The `chat_distiller` import name is kept until the P1 storage merge.
+- MCP tools are renamed claim_brief / claim_record / claim_claims; the project-scoped claim store
+  defaults to `.claim-ledger/claims.jsonl` (`CLAIM_LEDGER_STORE`, with `CARRYTRACE_STORE` honored).
+- Internal install markers (`.carrytrace-skill-lock`, `.carrytrace-skill-backups`,
+  `.carrytrace-managed.json`) intentionally keep their names so existing managed installs remain
+  managed. Historical entries below are verbatim.
+
+## Unreleased: MCP stdio delivery for the claim store (runtime 0.4.0)
+
+- Added `carrytrace mcp`: a zero-dependency MCP stdio server (line-delimited JSON-RPC 2.0) exposing
+  `carrytrace_brief` / `carrytrace_record` / `carrytrace_claims` as tools. The store is bound at
+  launch (`--store` or `CARRYTRACE_STORE`); tools cannot address arbitrary paths. Tool failures are
+  returned as `isError` results the calling agent can read and resolve; store is unchanged.
+- The installed Skill now instructs hosts: read the brief before acting on prior decisions, record
+  one claim at the moment a decision settles, and resolve reported conflicts explicitly instead of
+  bypassing them.
+- 9 protocol tests over a real subprocess; suite at 313, green. No new dependencies; no data migration.
+
+## Unreleased: claim pipeline MVP — record / brief (runtime 0.4.0)
+
+- Added `ClaimStore` with `record` / `brief` / `claims` on both CLI entry points: claims are
+  captured in situ at decision time; a possible lexical conflict refuses silent coexistence and
+  requires an explicit `--supersedes <id>` or `--dispute`; briefs render a byte-bounded snapshot
+  (disputes first, current claims by topic, recent supersessions).
+- The store is a strict JSONL file validated on every read; a corrupt line refuses service with its
+  line number. Default location is project-scoped `.carrytrace/claims.jsonl`; deterministic
+  conflict matching surfaces overlap but never judges semantics.
+- Design addendum v2 ([docs/refactor-design.md](docs/refactor-design.md) §9): capture-first
+  reorders the roadmap — P2 source parsing is demoted to backfill, MCP promoted to primary
+  delivery. 15 new tests; suite at 304, green on macOS and Linux.
+
+## Unreleased: maintenance handover and refactor program (runtime 0.4.0)
+
+- Added the v1 refactor design ([docs/refactor-design.md](docs/refactor-design.md)): storage inversion
+  toward a single JSONL authority, identity collapse, a thin apply protocol, declarative source
+  profiles (claude_code / codex / generic_jsonl) and optional reranker/MCP delivery.
+- P0 hygiene: resolved macOS `/tmp` symlink comparisons in brand-migration tests; added macOS to the
+  CI test matrix; documented the structured/raw packet budget split.
+- Redesigned the bilingual README around the refactor roadmap; executable examples and metric tables
+  are unchanged and still executed by `verify_docs.py`.
+- Runtime stays 0.4.0: no data migration, no new dependencies, all entry points and data homes compatible.
+
+## Unreleased: CarryTrace brand migration (runtime 0.4.0)
+
+- New CarryTrace identity, theme-aware vector artwork, bilingual Skill-first homepage and canonical repository links.
+- Added `carrytrace` CLI; preserved `chat-distiller`, `chat_distiller`, existing environment names and data homes.
+- New `carrytrace` Skill bundle and deterministic ZIP; legacy bundle remains available for compatibility.
+- Explicit preview-first legacy migration keeps original instruction files outside host discovery, rejects edits/symlinks/duplicates and retains failed rollback evidence.
+- Scope is branding and installation, not a new memory model or evidence of live host activation. No PyPI rename or v0.5 stable release.
+
+## Unreleased: Skill-first pilot on package 0.4.0
+
+- Added a portable Agent Skills-compatible bundle that guides source-linked context recovery,
+  historical decision audits, cross-host handoff and authorized Generic JSONL extraction.
+- Added local CLI skill install/status for Codex and Claude Code, user and project scopes.
+- Added deterministic portable ZIP export for other clients that accept Agent Skills bundles; no
+  claim of universal host activation or local CLI access from cloud environments.
+  The managed installer is idempotent and refuses to overwrite foreign or modified skills.
+- Added source and installed-wheel packaging checks; no new runtime dependencies.
+- Existing Memory Engine, Knowledge Wiki, source adapters, benchmarks and publication
+  authority are unchanged. No real host-agent activation, model-quality or auto-import
+  improvement is claimed.
+
+## Package 0.4.0: Context Gateway
+
+- Added the simple `connect`, `sync`, `context`, and `status` surface for Doubao Work.
+- Added automatic local session discovery, managed context home, content fingerprints, incremental extraction, and raw-session fallback context.
+- Added plan-bound host-agent publication with stale-plan rejection and explicit retirement guards.
+- Kept semantic distillation outside deterministic code; `sync` makes pending work visible rather than inventing memory.
+- Added synthetic Gateway integration tests and an executed CLI experiment for source read-only behavior, no-op idempotence, byte budget, degraded input, and stale proposals.
+- Kept legacy CLI, atomic memory schema 2, Knowledge Wiki, and frozen retrieval benchmarks compatible. No daemon, MCP, automatic LLM distillation, or PyPI publication is claimed.
+
+## Package 0.3.0: Knowledge Wiki
+
+- Added optional `KnowledgeStore` and `wiki` commands without changing atomic memory schema 2.
+- Added cited proposals, scoped status validation, stable knowledge IDs, revision history and navigation links.
+- Added conservative whole-source staleness checks, layered byte-bounded recovery and explicit Markdown exports.
+- Added exclusive writer locks, revision guards and one-file compiled-state publication with failure tests.
+- Added research/design notes, host synthesis workflow, a 16-command installed demo and CompileBench engineering experiments.
+- Kept the old retrieval benchmark and legacy recovery packet unchanged. No automatic LLM accuracy claim or PyPI publication.
+
+## Documentation and onboarding (2026-10-06)
+
+- Rebuilt the homepage around the use case, a safe first run, evidence, and integration.
+- Added an English README and a synchronized Chinese edition.
+- Added a handwritten database-decision fixture and a generated, execution-checked demo.
+- Added a documentation map, architecture/trust boundaries, ingestion guide, and contribution instructions.
+- Added checks for local links, bilingual example parity, installed README commands, and generated demo drift.
+- Kept the memory engine, schema, lexical algorithm, and frozen benchmark unchanged.
+
+## Package 0.2.0: Memory Engine
+
+Delivered in [PR #1](https://github.com/Anhao1314/chat-distiller/pull/1), merged 2026-10-06 (UTC+08:00).
+
+- Packaged the existing implementation with a unified CLI and compatible script entry points.
+- Added read-only `MemoryStore.search/get/inspect/recover`.
+- Added complete-record recovery packets bounded by canonical UTF-8 JSON bytes.
+- Rejected rendered-note status/kind projection drift in old and new query paths.
+- Verified 137 source tests and 16 installed-wheel checks; retained the original benchmark scores.
+
+See the [verification ledger](docs/verification.md) for evidence and limits.

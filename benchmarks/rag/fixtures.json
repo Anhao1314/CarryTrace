@@ -1,0 +1,26 @@
+{
+  "schema_version": 1,
+  "suite": "RAG status-filter benchmark v1",
+  "queries": [
+    {
+      "query": "use sqlite",
+      "expected_claim_ids": ["clm_9f2a6c1d4e8b73a0"]
+    },
+    {
+      "query": "localStorage session tokens",
+      "expected_claim_ids": ["clm_c3f81a6d2b705e94"]
+    },
+    {
+      "query": "timeout retries",
+      "expected_claim_ids": ["clm_f62b9d0e1a4c8753", "clm_07a1e4c8b93d62f5"]
+    },
+    {
+      "query": "signing key",
+      "expected_claim_ids": ["clm_3a9e7f2c1b60d845"]
+    },
+    {
+      "query": "Friday feature flags",
+      "expected_claim_ids": ["clm_18d5b0c7f2a94e63"]
+    }
+  ]
+}

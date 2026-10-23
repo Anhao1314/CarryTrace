@@ -1,0 +1,164 @@
+{
+  "schema_version": 1,
+  "suite": "RAG status-filter benchmark v1",
+  "data": "synthetic claims; lexical reference evidence index; no model calls",
+  "scope": "status filtering and evidence identity only, not semantic entailment or answer quality",
+  "fixture_sha256": "5b58541b22645527a057aac8fde6927a19b48f3e88352eef166e134aabb3b940",
+  "store_sha256": "068083c7351d8396067e393c6248d27a69927847aa962b053ccb9f17016f6e14",
+  "queries": 5,
+  "top_k": 5,
+  "methods": {
+    "status_blind_evidence": {
+      "evidence_hits": 8,
+      "stale_evidence_hits": 2,
+      "stale_query_rate": 0.4,
+      "expected_claim_coverage": 1.0,
+      "current_evidence_ratio": 0.75
+    },
+    "status_aware_context": {
+      "evidence_hits": 6,
+      "stale_evidence_hits": 0,
+      "stale_query_rate": 0.0,
+      "expected_claim_coverage": 1.0,
+      "current_evidence_ratio": 1.0,
+      "stale_excluded": 2,
+      "per_claim_omitted": 0
+    }
+  },
+  "cases": [
+    {
+      "query": "use sqlite",
+      "expected_claim_ids": [
+        "clm_9f2a6c1d4e8b73a0"
+      ],
+      "status_blind_evidence": {
+        "claim_ids": [
+          "clm_4b81e2a7c9d30f56",
+          "clm_9f2a6c1d4e8b73a0"
+        ],
+        "stale_claim_ids": [
+          "clm_4b81e2a7c9d30f56"
+        ],
+        "expected_coverage": 1.0
+      },
+      "status_aware_context": {
+        "claim_ids": [
+          "clm_9f2a6c1d4e8b73a0"
+        ],
+        "stale_claim_ids": [],
+        "expected_coverage": 1.0,
+        "stale_excluded": 1,
+        "per_claim_omitted": 0,
+        "candidate_window": 30,
+        "attempts": 2
+      }
+    },
+    {
+      "query": "localStorage session tokens",
+      "expected_claim_ids": [
+        "clm_c3f81a6d2b705e94"
+      ],
+      "status_blind_evidence": {
+        "claim_ids": [
+          "clm_c3f81a6d2b705e94",
+          "clm_e5d40b7a1c9f2836"
+        ],
+        "stale_claim_ids": [
+          "clm_e5d40b7a1c9f2836"
+        ],
+        "expected_coverage": 1.0
+      },
+      "status_aware_context": {
+        "claim_ids": [
+          "clm_c3f81a6d2b705e94"
+        ],
+        "stale_claim_ids": [],
+        "expected_coverage": 1.0,
+        "stale_excluded": 1,
+        "per_claim_omitted": 0,
+        "candidate_window": 30,
+        "attempts": 2
+      }
+    },
+    {
+      "query": "timeout retries",
+      "expected_claim_ids": [
+        "clm_f62b9d0e1a4c8753",
+        "clm_07a1e4c8b93d62f5"
+      ],
+      "status_blind_evidence": {
+        "claim_ids": [
+          "clm_f62b9d0e1a4c8753",
+          "clm_07a1e4c8b93d62f5"
+        ],
+        "stale_claim_ids": [],
+        "expected_coverage": 1.0
+      },
+      "status_aware_context": {
+        "claim_ids": [
+          "clm_f62b9d0e1a4c8753",
+          "clm_07a1e4c8b93d62f5"
+        ],
+        "stale_claim_ids": [],
+        "expected_coverage": 1.0,
+        "stale_excluded": 0,
+        "per_claim_omitted": 0,
+        "candidate_window": 15,
+        "attempts": 1
+      }
+    },
+    {
+      "query": "signing key",
+      "expected_claim_ids": [
+        "clm_3a9e7f2c1b60d845"
+      ],
+      "status_blind_evidence": {
+        "claim_ids": [
+          "clm_3a9e7f2c1b60d845"
+        ],
+        "stale_claim_ids": [],
+        "expected_coverage": 1.0
+      },
+      "status_aware_context": {
+        "claim_ids": [
+          "clm_3a9e7f2c1b60d845"
+        ],
+        "stale_claim_ids": [],
+        "expected_coverage": 1.0,
+        "stale_excluded": 0,
+        "per_claim_omitted": 0,
+        "candidate_window": 15,
+        "attempts": 1
+      }
+    },
+    {
+      "query": "Friday feature flags",
+      "expected_claim_ids": [
+        "clm_18d5b0c7f2a94e63"
+      ],
+      "status_blind_evidence": {
+        "claim_ids": [
+          "clm_18d5b0c7f2a94e63"
+        ],
+        "stale_claim_ids": [],
+        "expected_coverage": 1.0
+      },
+      "status_aware_context": {
+        "claim_ids": [
+          "clm_18d5b0c7f2a94e63"
+        ],
+        "stale_claim_ids": [],
+        "expected_coverage": 1.0,
+        "stale_excluded": 0,
+        "per_claim_omitted": 0,
+        "candidate_window": 15,
+        "attempts": 1
+      }
+    }
+  ],
+  "limits": [
+    "Synthetic claims and a lexical reference index; no embedding model.",
+    "Expected-claim coverage is not semantic answer quality or entailment.",
+    "A vector retriever may have different recall; re-run this benchmark with your adapter."
+  ]
+}
