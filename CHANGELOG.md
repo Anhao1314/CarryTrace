@@ -3,6 +3,18 @@
 Package versions below describe the Python distribution, not a claim of a PyPI release
 or a corresponding Git tag.
 
+## Package 0.10.0: the demo speaks Chinese — bilingual UI with a toggle (runtime 0.10.0)
+
+- The demo interface is now bilingual (中文 / English) with a topbar toggle;
+  the choice persists in localStorage and the default language is Chinese.
+- Static copy is tagged with `data-i18n` anchors; every dynamic string
+  (toasts, receipts, proposals, brief/context documents, search summaries,
+  evidence tables, safety lists, confirm dialogs, status labels) resolves
+  through a single dictionary. `document.documentElement.lang` follows the
+  choice. Claim text itself is data and is never translated.
+- All screenshots, the eight-frame GIF and product-page assets were recaptured
+  from the Chinese default UI.
+
 ## Package 0.9.0: Kimi-inspired light redesign of the demo UI (runtime 0.9.0)
 
 - The demo interface was redesigned from the dark terminal aesthetic to a light,

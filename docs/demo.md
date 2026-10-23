@@ -40,6 +40,12 @@ The same UI is available from the checkout without installing the console script
 python -m chat_distiller.demo --no-open
 ```
 
+## Language
+
+The UI defaults to Chinese with an **EN** toggle in the topbar; the choice is
+remembered per browser. The tour below names the English labels, which remain
+available through the toggle.
+
 ## The 60-second tour
 
 1. **Ledger.** Ten claims across six topics: five current, three disputed, two
