@@ -10,7 +10,7 @@ const STATUS = {
 };
 const VIEW_TITLES = {
   ledger: 'Ledger', record: 'Record', brief: 'Brief', search: 'Search',
-  context: 'Context', evidence: 'Evidence',
+  context: 'Context', evidence: 'Evidence', safety: 'Safety',
 };
 const DEFAULT_BUDGET = 2048;
 
@@ -24,6 +24,7 @@ const S = {
   evidence: null,
   context: null,
   proposal: null,
+  backups: [],
   pendingRecord: null,
   conflictData: null,
   toastTimer: null,
@@ -91,6 +92,7 @@ function applyView(view, { focus = false } = {}) {
   if (view === 'brief') loadBrief();
   if (view === 'context' && S.state) enterContext();
   if (view === 'evidence' && !S.evidence) loadEvidence();
+  if (view === 'safety') loadSafety();
   window.scrollTo({ top: 0, behavior: 'instant' in window ? 'instant' : 'auto' });
 }
 
@@ -195,7 +197,10 @@ function renderLedger() {
 }
 
 function claimCard(claim) {
-  const meta = statusOf(claim);
+  const redacted = Boolean(claim.redacted_at);
+  const meta = redacted
+    ? { key: 'redacted', label: 'Redacted', cls: 'redacted', dot: 'dot--superseded' }
+    : statusOf(claim);
   const successor = claim.superseded_by
     ? S.state.claims.find((c) => c.claim_id === claim.superseded_by)
     : null;
@@ -214,8 +219,14 @@ function claimCard(claim) {
          ${claim.session_hint ? `<div class="claim__meta"><span>session <code>${esc(claim.session_hint)}</code></span></div>` : ''}
        </details>`
     : '';
+  const actions = S.state?.writable && !redacted
+    ? `<div class="claim__actions">
+         <button class="mini-btn" type="button" data-safety="redact" data-claim="${esc(claim.claim_id)}" title="Remove content; keep the id, status and chain">Redact</button>
+         <button class="mini-btn" type="button" data-safety="delete" data-claim="${esc(claim.claim_id)}" title="Remove the row permanently">Delete</button>
+       </div>`
+    : '';
   return `
-    <article class="claim claim--${meta.cls}">
+    <article class="claim claim--${meta.cls}${redacted ? ' claim--redacted' : ''}">
       <div class="claim__rail" aria-hidden="true"></div>
       <div class="claim__body">
         <div class="claim__row">
@@ -224,13 +235,17 @@ function claimCard(claim) {
         <div class="claim__meta">
           <code title="${esc(claim.claim_id)}">${esc(claim.claim_id)}</code>
           <span>${esc(formatWhen(claim.created_at))}</span>
+          ${claim.redacted_at ? `<span>redacted ${esc(formatWhen(claim.redacted_at))}</span>` : ''}
           ${claim.source ? `<span class="claim__source">${esc(claim.source)}</span>` : ''}
           ${tags}
         </div>
         ${chain}
         ${provenance}
       </div>
-      <div class="claim__side"><span class="status-pill status--${meta.cls}">${esc(meta.label)}</span></div>
+      <div class="claim__side">
+        <span class="status-pill status--${meta.cls}">${esc(meta.label)}</span>
+        ${actions}
+      </div>
     </article>`;
 }
 
@@ -893,6 +908,105 @@ async function copyContextWire() {
   }
 }
 
+/* ---------------- safety (backup / audit / removal) ---------------- */
+async function loadSafety() {
+  await Promise.all([renderSafety(), loadBackups(), loadAudit()]);
+}
+
+async function renderSafety() {
+  const writable = Boolean(S.state?.writable);
+  $('#backupBtn').disabled = false;
+  $('#backupBtn').title = 'Write a verified snapshot and manifest next to the store';
+  $('#backupNote').textContent = writable
+    ? 'Snapshots are written next to the store with a manifest: claim count, byte count and two SHA-256 digests.'
+    : 'This ledger is read-only; backup still works because it writes only to the backups directory.';
+}
+
+async function loadBackups() {
+  const list = $('#backupList');
+  const { data } = await api('/api/backups');
+  if (!data.ok) {
+    list.innerHTML = `<p class="brief-empty">${esc(data.error || 'Could not list backups.')}</p>`;
+    return;
+  }
+  S.backups = data.backups || [];
+  if (!S.backups.length) {
+    list.innerHTML = '<p class="brief-empty">No snapshots yet. Create the first one with “Backup now”.</p>';
+    return;
+  }
+  list.innerHTML = S.backups.map((backup) => `
+    <div class="backup-row">
+      <div class="backup-row__main">
+        <code title="${esc(backup.file_sha256 || '')}">${esc(backup.snapshot)}</code>
+        <span class="backup-row__meta">${num(backup.claims ?? 0)} claims${backup.redacted ? ` · ${num(backup.redacted)} redacted` : ''} · ${formatBytes(backup.bytes)} · sha256 ${esc((backup.file_sha256 || '').slice(0, 10))}…</span>
+      </div>
+      <span class="backup-row__when">${esc(formatWhen(backup.created_at))}</span>
+    </div>`).join('');
+}
+
+async function backupNow() {
+  const button = $('#backupBtn');
+  button.disabled = true;
+  const { data } = await api('/api/backup', { method: 'POST', body: '{}' });
+  button.disabled = false;
+  if (!data.ok) {
+    toast(data.error || 'Backup failed.', true);
+    return;
+  }
+  toast(`Snapshot written · ${num(data.claims)} claims · ${formatBytes(data.bytes)}`);
+  await Promise.all([loadState({ silent: true }), loadBackups(), loadAudit()]);
+}
+
+async function loadAudit() {
+  const list = $('#auditList');
+  const { data } = await api('/api/audit?limit=20');
+  if (!data.ok) {
+    list.innerHTML = `<p class="brief-empty">${esc(data.error || 'Could not read the audit log.')}</p>`;
+    return;
+  }
+  $('#auditCount').textContent = data.total === 1 ? '1 entry' : `${num(data.total)} entries`;
+  const entries = data.entries || [];
+  if (!entries.length) {
+    list.innerHTML = '<p class="brief-empty">No redact, delete or restore operations yet.</p>';
+    return;
+  }
+  list.innerHTML = entries.map((entry) => `
+    <div class="audit-row">
+      <div class="audit-row__main">
+        <span class="audit-row__action audit-row__action--${esc(entry.action)}">${esc(entry.action)}</span>
+        <span class="audit-row__ids">${(entry.claim_ids || []).map((id) => `<code>${esc(id)}</code>`).join(' ')}</span>
+      </div>
+      <div class="audit-row__meta">
+        <span>${esc(formatWhen(entry.at))}</span>
+        ${entry.actor ? `<span>actor ${esc(entry.actor)}</span>` : ''}
+        ${entry.backup_file ? `<span title="${esc(entry.backup_file_sha256 || '')}">backup <code>${esc(entry.backup_file)}</code></span>` : '<span>no backup retained</span>'}
+      </div>
+    </div>`).join('');
+}
+
+async function performSafety(action, claimId) {
+  const message = action === 'delete'
+    ? `Permanently delete ${claimId}? If another claim supersedes it, the store refuses — the CLI --cascade flag removes the whole chain. A pre-change backup is kept.`
+    : `Remove the content of ${claimId}? The claim id, status and supersession chain stay; the text, tags, topic, source and quote become a tombstone. A pre-change backup is kept.`;
+  if (!window.confirm(message)) return;
+  const { data } = await api('/api/' + action, {
+    method: 'POST',
+    body: JSON.stringify({ claim_id: claimId, confirm: true, cascade: false }),
+  });
+  if (!data.ok) {
+    toast(data.error || `${action} failed.`, true);
+    return;
+  }
+  S.state = null;
+  S.context = null;
+  await loadState({ silent: true });
+  const ids = (data.claim_ids || []).join(', ');
+  const backupName = data.backup ? data.backup.path : 'no backup retained';
+  toast(`${action === 'redact' ? 'Redacted' : 'Deleted'} ${ids} · backup ${backupName.split(/[\\/]/).pop()}`);
+  await loadBackups();
+  await loadAudit();
+}
+
 /* ---------------- evidence ---------------- */
 async function loadEvidence() {
   const { data } = await api('/api/evidence');
@@ -1103,6 +1217,12 @@ function bind() {
   });
   $('#contextCopy').addEventListener('click', copyContextWire);
 
+  $('#backupBtn').addEventListener('click', backupNow);
+  $('#ledgerTopics').addEventListener('click', (event) => {
+    const button = event.target.closest('[data-safety]');
+    if (button) performSafety(button.dataset.safety, button.dataset.claim);
+  });
+
   $('#resetBtn').addEventListener('click', async () => {
     if (!confirm('Restore the synthetic Atlas scenario? Local writes to this demo store are dropped.')) return;
     const { data } = await api('/api/reset', { method: 'POST', body: '{}' });
@@ -1121,6 +1241,7 @@ function bind() {
     if (S.view === 'brief') loadBrief();
     if (S.view === 'search') { $('#searchInput').value = ''; S.search = null; renderSearch(); }
     if (S.view === 'context') enterContext();
+    if (S.view === 'safety') loadSafety();
     toast('Demo store restored to the Atlas scenario.');
   });
 
@@ -1135,6 +1256,7 @@ async function init() {
   if (S.view === 'evidence') loadEvidence();
   if (S.view === 'brief') loadBrief();
   if (S.view === 'context') enterContext();
+  if (S.view === 'safety') loadSafety();
 }
 
 document.addEventListener('DOMContentLoaded', init);

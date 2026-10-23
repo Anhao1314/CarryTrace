@@ -7,6 +7,14 @@ the guarantees around concurrent writers, snapshots, and removing content.
 All commands are local and zero-dependency. They do not upload, encrypt or sync
 anything.
 
+The same operations are available in the demo UI: the **Safety** view lists
+snapshots and the audit trail and can take a backup with one click, and every
+claim card in **Ledger** carries **Redact** / **Delete** actions behind a
+confirmation dialog. Read-only ledgers keep backup and audit readable and refuse
+removals. To start a real ledger, run `claim init`; it creates the store, refuses
+to touch one that already has data, and prints the exact commands for recording,
+briefing and registering the store with your agent.
+
 ## One writer at a time
 
 `ClaimStore.record`, `redact`, `delete` and `restore` take an exclusive writer
@@ -58,9 +66,11 @@ the same care as the store. `claim redact` and `claim delete` create a
 pre-change backup by default. Use `--no-backup` only when the user wants true
 erasure rather than recoverability.
 
-There is no automatic retention policy. Decide how many backups to keep and
-remove old snapshots deliberately. A backup contains whatever the store
-contained at that moment, including content that was later redacted.
+`claim backups` lists snapshots with their manifest facts, newest first.
+Retention is explicit, never automatic: pass `--keep N` to `claim backup` to
+prune older snapshots after a successful write (the fresh one is never removed).
+A backup contains whatever the store contained at that moment, including content
+that was later redacted.
 
 ## Restore
 
@@ -148,6 +158,10 @@ characters.
 
 If the audit entry cannot be written, the store is rolled back to its previous
 state and the command fails. The pre-change backup is still available.
+
+`claim audit` lists entries newest first; `--action redact|delete|restore`
+filters, `--limit` bounds the output, and a corrupt audit line refuses service
+instead of being skipped.
 
 ## Boundaries
 

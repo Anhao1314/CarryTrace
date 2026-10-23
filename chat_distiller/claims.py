@@ -269,6 +269,118 @@ class ClaimStore:
             for r in rows)
         return hashlib.sha256(body.encode("utf-8")).hexdigest()
 
+    def backup(self, directory=None, *, keep=None):
+        """Write a verified snapshot plus manifest; optionally prune older ones."""
+        if keep is not None and (type(keep) is not int or keep < 1):
+            raise ClaimStoreError("keep must be a positive integer when provided")
+        with self._locked():
+            if not self.path.exists():
+                raise ClaimStoreError(f"claim store not found: {self.path}")
+            result = self._backup_locked(self._read(), directory)
+        if keep is not None:
+            result["pruned"] = self._prune_backups(result, keep)
+        return result
+
+    def _prune_backups(self, result, keep):
+        """Delete older snapshots beyond ``keep``; the fresh one is never removed."""
+        backup_dir = Path(result["path"]).parent
+        prefix = f"{self.path.stem}-"
+        snapshots = sorted(
+            (p for p in backup_dir.glob(prefix + "*.jsonl")
+             if not p.name.endswith(".manifest.json")),
+            key=lambda p: p.name, reverse=True)
+        fresh = Path(result["path"]).resolve()
+        pruned = []
+        for old in snapshots[keep:]:
+            if old.resolve() == fresh:
+                continue
+            manifest = old.with_name(old.stem + ".manifest.json")
+            try:
+                old.unlink()
+                if manifest.is_file():
+                    manifest.unlink()
+            except OSError as exc:
+                raise ClaimStoreError(f"could not prune backup {old.name}: {exc}") from exc
+            pruned.append(old.name)
+        return pruned
+
+    def audit_entries(self, *, limit=50, action=None):
+        """Return audit entries, newest first; corruption refuses service."""
+        if type(limit) is not int or not 1 <= limit <= 1000:
+            raise ClaimStoreError("limit must be an integer between 1 and 1000")
+        if action is not None and action not in ("redact", "delete", "restore"):
+            raise ClaimStoreError("action must be redact, delete or restore")
+        path = self._audit_path()
+        if not path.is_file():
+            return {"ok": True, "path": str(path), "total": 0, "entries": []}
+        entries = []
+        for lineno, line in enumerate(path.read_text(encoding="utf-8").splitlines(), 1):
+            if not line.strip():
+                continue
+            try:
+                entry = json.loads(line)
+            except json.JSONDecodeError as exc:
+                raise ClaimStoreError(f"{path} line {lineno}: invalid audit entry") from exc
+            if not isinstance(entry, dict) or entry.get("kind") != AUDIT_KIND:
+                raise ClaimStoreError(f"{path} line {lineno}: not an audit entry")
+            entries.append(entry)
+        if action is not None:
+            entries = [entry for entry in entries if entry.get("action") == action]
+        return {"ok": True, "path": str(path), "total": len(entries),
+                "entries": list(reversed(entries))[:limit]}
+
+    def backups(self):
+        """List snapshots with their manifests, newest first."""
+        backup_dir = self._backup_dir()
+        out = []
+        if backup_dir.is_dir():
+            for manifest_path in sorted(backup_dir.glob("*.manifest.json"), reverse=True):
+                try:
+                    manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+                except (OSError, ValueError) as exc:
+                    raise ClaimStoreError(
+                        f"invalid backup manifest {manifest_path.name}: {exc}") from exc
+                if not isinstance(manifest, dict) or manifest.get("kind") != BACKUP_KIND:
+                    raise ClaimStoreError(
+                        f"unknown manifest kind in {manifest_path.name}")
+                snapshot = manifest_path.with_name(
+                    manifest_path.name[: -len(".manifest.json")] + ".jsonl")
+                out.append({
+                    "snapshot": snapshot.name,
+                    "manifest": manifest_path.name,
+                    "present": snapshot.is_file(),
+                    "created_at": manifest.get("created_at"),
+                    "claims": manifest.get("claims"),
+                    "redacted": manifest.get("redacted"),
+                    "bytes": manifest.get("bytes"),
+                    "file_sha256": manifest.get("file_sha256"),
+                    "store_sha256": manifest.get("store_sha256"),
+                })
+        return {"ok": True, "directory": str(backup_dir), "backups": out}
+
+    def init(self):
+        """Create an empty store file; refuse to touch one that already has data."""
+        if self.path.is_file() and self.path.stat().st_size > 0:
+            raise ClaimStoreError(f"store already exists and is not empty: {self.path}")
+        created = not self.path.exists()
+        if created:
+            _write_bytes(self.path, b"")
+        elif not self.path.is_file():
+            _write_bytes(self.path, b"")
+        absolute = str(self.path.resolve())
+        store_flag = f'--store "{absolute}"' if absolute != str(Path(default_store()).resolve()) else ""
+        return {
+            "ok": True,
+            "store": absolute,
+            "created": created,
+            "next_steps": [
+                f'claim record "One-line decision" {store_flag}'.replace("  ", " "),
+                f"claim brief {store_flag}".replace("  ", " "),
+                f"claim mcp {store_flag}".replace("  ", " "),
+                "claim skill install --host claude --scope user",
+            ],
+        }
+
     def record(self, text, *, topic="general", tags=None, supersedes=None,
                dispute=False, source=None, quote=None, session_hint=None):
         """Capture one claim at decision time; conflicts must be resolved explicitly."""
@@ -446,13 +558,6 @@ class ClaimStore:
         return {"ok": True, "path": str(target), "manifest": str(manifest_path),
                 "claims": len(rows), "bytes": len(body),
                 "file_sha256": manifest["file_sha256"], "store_sha256": manifest["store_sha256"]}
-
-    def backup(self, directory=None):
-        """Write a verified snapshot plus manifest; safe while other writers run."""
-        with self._locked():
-            if not self.path.exists():
-                raise ClaimStoreError(f"claim store not found: {self.path}")
-            return self._backup_locked(self._read(), directory)
 
     def _chain_ids(self, rows, claim_id):
         adjacency = {}
@@ -640,6 +745,10 @@ def main(argv=None):
     parser = argparse.ArgumentParser(prog="claim-ledger", description=__doc__)
     commands = parser.add_subparsers(dest="command", required=True)
 
+    init_cmd = commands.add_parser("init", help="create an empty claim store and print next steps")
+    init_cmd.add_argument("--store")
+    init_cmd.add_argument("--json", action="store_true")
+
     record = commands.add_parser("record", help="capture one claim at decision time")
     record.add_argument("text")
     record.add_argument("--topic", default="general")
@@ -672,7 +781,18 @@ def main(argv=None):
     backup = commands.add_parser("backup", help="write a verified snapshot and manifest")
     backup.add_argument("--store")
     backup.add_argument("--out", help="backup directory (default: <store>/backups)")
+    backup.add_argument("--keep", type=int,
+                        help="after writing, delete older snapshots beyond this many")
     backup.add_argument("--json", action="store_true")
+
+    listing_backups = commands.add_parser("backups", help="list snapshots and manifests")
+    listing_backups.add_argument("--store")
+
+    audit = commands.add_parser("audit", help="inspect the redact/delete/restore audit log")
+    audit.add_argument("--store")
+    audit.add_argument("--limit", type=int, default=50)
+    audit.add_argument("--action", choices=["redact", "delete", "restore"])
+    audit.add_argument("--json", action="store_true")
 
     restore = commands.add_parser("restore", help="verify and restore a backup snapshot")
     restore.add_argument("--from", dest="backup_path", required=True)
@@ -793,12 +913,36 @@ def main(argv=None):
                 result = index.status(digest)
             print(json.dumps(result, ensure_ascii=False, indent=2))
             return 0 if result["ok"] else 1
+        elif args.command == "init":
+            result = ClaimStore(args.store).init()
+            if args.json:
+                print(json.dumps(result, ensure_ascii=False, indent=2))
+            else:
+                print(f"store ready: {result['store']}" + ("" if result["created"] else " (already existed, empty)"))
+                for step in result["next_steps"]:
+                    print("  " + step)
+        elif args.command == "backups":
+            result = ClaimStore(args.store).backups()
+            print(json.dumps(result, ensure_ascii=False, indent=2))
+        elif args.command == "audit":
+            result = ClaimStore(args.store).audit_entries(limit=args.limit, action=args.action)
+            if args.json:
+                print(json.dumps(result, ensure_ascii=False, indent=2))
+            else:
+                print(f"audit log: {result['path']} ({result['total']} entries)")
+                for entry in result["entries"]:
+                    actor = entry.get("actor") or "-"
+                    backup_name = entry.get("backup_file") or "-"
+                    print(f"{entry['at']} {entry['action']:<8} {','.join(entry['claim_ids'])} "
+                          f"actor={actor} backup={backup_name}")
         elif args.command == "backup":
-            result = ClaimStore(args.store).backup(args.out)
+            result = ClaimStore(args.store).backup(args.out, keep=args.keep)
             if args.json:
                 print(json.dumps(result, ensure_ascii=False, indent=2))
             else:
                 print(f"backup {result['path']} ({result['claims']} claims, sha256 {result['file_sha256'][:12]}…)")
+                if result.get("pruned"):
+                    print("pruned: " + ", ".join(result["pruned"]))
         elif args.command == "restore":
             result = ClaimStore(args.store).restore(
                 args.backup_path, overwrite=args.yes,

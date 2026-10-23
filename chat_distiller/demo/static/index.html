@@ -45,6 +45,10 @@
         <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 19V5M4 19h16M8 16v-5M13 16V7M18 16v-8"/></svg>
         <span>Evidence</span>
       </button>
+      <button class="nav__item" data-view="safety" type="button">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l7 3v5c0 5-3.2 8.4-7 10-3.8-1.6-7-5-7-10V6z"/><path d="M9 12l2 2 4-4"/></svg>
+        <span>Safety</span>
+      </button>
     </nav>
 
     <div class="sidebar__spacer"></div>
@@ -473,8 +477,52 @@
       </div>
     </section>
 
+    <section class="view" id="view-safety" data-view-panel="safety" hidden>
+      <header class="page-head">
+        <div>
+          <p class="eyebrow">Data safety</p>
+          <h1>Backups you can verify. Removal you can audit.</h1>
+          <p class="lede">Every snapshot carries a checksummed manifest. Redaction keeps a content-free tombstone and the supersession chain; deletion removes rows and names what references them. Both write an audit entry and a plaintext pre-change backup by default.</p>
+        </div>
+      </header>
+
+      <div class="safety-grid">
+        <div class="panel" id="snapshotsPanel">
+          <div class="panel__head">
+            <h2>Snapshots</h2>
+            <button class="ghost-btn" type="button" id="backupBtn">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4v10M8 10l4 4 4-4M5 19h14"/></svg>
+              Backup now
+            </button>
+          </div>
+          <p class="fineprint" id="backupNote">Snapshots are written next to the store with a manifest: claim count, byte count and two SHA-256 digests.</p>
+          <div class="backup-list" id="backupList"></div>
+        </div>
+
+        <div class="panel" id="auditPanel">
+          <div class="panel__head">
+            <h2>Audit trail</h2>
+            <span class="mono-chip" id="auditCount">–</span>
+          </div>
+          <p class="fineprint">Append-only. Records the action, claim ids, before/after store digests and the backup filename — never the claim text.</p>
+          <div class="audit-list" id="auditList"></div>
+        </div>
+      </div>
+
+      <div class="panel panel--muted safety-guarantees">
+        <h2>What this guarantees — and what it does not</h2>
+        <ul class="limits">
+          <li>Writes are serialized by a cross-process lock; contention past the timeout is an explicit busy error, never a silent overwrite.</li>
+          <li>Restore verifies byte count, file digest, store digest and claim count against the manifest before touching the store.</li>
+          <li>Backups are plaintext and local — protect the backups directory like the store itself.</li>
+          <li>Redaction does not reach transcripts, logs, old backups or derived evidence indexes; rebuild or purge those separately.</li>
+        </ul>
+        <p class="fineprint">CLI equivalents: <code>claim backup</code> · <code>claim backups</code> · <code>claim audit</code> · <code>claim restore --from …</code> · <code>claim redact … --yes</code> · <code>claim delete … --yes</code></p>
+      </div>
+    </section>
+
     <footer class="foot">
-      <span>ClaimLedger v<span id="version">0.5.0</span> · MIT</span>
+      <span>ClaimLedger v<span id="version">0.6.0</span> · MIT</span>
       <span>Local-first · single JSONL authority · formerly chat-distiller / CarryTrace</span>
     </footer>
   </main>

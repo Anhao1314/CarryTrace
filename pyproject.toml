@@ -4,12 +4,36 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "claim-ledger"
-version = "0.5.0"
+version = "0.6.0"
 description = "ClaimLedger: the decision ledger for AI agents (chat-distiller compatibility runtime)"
 readme = "README.md"
 requires-python = ">=3.9"
 license = {file = "LICENSE"}
 dependencies = []
+keywords = ["ai-agents", "agent-memory", "decision-ledger", "rag", "mcp", "local-first"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Environment :: Console",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3 :: Only",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+    "Topic :: Text Processing :: Indexing",
+]
+
+[project.urls]
+Homepage = "https://github.com/Anhao1314/ClaimLedger"
+Documentation = "https://anhao1314.github.io/ClaimLedger/"
+Repository = "https://github.com/Anhao1314/ClaimLedger"
+Changelog = "https://github.com/Anhao1314/ClaimLedger/blob/main/CHANGELOG.md"
+Issues = "https://github.com/Anhao1314/ClaimLedger/issues"
 
 [project.scripts]
 chat-distiller = "chat_distiller.cli:main"

@@ -29,6 +29,8 @@ FRAMES = [
      "关闭状态过滤，过期结论排到第一"),
     ("context.png", "Evidence is retrieved; authority stays in the store",
      "证据必须挂到 claim，再按同一状态策略过滤"),
+    ("safety.png", "Backups you can verify; removal you can audit",
+     "快照带 manifest 校验，删除留审计与备份"),
     ("evidence.png", "Stale hits: 54.2% → 0%",
      "代价也写在旁边：Recall@5 95.8% → 91.7%"),
     ("chain.png", "History stays; authority moves",

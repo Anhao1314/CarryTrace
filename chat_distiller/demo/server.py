@@ -89,6 +89,7 @@ def _public_claim(row):
         "source": row["source"],
         "quote": row["quote"],
         "session_hint": row["session_hint"],
+        "redacted_at": row.get("redacted_at"),
     }
 
 
@@ -117,7 +118,7 @@ class DemoApp:
         return ClaimStore(self.store_path)
 
     def state(self):
-        rows = self.store.claims(status="all")
+        rows = self.store.claims(status="all", include_redacted=True)
         topics = sorted({r["topic"] for r in rows})
         return {
             "ok": True,
@@ -302,6 +303,40 @@ class DemoApp:
         return {"ok": True, "proposal": proposal,
                 "rag_available": self.evidence_index is not None}
 
+    def backup(self):
+        """`claim backup` over HTTP; reading a read-only store is allowed."""
+        return self.store.backup()
+
+    def backups(self):
+        return self.store.backups()
+
+    def audit(self, limit=20, action=None):
+        return self.store.audit_entries(limit=limit, action=action)
+
+    def _confirm_or_raise(self, payload):
+        if not isinstance(payload, dict):
+            raise ClaimStoreError("request body must be a JSON object")
+        if payload.get("confirm") is not True:
+            raise ClaimStoreError("destructive operations require confirm: true")
+
+    def redact(self, payload):
+        """`claim redact` over HTTP; keeps a content-free tombstone."""
+        if not self.writable:
+            raise DemoReadOnly("this demo is bound to a read-only ledger; restart with --write to redact")
+        self._confirm_or_raise(payload)
+        return self.store.redact(
+            payload.get("claim_id"), cascade=bool(payload.get("cascade")),
+            keep_backup=payload.get("keep_backup", True))
+
+    def delete(self, payload):
+        """`claim delete` over HTTP; permanent, cascade-aware removal."""
+        if not self.writable:
+            raise DemoReadOnly("this demo is bound to a read-only ledger; restart with --write to delete")
+        self._confirm_or_raise(payload)
+        return self.store.delete(
+            payload.get("claim_id"), cascade=bool(payload.get("cascade")),
+            keep_backup=payload.get("keep_backup", True))
+
     def evidence(self):
         retrieval = _read_json_file(REPO_ROOT / "benchmarks" / "benchmark-results.json", None)
         wiki = _read_json_file(REPO_ROOT / "benchmarks" / "wiki" / "results.json", None)
@@ -464,6 +499,16 @@ class DemoHandler(BaseHTTPRequestHandler):
                     top_k=top_k, max_per_claim=per_claim, timeout=timeout))
             if path == "/api/evidence":
                 return self._json(200, self.app.evidence())
+            if path == "/api/backups":
+                return self._json(200, self.app.backups())
+            if path == "/api/audit":
+                raw_limit = query.get("limit", ["20"])[0]
+                action = query.get("action", [None])[0]
+                try:
+                    limit = int(raw_limit)
+                except ValueError:
+                    return self._error(400, "limit must be an integer")
+                return self._json(200, self.app.audit(limit=limit, action=action))
             if path == "/api/health":
                 return self._json(200, {"ok": True, "version": __version__})
             return self._error(404, "not found")
@@ -486,6 +531,12 @@ class DemoHandler(BaseHTTPRequestHandler):
                 return self._json(200, self.app.record(payload))
             if path == "/api/suggest":
                 return self._json(200, self.app.suggest(payload))
+            if path == "/api/backup":
+                return self._json(200, self.app.backup())
+            if path == "/api/redact":
+                return self._json(200, self.app.redact(payload))
+            if path == "/api/delete":
+                return self._json(200, self.app.delete(payload))
             if path == "/api/reset":
                 return self._json(200, self.app.reset())
             return self._error(404, "not found")

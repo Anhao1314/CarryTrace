@@ -91,7 +91,7 @@ ClaimLedger 把一切知识统一为**声明（claim）**：一段独立可懂�
 
 带有真实摘录的错误综合仍可能通过结构校验，引用不证明结论被来源支持。[结果与局限](benchmarks/wiki/results.md)。
 
-**工程效果**：373 个测试；CI 在 macOS 与 Linux 上运行，Windows 检出通过（2 个平台相关跳过）。下面"使用指南"中的每条命令都被 CI 实际执行并核对输出；六个 `verify_*` 工具在隔离安装环境验证发行完整性；零第三方依赖。那里的每个示例都是 CI 实跑的，不是装饰。
+**工程效果**：382 个测试；CI 在 macOS 与 Linux 上运行，Windows 检出通过（2 个平台相关跳过）。下面"使用指南"中的每条命令都被 CI 实际执行并核对输出；六个 `verify_*` 工具在隔离安装环境验证发行完整性；零第三方依赖。那里的每个示例都是 CI 实跑的，不是装饰。
 
 同一次实跑中，同一个问题的四种结局——命中现行、放行历史、诚实未命中、预算不足（实际 CLI 输出的投影，非模型评测）：
 
@@ -158,10 +158,13 @@ claim skill install --host claude --scope user    # Codex 用 --host codex，两
 ### 3. 三条命令
 
 ```bash
+claim init                                                  # 在当前目录创建 .claim-ledger/claims.jsonl
 claim record "数据库统一使用 PostgreSQL" --topic database   # 决策当场记一条
 claim brief                                                  # 开工前的现状简报
 claim claims --status all                                    # 翻台账
 ```
+
+`claim init` 是幂等的：已有数据的账本会被拒绝，并把接入 Agent 的确切命令打印出来。
 
 **冲突怎么处理**：如果 `record` 报 `possible conflict with current claim(s): clm_xxx`，二选一——
 

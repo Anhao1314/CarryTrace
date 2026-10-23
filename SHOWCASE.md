@@ -87,7 +87,7 @@ python -m pip install -e . && claim demo
    seals the evidence index to a store digest; `suggest` proposes a claim
    without writing it; the Wiki and recovery views remain available under their
    original contracts.
-5. **The proof** — `python -m unittest discover -s tests` (373 tests on this
+5. **The proof** — `python -m unittest discover -s tests` (382 tests on this
    checkout), `python tools/verify_docs.py` (executes README commands),
    `benchmarks/` (retrieval and CompileBench reports). Quote the trade-off, not
    only the win.
@@ -127,7 +127,7 @@ conflict-refusing memory with a one-command interactive demo.
 
 - Built a zero-dependency local decision ledger (Python + JSONL) with a
   status state machine (`current` / `superseded` / `disputed`), byte-budgeted
-  briefs and lexical retrieval; 373 tests.
+  briefs and lexical retrieval; 382 tests.
 - Designed and shipped an interactive demo and bilingual product site over the
   real engine (stdlib HTTP, vanilla JS), plus a reproducible screenshot/GIF
   asset pipeline.
@@ -137,7 +137,7 @@ conflict-refusing memory with a one-command interactive demo.
 **Resume bullets (ZH):**
 
 - 从零实现零依赖的本地决策台账（Python + JSONL），包含现行/已过期/有争议状态机、
-  字节预算简报与词法检索，373 项测试。
+  字节预算简报与词法检索，382 项测试。
 - 基于真实引擎设计与交付交互式演示站和中英双语产品页（标准库 HTTP + 原生 JS），
   并建立可复现的截图/GIF 素材流水线。
 - 用可复现基准量化核心价值：过期命中率@5 从 54.2% 降至 0，同时如实披露 Recall@5 代价。
@@ -152,9 +152,10 @@ conflict-refusing memory with a one-command interactive demo.
 | `assets/demo/search.png` | Running demo, status-blind on | Stale result ranks first |
 | `assets/demo/context.png` | Running demo, `use sqlite` | Brief + status-filtered evidence |
 | `assets/demo/evidence.png` | Running demo | Benchmark report |
+| `assets/demo/safety.png` | Running demo, Safety view | Backup list + audit trail |
 | `assets/demo/chain.png` | Running demo, database topic | Supersession chain |
 | `assets/demo/mobile.png` | Running demo at 390×844 | Responsive check |
-| `assets/demo/claimledger-demo.gif` | `tools/build_demo_gif.py` | Seven frames, ~0.7 MB |
+| `assets/demo/claimledger-demo.gif` | `tools/build_demo_gif.py` | Eight frames, ~0.7 MB |
 | `assets/demo/social-preview.png` | `tools/build_demo_gif.py` | 1200×630 GitHub/OG image |
 | `assets/demo/landing.png` | Running `site/` at 1440×960 | English hero |
 | `assets/demo/landing-zh.png` | Running `site/` | Chinese hero |
@@ -164,7 +165,7 @@ conflict-refusing memory with a one-command interactive demo.
 
 - [ ] `python -m unittest discover -s tests` is green.
 - [ ] `python tools/verify_docs.py` passes.
-- [ ] `claim demo` opens and the seven-step tour works.
+- [ ] `claim demo` opens and the eight-step tour works.
 - [ ] Screenshots and GIF reflect the current UI.
 - [ ] Repository **Settings → Pages → Source: GitHub Actions** is enabled.
 - [ ] Push to `main`; the `pages` workflow deploys `site/`.

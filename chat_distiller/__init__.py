@@ -2,7 +2,7 @@
 from .store import MemoryStore, MemoryIntegrityError, MemoryNotFoundError
 from .recovery import serialize_packet
 
-__version__ = "0.5.0"
+__version__ = "0.6.0"
 __all__ = ["MemoryStore", "MemoryIntegrityError", "MemoryNotFoundError", "serialize_packet"]
 
 from .wiki import KnowledgeStore, WikiIntegrityError, StaleProposalError, WikiBusyError, CommitUncertainError

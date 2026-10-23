@@ -166,6 +166,58 @@ class DemoTests(unittest.TestCase):
         self.assertEqual(state["counts"]["total"], 10)
         self.assertEqual(state["counts"]["superseded"], 2)
 
+    def test_safety_endpoints_backup_list_and_audit(self):
+        status, backup = self._request("POST", "/api/backup", {})
+        self.assertEqual(status, 200)
+        self.assertTrue(backup["ok"])
+        self.assertEqual(backup["claims"], 10)
+        status, listing = self._request("GET", "/api/backups")
+        self.assertEqual(status, 200)
+        self.assertEqual(len(listing["backups"]), 1)
+        self.assertEqual(listing["backups"][0]["claims"], 10)
+        self.assertTrue(listing["backups"][0]["snapshot"].endswith(".jsonl"))
+        status, audit = self._request("GET", "/api/audit?limit=5")
+        self.assertEqual(status, 200)
+        self.assertEqual(audit["total"], 0)
+        self.assertEqual(audit["entries"], [])
+
+    def test_redact_endpoint_requires_writable_and_confirm(self):
+        _, state = self._request("GET", "/api/state")
+        target = next(c["claim_id"] for c in state["claims"]
+                      if c["claim_id"] == "clm_e5d40b7a1c9f2836")
+        status, body = self._request("POST", "/api/redact", {"claim_id": target})
+        self.assertEqual(status, 400)
+        self.assertIn("confirm", body["error"])
+        status, body = self._request(
+            "POST", "/api/redact", {"claim_id": target, "confirm": True})
+        self.assertEqual(status, 200)
+        self.assertEqual(body["claim_ids"], [target])
+        _, audit = self._request("GET", "/api/audit")
+        self.assertEqual(audit["total"], 1)
+        self.assertEqual(audit["entries"][0]["action"], "redact")
+        _, state = self._request("GET", "/api/state")
+        redacted = next(c for c in state["claims"] if c["claim_id"] == target)
+        self.assertEqual(redacted["text"], "[redacted]")
+        self.assertTrue(redacted["redacted_at"])
+
+    def test_delete_endpoint_names_the_referencing_claim(self):
+        _, state = self._request("GET", "/api/state")
+        old_claim = next(c for c in state["claims"] if c["superseded_by"] is not None)
+        successor = old_claim["superseded_by"]
+        # The successor is referenced by the old claim's superseded_by pointer.
+        status, body = self._request(
+            "POST", "/api/delete", {"claim_id": successor, "confirm": True})
+        self.assertEqual(status, 400)
+        self.assertIn("referenced", body["error"])
+        self.assertIn(old_claim["claim_id"], body["error"])
+        # The old claim itself is referenced by nobody and can be deleted alone.
+        status, body = self._request(
+            "POST", "/api/delete", {"claim_id": old_claim["claim_id"], "confirm": True})
+        self.assertEqual(status, 200)
+        self.assertEqual(body["claim_ids"], [old_claim["claim_id"]])
+        _, audit = self._request("GET", "/api/audit?action=delete")
+        self.assertEqual(audit["total"], 1)
+
     def test_packaged_demo_evidence_matches_the_checkout_example(self):
         root = Path(__file__).resolve().parents[1]
         example = root / "examples" / "rag" / "evidence.jsonl"
@@ -230,6 +282,24 @@ class DemoTestsWithRealStore(unittest.TestCase):
             self.assertEqual(status, 200)
             self.assertEqual(body["proposal"]["conflict_ids"], ["clm_9f2a6c1d4e8b73a0"])
             self.assertFalse(self._request(base, "GET", "/api/state")[1]["writable"])
+
+    def test_safety_writes_are_refused_for_read_only_stores(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            path = Path(tmp) / "claims.jsonl"
+            scenario.seed(path)
+            base = self._serve(path)
+            _, state = self._request(base, "GET", "/api/state")
+            target = state["claims"][0]["claim_id"]
+            status, body = self._request(base, "POST", "/api/redact",
+                                         {"claim_id": target, "confirm": True})
+            self.assertEqual(status, 403)
+            self.assertEqual(body["error_type"], "ReadOnly")
+            status, body = self._request(base, "POST", "/api/delete",
+                                         {"claim_id": target, "confirm": True})
+            self.assertEqual(status, 403)
+            status, body = self._request(base, "POST", "/api/backup", {})
+            self.assertEqual(status, 200)
+            self.assertTrue(body["ok"])
 
     def test_empty_bound_store_is_not_seeded(self):
         with tempfile.TemporaryDirectory() as tmp:

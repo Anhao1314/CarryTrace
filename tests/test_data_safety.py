@@ -55,6 +55,80 @@ class DataSafetyTests(unittest.TestCase):
         with self.assertRaisesRegex(ClaimStoreError, "not found"):
             self.store.backup()
 
+    def test_backups_listing_reports_manifest_facts(self):
+        self.store.record(self.unique())
+        backup = self.store.backup()
+        listing = self.store.backups()
+        self.assertEqual(listing["directory"], str(self.root / "backups"))
+        self.assertEqual(len(listing["backups"]), 1)
+        entry = listing["backups"][0]
+        self.assertEqual(entry["snapshot"], Path(backup["path"]).name)
+        self.assertTrue(entry["present"])
+        self.assertEqual(entry["claims"], 1)
+        self.assertEqual(entry["file_sha256"], backup["file_sha256"])
+
+    def test_backup_keep_prunes_older_snapshots(self):
+        self.store.record(self.unique())
+        backup_dir = self.root / "keep"
+        for _ in range(3):
+            self.store.backup(backup_dir)
+        self.assertEqual(len(list(backup_dir.glob("*.jsonl"))), 3)
+        result = self.store.backup(backup_dir, keep=2)
+        self.assertEqual(len(result["pruned"]), 2)
+        remaining = sorted(p.name for p in backup_dir.glob("*.jsonl"))
+        self.assertEqual(len(remaining), 2)
+        self.assertIn(Path(result["path"]).name, remaining)
+        self.assertEqual(len(list(backup_dir.glob("*.manifest.json"))), 2)
+        with self.assertRaisesRegex(ClaimStoreError, "keep"):
+            self.store.backup(backup_dir, keep=0)
+
+    def test_audit_entries_are_validated_and_filtered(self):
+        claim = self.store.record(self.unique())["recorded"]
+        self.store.redact(claim["claim_id"])
+        restored = self.store.backup()
+        listing = self.store.audit_entries()
+        self.assertEqual(listing["total"], 1)
+        self.assertEqual(listing["entries"][0]["action"], "redact")
+        self.assertEqual(listing["entries"][0]["claim_ids"], [claim["claim_id"]])
+        self.assertIsNone(listing["entries"][0]["actor"])
+        filtered = self.store.audit_entries(action="delete")
+        self.assertEqual(filtered["total"], 0)
+        with self.assertRaisesRegex(ClaimStoreError, "action"):
+            self.store.audit_entries(action="export")
+        corrupt = self.root / "claims.audit.jsonl"
+        corrupt.write_text("{broken}\n", encoding="utf-8")
+        with self.assertRaisesRegex(ClaimStoreError, "audit"):
+            self.store.audit_entries()
+
+    def test_init_creates_an_empty_store_and_refuses_data(self):
+        target = self.root / "fresh" / "claims.jsonl"
+        result = self.store.__class__(target).init()
+        self.assertTrue(result["created"])
+        self.assertTrue(target.is_file())
+        self.assertEqual(target.read_bytes(), b"")
+        self.assertIn("claim record", result["next_steps"][0])
+        again = self.store.__class__(target).init()
+        self.assertFalse(again["created"])
+        target.write_text('{"claim_id": "clm_' + 'a' * 16 + '"}\n', encoding="utf-8")
+        with self.assertRaisesRegex(ClaimStoreError, "not empty"):
+            self.store.__class__(target).init()
+
+    def test_cli_init_backups_and_audit(self):
+        from chat_distiller import claims as claims_module
+        target = self.root / "cli" / "claims.jsonl"
+        rc = claims_module.main(["init", "--store", str(target)])
+        self.assertEqual(rc, 0)
+        rc = claims_module.main(["record", self.unique(), "--store", str(target)])
+        self.assertEqual(rc, 0)
+        rc = claims_module.main(["backups", "--store", str(target)])
+        self.assertEqual(rc, 0)
+        rc = claims_module.main(["audit", "--store", str(target)])
+        self.assertEqual(rc, 0)
+        rc = claims_module.main(["backup", "--store", str(target), "--keep", "1"])
+        self.assertEqual(rc, 0)
+        rc = claims_module.main(["audit", "--store", str(target), "--action", "delete"])
+        self.assertEqual(rc, 0)
+
     def test_restore_requires_a_manifest_or_explicit_unverified_flag(self):
         self.store.record(self.unique())
         backup = self.store.backup()

@@ -10,7 +10,7 @@
 | Preferred CLI | `claim` | `chat-distiller` stays installed and usable. |
 | New Skill identity and ZIP root | `claim` | Legacy bundle/export remains `chat-distiller`. |
 | Python distribution / import | `chat-distiller` / `chat_distiller` | Unchanged; do not install an unrelated PyPI name. |
-| Runtime version | `0.5.0` | Brand pilot; data safety and RAG context ship under the same MIT license. |
+| Runtime version | `0.6.0` | Brand pilot; data safety and RAG context ship under the same MIT license. |
 | Data home / environment | `~/.chat-distiller` / `CHAT_DISTILLER_HOME` | Unchanged; no new context store. |
 | Memory and Wiki identities | Existing IDs, status and source hashes | No reinitialization, renumbering or rerender needed. |
 

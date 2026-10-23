@@ -3,7 +3,28 @@
 Package versions below describe the Python distribution, not a claim of a PyPI release
 or a corresponding Git tag.
 
-## Package 0.5.0: demo, RAG and data safety (runtime 0.5.0)
+## Package 0.6.0: adoption path — init, PyPI readiness and a Safety view (runtime 0.6.0)
+
+- Added `claim init`: creates an empty claim store, refuses to touch one that
+  already has data, and prints the exact next commands (record, brief, MCP
+  registration with the resolved store path, Skill install). This is the guided
+  path from "saw the demo" to "using a real ledger".
+- Added `claim backups` (snapshot list with manifest facts), `claim audit`
+  (filterable redact/delete/restore log with corruption refusal) and
+  `claim backup --keep N` (prune older snapshots after writing, never the fresh
+  one).
+- Added a **Safety** view to the demo: backup with one click, the append-only
+  audit trail, and per-claim Redact/Delete actions with confirmation. Redacted
+  claims render as dashed tombstones that keep their id, status and supersession
+  chain. Read-only ledgers keep backup/audit available and refuse removals.
+- Added the same operations over HTTP: `POST /api/backup`, `GET /api/backups`,
+  `GET /api/audit`, `POST /api/redact`, `POST /api/delete` — destructive calls
+  require `confirm: true`, and a read-only store answers `403` while backup and
+  audit stay readable.
+- Packaging metadata for PyPI: project URLs, keywords, classifiers; sdist and
+  wheel both build and pass `twine check`.
+
+## Package 0.5.0: demo, RAG context and data safety (runtime 0.5.0)
 
 - Added `claim recall` and the MCP `claim_recall` tool: a byte-bounded composite
   packet containing the deterministic claim brief plus optional evidence from a
@@ -68,7 +89,7 @@ or a corresponding Git tag.
   platform so manifest and packet byte counts match; the Skill installer retries
   transient Windows directory-sharing errors; MCP tests use a reader thread instead
   of `select()` on pipes; README verification translates Git Bash temp paths. The
-  suite is 373 tests, green on this Windows checkout (2 platform-specific skips), and
+  suite is 382 tests, green on this Windows checkout (2 platform-specific skips), and
   `tools/verify_docs.py` passes against a clean wheel install.
 
 ## Unreleased: renamed to ClaimLedger (runtime 0.4.0)

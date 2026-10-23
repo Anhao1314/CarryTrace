@@ -91,7 +91,7 @@ Status filtering pushes stale hits in retrieved results from **54% to 0** — th
 
 An incorrect synthesis with a real quote can still pass structural checks; citations do not prove entailment. [Results and limits](benchmarks/wiki/results.md).
 
-**Engineering results**: 373 tests; CI runs them on macOS and Linux, and a Windows checkout passes with two platform-specific skips. Every command in the usage section below is executed and output-checked by CI; six `verify_*` tools validate the installed distribution in isolation; zero third-party dependencies. Every example there actually runs in CI — none are decorative.
+**Engineering results**: 382 tests; CI runs them on macOS and Linux, and a Windows checkout passes with two platform-specific skips. Every command in the usage section below is executed and output-checked by CI; six `verify_*` tools validate the installed distribution in isolation; zero third-party dependencies. Every example there actually runs in CI — none are decorative.
 
 One executed run, four honest outcomes for the same question — current hit, historical intent, honest no-match, exhausted budget (a projection of actual CLI output, not a model evaluation):
 
@@ -158,10 +158,14 @@ claim skill install --host claude --scope user    # use --host codex for Codex, 
 ### 3. Three commands
 
 ```bash
+claim init                                                       # create .claim-ledger/claims.jsonl here
 claim record "Use PostgreSQL for all storage" --topic database   # capture a decision
 claim brief                                                      # the current-state brief
 claim claims --status all                                        # read the ledger
 ```
+
+`claim init` is idempotent: it refuses to touch a store that already has data and
+prints the exact commands to register the store with your agent.
 
 **Handling conflicts**: if `record` reports `possible conflict with current claim(s): clm_xxx`, pick one —
 

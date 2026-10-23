@@ -75,6 +75,12 @@ python -m chat_distiller.demo --no-open
 7. **Evidence.** The benchmark table and CompileBench cards are read from
    `benchmarks/*/results.json` when present, with the README figures as a
    fallback. Nothing is synthesized at request time.
+8. **Safety.** Open **Safety** and click **Backup now**: the snapshot appears
+   with its manifest digests. Every claim card in **Ledger** carries **Redact**
+   and **Delete** actions with a confirmation dialog; redacted claims stay in
+   the list as dashed tombstones that keep their id and supersession chain.
+   The audit trail lists every removal with before/after store digests. These
+   are the same code paths as `claim backup` / `claim redact` / `claim delete`.
 
 ## What is real, what is synthetic
 
@@ -105,6 +111,9 @@ to script a tour or a screenshot capture:
 | `GET /api/context?q=...&intent=current\|historical` | Brief + status-filtered evidence packet; `max_bytes` defaults to 4096 |
 | `POST /api/suggest` | Review-only claim proposal with conflicts and evidence; never writes |
 | `GET /api/evidence` | Benchmark reports when present |
+| `POST /api/backup` · `GET /api/backups` | Write a verified snapshot; list snapshots and manifests |
+| `GET /api/audit?limit=&action=` | Redact/delete/restore audit entries, newest first |
+| `POST /api/redact` · `POST /api/delete` | Removal; requires `confirm: true`, `403` when read-only |
 | `POST /api/reset` | Restore the synthetic demo store (disposable mode only; `403` otherwise) |
 
 All routes bind to localhost by default and set `Cache-Control: no-store`.
@@ -122,8 +131,8 @@ python tools/build_demo_gif.py
 
 This writes `assets/demo/claimledger-demo.gif` and
 `assets/demo/social-preview.png` from the existing PNGs. It does not call a
-model. The GIF uses seven frames: ledger, conflict, brief, search, context,
-evidence and chain. Re-capture the six view screenshots after UI changes so
+model. The GIF uses eight frames: ledger, conflict, brief, search, context,
+safety, evidence and chain. Re-capture the seven view screenshots after UI changes so
 the GIF and README stay honest.
 
 ## Publish the landing page
