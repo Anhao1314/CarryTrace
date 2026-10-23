@@ -4,18 +4,24 @@ import json
 
 from .core import ContextGateway, GatewayError
 
+CONNECTOR_LABELS = {"doubao": "Doubao Work", "generic": "generic JSONL", "claude-code": "Claude Code"}
+
 def _print(result, machine=False):
     if machine:
         print(json.dumps(result, ensure_ascii=False, indent=2, allow_nan=False)); return
     if "connected" in result and "discovered_sessions" in result and "tracked_sessions" not in result:
-        print("Connected to Doubao Work"); print("  sessions:", result["discovered_sessions"]); print("  context home:", result["home"]); return
+        print("Connected to " + CONNECTOR_LABELS.get(result["connector"], result["connector"]))
+        source = result.get("input") or result.get("sessions_root") or ""
+        if source: print("  source:", source)
+        print("  sessions:", result["discovered_sessions"]); print("  context home:", result["home"]); return
     if "changed_sessions" in result:
         print("Sync complete"); print("  changed:", result["changed_sessions"]); print("  pending review:", result["pending_sessions"])
         if result.get("unstable_sessions"): print("  skipped moving sessions:", ", ".join(result["unstable_sessions"]))
         if result.get("needs_agent_judgment"): print("  agent review bundle:", result["plan"])
         return
     if "tracked_sessions" in result:
-        print("Chat Distiller Context Gateway"); print("  Doubao sessions:", result["discovered_sessions"]); print("  tracked:", result["tracked_sessions"])
+        print("Context Gateway · " + CONNECTOR_LABELS.get(result["connector"], result["connector"]))
+        print("  sessions:", result["discovered_sessions"]); print("  tracked:", result["tracked_sessions"])
         print("  pending review:", result["pending_sessions"]); print("  memory:", "ready" if result["memory"].get("ok") else "not published")
         if result["knowledge"].get("available"): print("  knowledge: %s fresh / %s stale" % (result["knowledge"].get("fresh", 0), result["knowledge"].get("stale", 0)))
         return
@@ -41,8 +47,10 @@ def _print(result, machine=False):
 def main(argv=None):
     parser = argparse.ArgumentParser(prog="chat-distiller", description=__doc__)
     commands = parser.add_subparsers(dest="command", required=True)
-    connect = commands.add_parser("connect", help="connect a supported local agent host")
-    connect.add_argument("connector", choices=["doubao"]); connect.add_argument("--sessions-root"); connect.add_argument("--vault"); connect.add_argument("--home"); connect.add_argument("--force", action="store_true"); connect.add_argument("--json", action="store_true")
+    connect = commands.add_parser("connect", help="connect a supported conversation source")
+    connect.add_argument("connector", choices=["doubao", "generic", "claude-code"])
+    connect.add_argument("--input", help="generic/claude-code: a session JSONL file or a directory of them")
+    connect.add_argument("--sessions-root"); connect.add_argument("--vault"); connect.add_argument("--home"); connect.add_argument("--force", action="store_true"); connect.add_argument("--json", action="store_true")
     sync = commands.add_parser("sync", help="incrementally stage changed host sessions")
     sync.add_argument("--apply", help="advanced: apply a host-agent reviewed gateway proposal"); sync.add_argument("--home"); sync.add_argument("--json", action="store_true")
     context = commands.add_parser("context", help="build task context from knowledge, memory and recent raw sessions")
@@ -51,7 +59,7 @@ def main(argv=None):
     args = parser.parse_args(argv)
     try:
         gateway = ContextGateway(getattr(args, "home", None))
-        if args.command == "connect": result = gateway.connect(args.connector, sessions_root=args.sessions_root, vault=args.vault, force=args.force)
+        if args.command == "connect": result = gateway.connect(args.connector, sessions_root=args.sessions_root, vault=args.vault, force=args.force, input=args.input)
         elif args.command == "sync": result = gateway.sync(apply=args.apply)
         elif args.command == "context": result = gateway.context(args.query, max_bytes=args.max_bytes, top_k=args.top_k)
         else: result = gateway.status()

@@ -14,6 +14,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 from ..connectors import DoubaoConnector, SourceChangedError
+from ..connectors.file_sessions import FileSessionSource
 from .._internal.memory_identity import (json_text, load_published_source, prepare,
                                          validate as validate_memory)
 from .._internal.query_memory import features, lexical_score
@@ -78,30 +79,26 @@ class ContextGateway:
     through `sync(apply=...)`; deterministic identity/render validation remains authoritative.
     """
 
-    def __init__(self, home=None):
-        self.paths = GatewayPaths(home)
+    def __init__(self, home=None, connector=None):
+        self._connector_hint = connector if connector in ("generic", "claude-code") else "doubao"
+        self.paths = GatewayPaths(home, connector=self._connector_hint)
 
     def _config(self):
         config = read_json(self.paths.config)
         if config is None:
-            raise GatewayError("not connected; run `chat-distiller connect doubao` first")
-        return validate_config(config)
+            raise GatewayError("not connected; run `claim connect <connector>` first")
+        config = validate_config(config)
+        if config["connector"] != self.paths.source.name:
+            # Staged sources live under sources/<connector>; rebuild the layout
+            # so every later operation reads and writes the binding's own tree.
+            self.paths = GatewayPaths(self.paths.home, connector=config["connector"])
+        return config
 
     def _state(self):
         state = read_json(self.paths.state, empty_state())
         return validate_state(state)
 
-    def connect(self, connector="doubao", *, sessions_root=None, vault=None, force=False):
-        if connector != "doubao":
-            raise GatewayError("only the doubao connector is supported")
-        root = DoubaoConnector.discover(sessions_root)
-        self.paths.ensure()
-        managed_vault = Path(vault).expanduser().resolve() if vault else self.paths.vault
-        if vault and not managed_vault.is_dir():
-            raise GatewayError("--vault must point to an existing directory")
-        managed_vault.mkdir(parents=True, exist_ok=True)
-        config = {"schema_version": CONFIG_SCHEMA, "connector": "doubao",
-                  "sessions_root": str(root), "vault": str(managed_vault), "subdir": "对话沉淀"}
+    def _rebind_guard(self, config, force):
         existing = read_json(self.paths.config)
         if existing and existing != config:
             if not force:
@@ -116,13 +113,48 @@ class ContextGateway:
                 if path.exists():
                     path.unlink()
             self.paths.ensure()
+
+    def connect(self, connector="doubao", *, sessions_root=None, vault=None, force=False,
+                input=None):
+        if connector == "doubao":
+            root = DoubaoConnector.discover(sessions_root)
+            source_field = {"sessions_root": str(root)}
+            discovered = len(DoubaoConnector.sessions(root))
+            source_label = str(root)
+        elif connector in ("generic", "claude-code"):
+            if input is None and connector == "claude-code":
+                default_home = Path.home() / ".claude" / "projects"
+                if default_home.is_dir():
+                    input = default_home
+            if input is None:
+                raise GatewayError(f"the {connector} connector needs --input (a JSONL file or a directory of them)")
+            try:
+                source = FileSessionSource(connector, input)
+                discovered = len(source.snapshot())
+            except (ValueError, OSError) as exc:
+                raise GatewayError(str(exc)) from exc
+            source_field = {"input": str(source.input)}
+            source_label = str(source.input)
+        else:
+            raise GatewayError("unsupported connector: " + str(connector))
+        managed_vault = Path(vault).expanduser().resolve() if vault else self.paths.vault
+        if vault and not managed_vault.is_dir():
+            raise GatewayError("--vault must point to an existing directory")
+        managed_vault.mkdir(parents=True, exist_ok=True)
+        config = {"schema_version": CONFIG_SCHEMA, "connector": connector,
+                  "vault": str(managed_vault), "subdir": "对话沉淀", **source_field}
+        # The rebind guard tears down the OLD binding's staged sources and state,
+        # so it must run while self.paths still points at the old connector.
+        self._rebind_guard(config, force)
+        self.paths = GatewayPaths(self.paths.home, connector=connector)
+        self.paths.ensure()
         write_json(self.paths.config, config)
         state = self._state()
         if not self.paths.state.exists():
             write_json(self.paths.state, state)
-        discovered = len(DoubaoConnector.sessions(root))
-        return {"ok": True, "connected": True, "connector": "doubao",
-                "sessions_root": str(root), "vault": str(managed_vault),
+        return {"ok": True, "connected": True, "connector": connector,
+                "input" if connector != "doubao" else "sessions_root": source_label,
+                "vault": str(managed_vault),
                 "discovered_sessions": discovered, "home": str(self.paths.home)}
 
     def _write_indexes(self, state):
@@ -148,7 +180,7 @@ class ContextGateway:
                 memory_source = hashlib.sha256((Path(config["vault"]) / config["subdir"] / ".chat-distiller/distill.json").read_bytes()).hexdigest()
         except (ValueError, OSError, KeyError, TypeError):
             memory_source = "invalid"
-        return {"schema_version": 1, "connector": "doubao", "scan_revision": state["scan_revision"],
+        return {"schema_version": 1, "connector": config["connector"], "scan_revision": state["scan_revision"],
                 "memory_source_sha256": memory_source, "pending_sessions": pending,
                 "protocol": "host_agent_reads_transcripts_and_returns_plan_bound_distill_proposal"}
 
@@ -170,27 +202,57 @@ class ContextGateway:
             os.replace(str(source), str(target))
         return after, record
 
-    def scan(self):
-        config = self._config()
-        self.paths.ensure()
-        root = Path(config["sessions_root"])
-        previous = self._state()
-        state = copy.deepcopy(previous)
-        current = {p.name: p for p in DoubaoConnector.sessions(root)}
+    def _stage_record(self, record, tmp):
+        source = Path(tmp) / record["transcript"]
+        target = self.paths.source / record["transcript"]
+        target.parent.mkdir(parents=True, exist_ok=True)
+        os.replace(str(source), str(target))
+        return record
+
+    def _scan_file_sessions(self, config, state):
+        source = FileSessionSource(config["connector"], config["input"])
+        current = source.snapshot()
         changed, unstable = [], []
-        for sid, session_dir in current.items():
+        for sid, entry in sorted(current.items()):
             try:
-                fp = DoubaoConnector.fingerprint(root, session_dir)
                 old = state["sessions"].get(sid)
-                if old and old["fingerprint"] == fp and old["present"]:
+                if old and old["fingerprint"] == entry["fingerprint"] and old["present"]:
                     continue
-                final_fp, record = self._extract_one(root, session_dir)
+                with tempfile.TemporaryDirectory(dir=str(self.paths.home), prefix="extract-") as tmp:
+                    record = source.extract(sid, entry, tmp)
+                    record = self._stage_record(record, tmp)
                 status = old["status"] if old and old["status"] == "pending" else "pending"
-                state["sessions"][sid] = {"fingerprint": final_fp, "record": record,
+                state["sessions"][sid] = {"fingerprint": entry["fingerprint"], "record": record,
                                           "status": status, "present": True}
                 changed.append(sid)
             except SourceChangedError:
                 unstable.append(sid)
+        return current, changed, unstable
+
+    def scan(self):
+        config = self._config()
+        self.paths.ensure()
+        previous = self._state()
+        state = copy.deepcopy(previous)
+        if config["connector"] == "doubao":
+            root = Path(config["sessions_root"])
+            current = {p.name: p for p in DoubaoConnector.sessions(root)}
+            changed, unstable = [], []
+            for sid, session_dir in current.items():
+                try:
+                    fp = DoubaoConnector.fingerprint(root, session_dir)
+                    old = state["sessions"].get(sid)
+                    if old and old["fingerprint"] == fp and old["present"]:
+                        continue
+                    final_fp, record = self._extract_one(root, session_dir)
+                    status = old["status"] if old and old["status"] == "pending" else "pending"
+                    state["sessions"][sid] = {"fingerprint": final_fp, "record": record,
+                                              "status": status, "present": True}
+                    changed.append(sid)
+                except SourceChangedError:
+                    unstable.append(sid)
+        else:
+            current, changed, unstable = self._scan_file_sessions(config, state)
         removed = []
         for sid, item in state["sessions"].items():
             if sid not in current and item["present"]:
@@ -396,9 +458,12 @@ class ContextGateway:
     def status(self):
         config = self._config()
         state = self._state()
-        current = DoubaoConnector.sessions(config["sessions_root"])
-        result = {"ok": True, "connector": "doubao", "connected": True,
-                  "discovered_sessions": len(current),
+        if config["connector"] == "doubao":
+            discovered = len(DoubaoConnector.sessions(config["sessions_root"]))
+        else:
+            discovered = len(FileSessionSource(config["connector"], config["input"]).snapshot())
+        result = {"ok": True, "connector": config["connector"], "connected": True,
+                  "discovered_sessions": discovered,
                   "tracked_sessions": len(state["sessions"]),
                   "pending_sessions": sum(i["present"] and i["status"] == "pending" for i in state["sessions"].values()),
                   "published_sessions": sum(i["present"] and i["status"] == "published" for i in state["sessions"].values()),

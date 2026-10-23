@@ -1,25 +1,50 @@
-# Context Gateway 0.4
+# Context Gateway
 
 Context Gateway is the simple user surface over the existing Memory Engine and Knowledge Wiki.
+It supports three conversation sources: **Doubao Work**, **generic JSONL** and **Claude Code**.
 
-## Normal Doubao Work flow
+## Connect any conversation source
 
 ```bash
-chat-distiller connect doubao
-chat-distiller sync
-chat-distiller context "continue the previous project"
-chat-distiller status
+claim connect doubao                       # Doubao Work agent sessions (auto-discovered)
+claim connect generic --input talks.jsonl  # any tool that can emit the public JSONL contract
+claim connect claude-code                  # ~/.claude/projects, or pass --input <dir|file>
+claim sync
+claim context "continue the previous project"
+claim status
 ```
 
-On macOS, `connect` checks the current Doubao Work default `.sessions` location. If discovery fails,
-pass `--sessions-root /path/to/.sessions` once. The managed home defaults to `~/.chat-distiller`.
+Every connector feeds the same pipeline: read-only staging of clean transcripts → a review plan
+(`pending/sync-plan.json`) → host-agent distillation → published memory. Connectors differ only
+in how sessions are discovered and fingerprinted.
+
+**generic JSONL contract** — one JSON object per line; the whole file is validated before
+anything is staged:
+
+```json
+{"session_id": "api-freeze", "role": "user", "content": "…", "timestamp": "2026-10-20T02:00:00Z"}
+{"session_id": "api-freeze", "role": "assistant", "content": "…", "timestamp": "2026-10-20T02:01:00Z"}
+```
+
+`role` is `user` / `assistant` / `tool` / `system`; `timestamp` is ISO 8601 with timezone;
+`session_id` is 1–120 safe ASCII characters. Wrap any chat tool with a ten-line exporter and
+its history becomes claim-minable.
+
+**Claude Code** — reads `<dir|file>.jsonl` session transcripts (default `~/.claude/projects`).
+User text turns and assistant text/tool-call blocks are kept; `thinking` blocks, tool results,
+sidechain (subagent) rows and system metadata are excluded from the transcript and disclosed
+in the record's `degraded` notes.
+
+On macOS, `connect doubao` checks the current Doubao Work default `.sessions` location. If
+discovery fails, pass `--sessions-root /path/to/.sessions` once. The managed home defaults to
+`~/.chat-distiller`; staged sources live under `sources/<connector>/transcripts/`.
 
 ## What sync does
 
-`sync` fingerprints only the `assignment.md` and `trajectory.jsonl` files consumed by the existing
-Doubao adapter. New or changed sessions are copied into Chat Distiller's managed source cache.
-The Doubao source cache is read-only. A source that changes during extraction is skipped rather than
-committing a mixed snapshot.
+`sync` fingerprints each session — for Doubao only the `assignment.md` / `trajectory.jsonl`
+files the adapter consumes; for file sources a per-session hash over canonical row JSON.
+New or changed sessions are re-extracted into the managed, read-only source cache. A source
+that changes during extraction is skipped rather than committing a mixed snapshot.
 
 The command writes `pending/sync-plan.json`. This is a review bundle, not semantic memory.
 Running sync twice without source changes leaves the sync state unchanged and does not publish duplicate memory.
@@ -61,7 +86,7 @@ This is a staleness guard, not a semantic truth detector.
 
 ## Current limits
 
-- Doubao Work is the only Gateway connector in 0.7.0.
+- Doubao Work is the Doubao Work, generic JSONL and Claude Code connectors are available.
 - `sync` does not call an LLM or infer importance, truth, expiry, or conflicts.
 - Raw fallback is lexical/recent evidence selection, not semantic retrieval.
 - No daemon, filesystem watcher, MCP server, or native Doubao lifecycle hook is claimed.

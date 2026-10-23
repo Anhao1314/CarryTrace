@@ -91,7 +91,7 @@ ClaimLedger 把一切知识统一为**声明（claim）**：一段独立可懂�
 
 带有真实摘录的错误综合仍可能通过结构校验，引用不证明结论被来源支持。[结果与局限](benchmarks/wiki/results.md)。
 
-**工程效果**：388 个测试；CI 在 macOS 与 Linux 上运行，Windows 检出通过（2 个平台相关跳过）。下面"使用指南"中的每条命令都被 CI 实际执行并核对输出；六个 `verify_*` 工具在隔离安装环境验证发行完整性；零第三方依赖。那里的每个示例都是 CI 实跑的，不是装饰。
+**工程效果**：399 个测试；CI 在 macOS 与 Linux 上运行，Windows 检出通过（2 个平台相关跳过）。下面"使用指南"中的每条命令都被 CI 实际执行并核对输出；六个 `verify_*` 工具在隔离安装环境验证发行完整性；零第三方依赖。那里的每个示例都是 CI 实跑的，不是装饰。
 
 同一次实跑中，同一个问题的四种结局——命中现行、放行历史、诚实未命中、预算不足（实际 CLI 输出的投影，非模型评测）：
 
@@ -174,7 +174,19 @@ claim record "数据库统一使用 PostgreSQL" --topic database --supersedes cl
 claim record "超时问题责任仍有分歧" --topic ops --dispute                        # 记为有争议
 ```
 
-### 4. 亲手跑一遍完整引擎
+### 4. 从任意聊天来源导入历史
+
+Context Gateway 把既有会话历史变成干净转录和评审计划——支持豆包、通用 JSONL 和 Claude Code 会话：
+
+```bash
+claim connect generic --input talks.jsonl   # 或：claim connect claude-code
+claim sync                                  # 只读暂存 + 评审计划
+claim context "数据库迁移"                  # 蒸馏前即可词法检索
+```
+
+JSONL 契约：每行一个对象，含 `session_id`、`role`（`user`/`assistant`/`tool`/`system`）、`content`、`timestamp`（带时区的 ISO 8601）。[Gateway 指南](docs/context-gateway.md)。
+
+### 5. 亲手跑一遍完整引擎
 
 下面的示例使用旧入口 `chat-distiller`（永久兼容）。生命周期演示会创建新的临时目录，不使用个人知识库；示例从 SQLite 改为 PostgreSQL，但不会连接或迁移真实数据库。
 
@@ -197,7 +209,7 @@ python tools/wiki_demo.py --out "$WIKI_DEMO_PARENT/run"
 
 ![ 合成生命周期，不是模型评测](assets/wiki-lifecycle.zh-CN.svg)
 
-### 5. 记忆与 Wiki 手动教程
+### 6. 记忆与 Wiki 手动教程
 
 在仓库中使用已安装 CLI。下面定义的 `DEMO_DIR` 也供 SDK 与摄入示例使用。卡片是合成数据；绝不能用新身份初始化覆盖已有知识库。
 
@@ -234,7 +246,7 @@ chat-distiller wiki export --vault "$DEMO_DIR/vault" --out "$DEMO_DIR/wiki-view"
 
 `prepare` 生成摘录草稿，宿主负责语义综合；`compile` 默认预览，只有 `--apply` 才发布。包括无关修改在内的源变化都会使旧页失效；重编译同一主题会保留身份与旧版本。Markdown 导出是时点快照，不是第二份权威。[Wiki 指南](docs/knowledge-wiki.md) · [摄入](docs/ingestion.md)。
 
-### 6. Python API
+### 7. Python API
 
 <!-- verify:sdk -->
 ```python
@@ -256,7 +268,7 @@ print(packet["status"], len(packet["knowledge"]), packet["requires_review"])
 
 `MemoryStore` 只读；`KnowledgeStore.compile(..., apply=True)` 才显式发布；`ClaimStore` 是新声明库（`record` / `brief` / `claims`）。三者都不调用模型。
 
-### 7. 多 Agent 并发、备份与删除
+### 8. 多 Agent 并发、备份与删除
 
 写入会获取跨进程写锁；超过超时时间会明确返回 `ClaimStoreBusy`，不会静默覆盖较新的版本。
 

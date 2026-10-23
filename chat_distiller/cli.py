@@ -44,7 +44,7 @@ def main(argv=None):
         finally:
             sys.argv = previous
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--version", action="version", version="chat-distiller 0.7.0")
+    parser.add_argument("--version", action="version", version="chat-distiller 0.8.0")
     commands = parser.add_subparsers(dest="command", required=True)
     for name in ("search", "get", "inspect", "recover"):
         sub = commands.add_parser(name)

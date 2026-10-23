@@ -3,6 +3,21 @@
 Package versions below describe the Python distribution, not a claim of a PyPI release
 or a corresponding Git tag.
 
+## Package 0.8.0: general transcript import — any chat source feeds the gateway (runtime 0.8.0)
+
+- `claim connect` now accepts three sources: `doubao` (unchanged), `generic` (the documented
+  public JSONL contract: `session_id` / `role` / `content` / `timestamp`, validated in full
+  before staging) and `claude-code` (Claude Code session transcripts from
+  `~/.claude/projects` or an explicit `--input` directory/file).
+- All three feed the identical pipeline: read-only transcript staging under
+  `sources/<connector>/`, a plan-bound review bundle, host-agent distillation and context
+  retrieval. `sync` stays incremental via per-session fingerprints; a source that changes
+  mid-extraction is skipped, never half-committed.
+- The Claude Code adapter keeps user text turns, assistant text and tool-call trails; it
+  excludes `thinking` blocks, tool results, sidechain (subagent) rows and system metadata,
+  and discloses the exclusions in the record's `degraded` notes.
+- Wrapping any chat tool with a ten-line exporter now makes its history claim-minable.
+
 ## Package 0.7.0: scope and expiry — decisions that apply somewhere and for a while (runtime 0.7.0)
 
 - Added an optional `scope` to every claim (`claim record --scope production`,
@@ -107,7 +122,7 @@ or a corresponding Git tag.
   platform so manifest and packet byte counts match; the Skill installer retries
   transient Windows directory-sharing errors; MCP tests use a reader thread instead
   of `select()` on pipes; README verification translates Git Bash temp paths. The
-  suite is 388 tests, green on this Windows checkout (2 platform-specific skips), and
+  suite is 399 tests, green on this Windows checkout (2 platform-specific skips), and
   `tools/verify_docs.py` passes against a clean wheel install.
 
 ## Unreleased: renamed to ClaimLedger (runtime 0.4.0)

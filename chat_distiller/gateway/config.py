@@ -9,6 +9,7 @@ from .._internal.memory_identity import atomic_write
 
 CONFIG_SCHEMA = 1
 STATE_SCHEMA = 1
+CONNECTORS = ("doubao", "generic", "claude-code")
 
 def canonical(value):
     return json.dumps(value, ensure_ascii=False, sort_keys=True, separators=(",", ":"), allow_nan=False)
@@ -18,12 +19,12 @@ def digest(value):
     return hashlib.sha256(canonical(value).encode("utf-8")).hexdigest()
 
 class GatewayPaths:
-    def __init__(self, home=None):
+    def __init__(self, home=None, connector="doubao"):
         raw = home or os.environ.get("CHAT_DISTILLER_HOME") or "~/.chat-distiller"
         self.home = Path(raw).expanduser().resolve()
         self.config = self.home / "config.json"
         self.state = self.home / "state/sync.json"
-        self.source = self.home / "sources/doubao"
+        self.source = self.home / "sources" / (connector if connector in CONNECTORS else "doubao")
         self.transcripts = self.source / "transcripts"
         self.pending = self.home / "pending/sync-plan.json"
         self.vault = self.home / "vault"
@@ -48,9 +49,11 @@ def empty_state():
 def validate_config(config):
     if not isinstance(config, dict) or config.get("schema_version") != CONFIG_SCHEMA:
         raise ValueError("unsupported gateway config")
-    if config.get("connector") != "doubao":
+    connector = config.get("connector")
+    if connector not in CONNECTORS:
         raise ValueError("unsupported connector")
-    for key in ("sessions_root", "vault", "subdir"):
+    source_key = "sessions_root" if connector == "doubao" else "input"
+    for key in (source_key, "vault", "subdir"):
         if not isinstance(config.get(key), str) or not config[key]:
             raise ValueError("invalid gateway config field: " + key)
     return config

@@ -91,7 +91,7 @@ Status filtering pushes stale hits in retrieved results from **54% to 0** — th
 
 An incorrect synthesis with a real quote can still pass structural checks; citations do not prove entailment. [Results and limits](benchmarks/wiki/results.md).
 
-**Engineering results**: 388 tests; CI runs them on macOS and Linux, and a Windows checkout passes with two platform-specific skips. Every command in the usage section below is executed and output-checked by CI; six `verify_*` tools validate the installed distribution in isolation; zero third-party dependencies. Every example there actually runs in CI — none are decorative.
+**Engineering results**: 399 tests; CI runs them on macOS and Linux, and a Windows checkout passes with two platform-specific skips. Every command in the usage section below is executed and output-checked by CI; six `verify_*` tools validate the installed distribution in isolation; zero third-party dependencies. Every example there actually runs in CI — none are decorative.
 
 One executed run, four honest outcomes for the same question — current hit, historical intent, honest no-match, exhausted budget (a projection of actual CLI output, not a model evaluation):
 
@@ -178,7 +178,22 @@ claim record "Use PostgreSQL for all storage" --topic database --supersedes clm_
 claim record "Timeout ownership is still contested" --topic ops --dispute            # record as disputed
 ```
 
-### 4. Run the full engine yourself
+### 4. Import history from any chat source
+
+The Context Gateway turns existing conversation history into staged transcripts and a review
+plan — Doubao Work, generic JSONL, or Claude Code sessions:
+
+```bash
+claim connect generic --input talks.jsonl   # or: claim connect claude-code
+claim sync                                  # read-only staging + review plan
+claim context "database migration"          # lexical context before distillation
+```
+
+The JSONL contract is one object per line: `session_id`, `role`
+(`user`/`assistant`/`tool`/`system`), `content`, `timestamp` (ISO 8601 with timezone).
+[Gateway guide](docs/context-gateway.md).
+
+### 5. Run the full engine yourself
 
 The examples below use the legacy entry `chat-distiller` (permanently compatible). The lifecycle demo creates a new disposable directory, not a personal vault; it changes an example from SQLite to PostgreSQL and does not connect to or migrate an actual database.
 
@@ -201,7 +216,7 @@ The 16 commands and 12 checks use handwritten inputs, a prewritten synthesis and
 
 ![ Synthetic lifecycle, not a model evaluation](assets/wiki-lifecycle.svg)
 
-### 5. Manual memory and Wiki walkthrough
+### 6. Manual memory and Wiki walkthrough
 
 Use the installed CLI from this checkout. These commands define `DEMO_DIR` for the SDK and ingestion examples. The cards are synthetic. Never initialize fresh identities over an existing vault.
 
@@ -238,7 +253,7 @@ chat-distiller wiki export --vault "$DEMO_DIR/vault" --out "$DEMO_DIR/wiki-view"
 
 `prepare` is extractive; the host supplies semantic synthesis. `compile` previews; only `--apply` publishes. Source changes invalidate old pages, including unrelated changes; recompile the same topic to retain identity and prior revisions. Markdown export is a point-in-time snapshot, not a second authority. [Wiki guide](docs/knowledge-wiki.md) · [Ingestion](docs/ingestion.md).
 
-### 6. Python API
+### 7. Python API
 
 <!-- verify:sdk -->
 ```python
@@ -260,7 +275,7 @@ print(packet["status"], len(packet["knowledge"]), packet["requires_review"])
 
 `MemoryStore` is read-only; `KnowledgeStore.compile(..., apply=True)` publishes explicitly; `ClaimStore` is the new claim store (`record` / `brief` / `claims`). None of them call a model.
 
-### 7. Concurrent agents, backups and removal
+### 8. Concurrent agents, backups and removal
 
 Mutations take a cross-process writer lock. If another process holds it past the
 timeout, the write fails as `ClaimStoreBusy` instead of overwriting a newer version.
